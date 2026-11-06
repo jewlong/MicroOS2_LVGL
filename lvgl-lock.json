@@ -1,0 +1,4619 @@
+{
+  "repository": "https://github.com/lvgl/lvgl",
+  "tag": "v9.4.0",
+  "commit": "c016f72d4c125098287be5e83c0f1abed4706ee5",
+  "files": [
+    {
+      "path": "LICENCE.txt",
+      "sha256": "c4982e934b945ff2c19f915fe5191467ca6af9bc1b5106829cd95659a6e3c079"
+    },
+    {
+      "path": "lv_conf_template.h",
+      "sha256": "66a8fe91299e99b92aab128b86906f2c784844f738f0e9c934f6defa801c61a5"
+    },
+    {
+      "path": "lv_version.h",
+      "sha256": "efc005cc12a1870be191744b715d48b2b9e5ae56d92f559771199d56c08dd8fa"
+    },
+    {
+      "path": "lvgl.h",
+      "sha256": "e5154f6da586cf11cc184ad2a0396dd59d11e5c7fb40f9423334d70a56d740da"
+    },
+    {
+      "path": "src/core/lv_global.h",
+      "sha256": "36ba57ffcfba0c55cdeb1f787d8915c3696bb23666ee5ff436917f1d1545b692"
+    },
+    {
+      "path": "src/core/lv_group_private.h",
+      "sha256": "28a60cf1f086332260470e6d387e0966cca95b6962edb2ce3dd3f558b2af6880"
+    },
+    {
+      "path": "src/core/lv_group.c",
+      "sha256": "36fdcb6d072046e6ed33c01e47e5f8d54dbe7878b3b7c9db77db387583d0fb96"
+    },
+    {
+      "path": "src/core/lv_group.h",
+      "sha256": "9c3cacbab6bac410a4002d958d0b46f87d802bec6202990b5a082e0c0aad173c"
+    },
+    {
+      "path": "src/core/lv_obj_class_private.h",
+      "sha256": "c3882e0213f86533cb57cd2b0ebb57e28ea417084929c2407a956e46c0d6c752"
+    },
+    {
+      "path": "src/core/lv_obj_class.c",
+      "sha256": "f590a4713beb1e6286a3f2a9c1142fb9850d3bd99f3fa8bf91211628cbd5853e"
+    },
+    {
+      "path": "src/core/lv_obj_class.h",
+      "sha256": "c06771cf2558633319dbbe3e6d542f00aabb10f06ffe0d648086c59ef54c4d4f"
+    },
+    {
+      "path": "src/core/lv_obj_draw_private.h",
+      "sha256": "d9f19504db5d9bbbc8709669c5f8a9cee831619a9f01f20bcf2e2b059831bfae"
+    },
+    {
+      "path": "src/core/lv_obj_draw.c",
+      "sha256": "cb4bb9534f51df1552d42b6bba44dfd3cd26201c8f29fee7d017e3d694e2b8d6"
+    },
+    {
+      "path": "src/core/lv_obj_draw.h",
+      "sha256": "eaaceea79fe0e1ad93d7d36d5e139c2e99a1c73e6e77a9a6daf8dbc8887bdf7b"
+    },
+    {
+      "path": "src/core/lv_obj_event_private.h",
+      "sha256": "82eb67696b73b346aba08da244cf24c7157a232ca8189d17e78317e8d5faf5ce"
+    },
+    {
+      "path": "src/core/lv_obj_event.c",
+      "sha256": "31e1baf2d9808507577df15765dd7ff5ef5b92dc92e6e888ea74bcf125711ed9"
+    },
+    {
+      "path": "src/core/lv_obj_event.h",
+      "sha256": "b46ab7d378ad5540b95386143aa3b22ee54ac40663db6af4c0e6f628ec1e50d8"
+    },
+    {
+      "path": "src/core/lv_obj_id_builtin.c",
+      "sha256": "28bd71d1faa4957a942bda8c4554a9a4b376648f6d32b0d35c8c2894de074d97"
+    },
+    {
+      "path": "src/core/lv_obj_pos.c",
+      "sha256": "92a2d7d1b6f3abae479a8b7445f8ed576568cb689faecdc727e098b32fad7605"
+    },
+    {
+      "path": "src/core/lv_obj_pos.h",
+      "sha256": "f9617fc58d45b9149f20d8b6203674d94c4b3dda4fab308f0606b4ad35821e1e"
+    },
+    {
+      "path": "src/core/lv_obj_private.h",
+      "sha256": "175f1f735264dcfc700f58d7c11fd368b6b026c477055369215c8882a44b577c"
+    },
+    {
+      "path": "src/core/lv_obj_property.c",
+      "sha256": "8c7b0a042a94d23fdd9910e908409cbdcffcf03565826982848a17c24a8aa429"
+    },
+    {
+      "path": "src/core/lv_obj_property.h",
+      "sha256": "dca474ad94b4c9c39540c0606297c39a08055cf4e7c68f4c9e44885ec6695e0b"
+    },
+    {
+      "path": "src/core/lv_obj_scroll_private.h",
+      "sha256": "bb5f368f01f0ed7e5ec89e5dc712ca2e8443d50612fb3a7d90036cd14d98bada"
+    },
+    {
+      "path": "src/core/lv_obj_scroll.c",
+      "sha256": "fa46f922d0cb0d3473df865ca41618dc8bc097bba42ce2c21b526a0aa2853248"
+    },
+    {
+      "path": "src/core/lv_obj_scroll.h",
+      "sha256": "e439d2f00bca89acd57d0826d6944b8f01e348590c09509a8a6696baa4bdab42"
+    },
+    {
+      "path": "src/core/lv_obj_style_gen.c",
+      "sha256": "87bc700e745ea21cf90c1c5fae82040e02d4b7b361cb502de05055a5fd3bf9e7"
+    },
+    {
+      "path": "src/core/lv_obj_style_gen.h",
+      "sha256": "149936f8913bdf1ea5cb9ca092ad66669287525139bd42f1ed2510c5f7407e84"
+    },
+    {
+      "path": "src/core/lv_obj_style_private.h",
+      "sha256": "0ba9b6a02bb93da022f3e760c5972edbf032fa0e0fbdf10549bbaae5263fa057"
+    },
+    {
+      "path": "src/core/lv_obj_style.c",
+      "sha256": "dd36806d32961b932f45f94d425c2812aae02ad2bd4ca66478ccdbbcf7772c4c"
+    },
+    {
+      "path": "src/core/lv_obj_style.h",
+      "sha256": "5e2b7d39ace86988d337951a20bcc48c21c2f51f565443524d7e95b9c019723d"
+    },
+    {
+      "path": "src/core/lv_obj_tree.c",
+      "sha256": "4b1f6db19159f9272c9bfabe955570280b913fdc7c507684aca829e9f38994cd"
+    },
+    {
+      "path": "src/core/lv_obj_tree.h",
+      "sha256": "9e64ea6cb8583019ce5b1b24c8ff3b11da8f85b084828bbab473473e3d6f14a0"
+    },
+    {
+      "path": "src/core/lv_obj.c",
+      "sha256": "054a0da5672c99efff5683e86b4908f33e7d6451f44dd94b6d8608d4efa3186a"
+    },
+    {
+      "path": "src/core/lv_obj.h",
+      "sha256": "62bc591a131581755aef4c43965da799fd36f8857e741c87b0b4d7c28ca43961"
+    },
+    {
+      "path": "src/core/lv_refr_private.h",
+      "sha256": "87c007d8745bb0c6a9f9cd1038a325cbd67bf8f3335afa5f144b6acbae0ea1d5"
+    },
+    {
+      "path": "src/core/lv_refr.c",
+      "sha256": "46600ee6188e97b56cfe6d91b6fad9b7cac7eff32c64ed74d5242445b048f9db"
+    },
+    {
+      "path": "src/core/lv_refr.h",
+      "sha256": "3befe9eb4141c9b60505f34ecd2c7dc388e162e8b79f14cc9d108af6825beefa"
+    },
+    {
+      "path": "src/display/lv_display_private.h",
+      "sha256": "62b6650b982f1753b7e7ba08925cab559537c4853c1dd0544dfbc7128fd718b1"
+    },
+    {
+      "path": "src/display/lv_display.c",
+      "sha256": "99cc53e0d9365366b1853b8238791a13045ef78a6fb7f4885625c6ab1c3739a4"
+    },
+    {
+      "path": "src/display/lv_display.h",
+      "sha256": "0065baad0c336608881864da6062e67300ce5c6af0cf643595fcbd89c52c46d7"
+    },
+    {
+      "path": "src/draw/convert/helium/lv_draw_buf_convert_helium.c",
+      "sha256": "c253192acb4c9f89c3b532224a937d45d70566944ce808791a62f5ef09a780b9"
+    },
+    {
+      "path": "src/draw/convert/helium/lv_draw_buf_convert_helium.h",
+      "sha256": "74b220541495d76883427f0ef684101bc2bc4a5a1ab5ab445ad169d8b5b48a72"
+    },
+    {
+      "path": "src/draw/convert/lv_draw_buf_convert.c",
+      "sha256": "eeccb3d252ed38ebd28c00f3a87ca651dbf3335e350b98c03135aeb9da23922b"
+    },
+    {
+      "path": "src/draw/convert/lv_draw_buf_convert.h",
+      "sha256": "178a99aeed300f2eb7e539afde5487aab4b3bd8234d2019c238b5b47ab3cd8fe"
+    },
+    {
+      "path": "src/draw/convert/neon/lv_draw_buf_convert_neon.c",
+      "sha256": "89a4b8ffc7edff91b5d295b8ae1644ef70b65a120aff1ae4ab32d533845e9e03"
+    },
+    {
+      "path": "src/draw/convert/neon/lv_draw_buf_convert_neon.h",
+      "sha256": "99fb6fdaaaa7851793e5e7be3f6743d66479ba80ff08214f3e63c6d7389e9033"
+    },
+    {
+      "path": "src/draw/dma2d/lv_draw_dma2d_fill.c",
+      "sha256": "005b137561d51f3366af0a2cbb292d63ae10138be0ed25f72097529a80bbb19b"
+    },
+    {
+      "path": "src/draw/dma2d/lv_draw_dma2d_img.c",
+      "sha256": "1d1e83021c59934febcf7b1f1884bc714853edcf17bdacc0482220b86fa22b8b"
+    },
+    {
+      "path": "src/draw/dma2d/lv_draw_dma2d_private.h",
+      "sha256": "b8303762af68677d165c84d7c6cce43664cc6f66f4d74104db7dfe3a07ac68b0"
+    },
+    {
+      "path": "src/draw/dma2d/lv_draw_dma2d.c",
+      "sha256": "faaafb822d78859f955fe682032ff30d6cc2167dcfba28ff8cf470a21987ed81"
+    },
+    {
+      "path": "src/draw/dma2d/lv_draw_dma2d.h",
+      "sha256": "a9dc3c4ffc58d18959d4be8539135ba6de637c765efbdc23900da7336d7ffedc"
+    },
+    {
+      "path": "src/draw/espressif/ppa/lv_draw_ppa_buf.c",
+      "sha256": "2aa85564a4d76384507b2e61d3ac5994a27ffc154e2b06487781e8b86d1dc939"
+    },
+    {
+      "path": "src/draw/espressif/ppa/lv_draw_ppa_fill.c",
+      "sha256": "c34469c03bfb70f98850d73494721dcf59897f674c0c5662817bb4b2b38a2a91"
+    },
+    {
+      "path": "src/draw/espressif/ppa/lv_draw_ppa_img.c",
+      "sha256": "75e8b6d493443a8b2b8e8ca1c37b939f8130993d839c403fb4099526cd2a4057"
+    },
+    {
+      "path": "src/draw/espressif/ppa/lv_draw_ppa_private.h",
+      "sha256": "2cd275760732cac160acee24d381aed34867461064f2855504d2b97b6834988f"
+    },
+    {
+      "path": "src/draw/espressif/ppa/lv_draw_ppa.c",
+      "sha256": "a56f36ab29aea43d67b71e90838ad1f0183b74fe5a2fd45bdf6404dd0226a196"
+    },
+    {
+      "path": "src/draw/espressif/ppa/lv_draw_ppa.h",
+      "sha256": "b125979daf75075f666183758d91b69b83c99bd62a2dd2c3cc2d8e4406993657"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_arc.c",
+      "sha256": "8ff2000c7bac8159e531c2d18e26ea1f7b271768ddd5dc4325790b02c8d3a2ce"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_fill.c",
+      "sha256": "ac5aad506cdd953b77a2a5849ec5a6740fa6fa4b0127e0ae2b7a4c827a85afbb"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_image.c",
+      "sha256": "5c1072ce664745c11ac020fe527b293918df1b5eb6e527bd6973f5522163e7e0"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_letter.c",
+      "sha256": "7bade6e9bf05d02305d55626bd9df14900421a53523f47b7cb18bf9222389388"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_line.c",
+      "sha256": "65a8bc042d8834dce9c2b5bb774c0683e01b5cce6a2117db1fec89c779486452"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_private.h",
+      "sha256": "230c0f65578c4a80b475e049cc2f3173052ed0cf352649e8c2ce31f1f04c73e3"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_ram_g.c",
+      "sha256": "bb02629683264ec521304b5859713a73b56783a31e3a6c7d37b417a23291dbac"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_ram_g.h",
+      "sha256": "5bdbed452f8cf6cf474e26fd434bd4b1961440f11570e09543f4fa192f3457a8"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_target.h",
+      "sha256": "149960c5ee976e8672ad72d6411b0ca6a6e8afd9e2376b2bfa0cfde8963d11f0"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve_triangle.c",
+      "sha256": "330569ec0a0283c4e8c17806e1c2068ba1a35e43526ba67ed50917c631055b27"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve.c",
+      "sha256": "8fc42f9c56ad5c783a02aa292312fd8a230eae609fa960c892ef8864980b7d9d"
+    },
+    {
+      "path": "src/draw/eve/lv_draw_eve.h",
+      "sha256": "95b282e18dbc8ba2ca639b20b83e49127f3539f8ae9b6021b071ce521f5dafb5"
+    },
+    {
+      "path": "src/draw/eve/lv_eve.c",
+      "sha256": "4680c78407b66d9dcbb7730e8d3c82e8211169005a3348228c55f7d7a87dc8d9"
+    },
+    {
+      "path": "src/draw/eve/lv_eve.h",
+      "sha256": "6ce41482c574f77d8ecd4a2e995a9f6914b4c2f2b94a712012f6737744d60ef2"
+    },
+    {
+      "path": "src/draw/lv_draw_3d.c",
+      "sha256": "1c5f52df3c209d2e759fccd6b4fcc718542bccf589e1f5e74de420968e72ad7c"
+    },
+    {
+      "path": "src/draw/lv_draw_3d.h",
+      "sha256": "8e19f88b071454a4d44edd5a23794c2a88d5b324806141fb1bf5fe3f232161e8"
+    },
+    {
+      "path": "src/draw/lv_draw_arc.c",
+      "sha256": "7f105244df52738fc5ef360a2d6bf14ca5ee3fc70ec015b9a1d25ca0f542340a"
+    },
+    {
+      "path": "src/draw/lv_draw_arc.h",
+      "sha256": "5c69cc854bcd3de0d592e1c7e46b698879785dddb607e6f0ff1d74128d54af61"
+    },
+    {
+      "path": "src/draw/lv_draw_buf_private.h",
+      "sha256": "a16bf09cdc8eb0eb49ed913887dec752cd41a489b93dcf1f7b73093036d89cf0"
+    },
+    {
+      "path": "src/draw/lv_draw_buf.c",
+      "sha256": "d3895cf549c870c7735e9ae8ffc5a09b08301365f1e96f5f25e79445d4caf52a"
+    },
+    {
+      "path": "src/draw/lv_draw_buf.h",
+      "sha256": "f592eae3325861d957904dc2a160a8bef5f76c277608b682675f7df4201c738d"
+    },
+    {
+      "path": "src/draw/lv_draw_image_private.h",
+      "sha256": "20c96f56a4756cb7bf8bcb06d4f3dae207d8360e82e80e8661849d67ee8595e5"
+    },
+    {
+      "path": "src/draw/lv_draw_image.c",
+      "sha256": "63f1194b7ec622a08dd5edfeff71cf0431a9c57c0a3106a0d07daa9745bbdec3"
+    },
+    {
+      "path": "src/draw/lv_draw_image.h",
+      "sha256": "b51c598f1c76fbe30d8e7adfe02d718dfff82a6996663e00b383fc4707e794b0"
+    },
+    {
+      "path": "src/draw/lv_draw_label_private.h",
+      "sha256": "0ffc92a89c2a84c0f7ddd69444a42327921899ccba37bf6d548947f1af222c60"
+    },
+    {
+      "path": "src/draw/lv_draw_label.c",
+      "sha256": "ecc233a465c21c32c4bdd8c7b5e87d61bccdaa8d37aa3d1021f18ee44557bb0e"
+    },
+    {
+      "path": "src/draw/lv_draw_label.h",
+      "sha256": "379cb29e695a2cff3867ea9c994db2fcc5b66a12d173d79fa12a33be56238c61"
+    },
+    {
+      "path": "src/draw/lv_draw_line.c",
+      "sha256": "978df92600b7fabf15456a3897e54e7cc7f33a4e8eb969ee00f30966178fe4b3"
+    },
+    {
+      "path": "src/draw/lv_draw_line.h",
+      "sha256": "1ca316cf4790e35b0cf1b6d7c6fc2126b9a232f46fd5a6e45c75e4c98d063b2c"
+    },
+    {
+      "path": "src/draw/lv_draw_mask_private.h",
+      "sha256": "890d8e2981ae4ef25fec293dc1b540d91fe40161cfc76049f1ff072fc2b6e408"
+    },
+    {
+      "path": "src/draw/lv_draw_mask.c",
+      "sha256": "cced5ea1fedb66cd1cdd61dbc9098cb162504cdfccf37334091c4de1c39465b1"
+    },
+    {
+      "path": "src/draw/lv_draw_mask.h",
+      "sha256": "e76cbc77fc0541403c8a175b3a431f82fa4bc04507aa9428a3628f1af6f0a487"
+    },
+    {
+      "path": "src/draw/lv_draw_private.h",
+      "sha256": "ee8dd0372011552d3f5312f2d799904dc9557001272358f48f258e3f2d0ee88a"
+    },
+    {
+      "path": "src/draw/lv_draw_rect_private.h",
+      "sha256": "580101a4277c034d3f89b3f4268541bd96c84b9c9fcc8863a3b79cfba24ba09c"
+    },
+    {
+      "path": "src/draw/lv_draw_rect.c",
+      "sha256": "42df9b00e489af1dbb3da78a31a8878afd12fe616d7dc465d89391579daea506"
+    },
+    {
+      "path": "src/draw/lv_draw_rect.h",
+      "sha256": "4adb42fce2e3580d478855222cd48a21d9ee599b30cf485e369c7dce1512375a"
+    },
+    {
+      "path": "src/draw/lv_draw_triangle_private.h",
+      "sha256": "6333e9b428706ad910b4ab9460155fc0591db1a9767d5d5e5630b3cccde2eccd"
+    },
+    {
+      "path": "src/draw/lv_draw_triangle.c",
+      "sha256": "02d0603485480c151b9083f4353f9b3e58431fe0b3ca61c6d236670d448b714b"
+    },
+    {
+      "path": "src/draw/lv_draw_triangle.h",
+      "sha256": "3830bab26a35849fe22ed861f842b9e40e27457a702a2e27d7207c2323515f72"
+    },
+    {
+      "path": "src/draw/lv_draw_vector_private.h",
+      "sha256": "cd2847b571199bbc1d47d9a3f40bc3369fca1f3cb3c429cd3e93ce23ef1f8a47"
+    },
+    {
+      "path": "src/draw/lv_draw_vector.c",
+      "sha256": "086b505b81b7ce405982216b76e33175de3c6447ca1b85439199b9e16903867f"
+    },
+    {
+      "path": "src/draw/lv_draw_vector.h",
+      "sha256": "670be16266f00473f18f0b9ca6c9b7c18097c320395f98c55e849348dfbb2bc7"
+    },
+    {
+      "path": "src/draw/lv_draw.c",
+      "sha256": "8286f5e313b57991f34a7dc8b784c4b4632dcad566d9547e66267c778599e2aa"
+    },
+    {
+      "path": "src/draw/lv_draw.h",
+      "sha256": "3c6f4e513d1487ef1fb1f15d2bd02c51c196d3ee9d72d34240fd73840975ae10"
+    },
+    {
+      "path": "src/draw/lv_image_decoder_private.h",
+      "sha256": "a254e7e94ae1b89878e1225d100f270b935bd24423f580e1ae85ee0b182c3396"
+    },
+    {
+      "path": "src/draw/lv_image_decoder.c",
+      "sha256": "08303d2a5061a90bce5f973a06e508c631c4304ccb07b9024eea17f01b581fc0"
+    },
+    {
+      "path": "src/draw/lv_image_decoder.h",
+      "sha256": "8745af91b999010630fd4bce2f74d26795fc74e9db2481604d9612d80cb12e37"
+    },
+    {
+      "path": "src/draw/lv_image_dsc.h",
+      "sha256": "bc93ec2fb2854dc0f6cc751f92af20420b3bde65a042af27e2951abd8e723659"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_arc.c",
+      "sha256": "27ff7519ad023d3fd8a117532f2f85b25b8c028a4a284287f1b21391d2561bb6"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_border.c",
+      "sha256": "85cfd11f30c33e6bf20f3da88ae7704d496dceee7ea71ec2a835cc2cffc6f8fd"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_fill.c",
+      "sha256": "b4d69cbdcf323835ba7d193165ff2052fcd5c008f130dc84725b763cf87fc3e8"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_img.c",
+      "sha256": "971c1e84245322290175127b80ba44a62392d6d5efaa7c969ae43dde105b3428"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_label.c",
+      "sha256": "1f3ecf0d5d5b7e317df8a780e96cbd8d324febb6e0ae49a2f94459a9abfd4850"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_layer.c",
+      "sha256": "3752082f5bc2d9cba70506de9432fb25e63f775f9d70703bc8cc5ff7bba4407c"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_line.c",
+      "sha256": "c14f9f89b7a761269db2fd00bcbd09f71673fbbfcd5b22b1cdae9a79d9119694"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_stm32_hal.c",
+      "sha256": "0a5f7d1231e243d429b0bfcda858a07a790b2f1990c866b230677940939b7439"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_triangle.c",
+      "sha256": "265d2c14f44dba81c5e5038fefa851694d5939f0782250adb74b40e8fbeabd61"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_utils.c",
+      "sha256": "3748c08b30fac558ddebbf628cbafeb3eb2a22bbf8b374c4725f3eb202d6d6c9"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_utils.h",
+      "sha256": "d2d6eb0fd496c3a432587a838a07ae8996e469a2a6ff798a961df59125594e87"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx_vector.c",
+      "sha256": "8a366c2acfbcb1967c61759f5a5e424aecac7cf86b9badcee231925d7d537a22"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx.c",
+      "sha256": "dc6bfa075317746200bfd771b578a9cd82d39973f43ad7210ad36ef43a5b0d0d"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_draw_nema_gfx.h",
+      "sha256": "02bfcc664628b91782fd4f2401681c7d07ea78678fa002a6e36f277a5211efc7"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_nema_gfx_path.c",
+      "sha256": "3b5234e0e6b3588e4c6f37a943a07b954686cac9f0f18f24690e4d3fceb9c03b"
+    },
+    {
+      "path": "src/draw/nema_gfx/lv_nema_gfx_path.h",
+      "sha256": "c4d9212b751bbdc5f2a8fb4db02763f597b01b1fb6d787b531415f72b7eb29e9"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_draw_buf_g2d.c",
+      "sha256": "5880360f6588f8b42b85b14f326585de04079656be34cc8767a6e7db794d8417"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_draw_g2d_fill.c",
+      "sha256": "1fabc901305fdc4e632ddbd6bf0da34dc4973d84d402f50e716d7bbe47f76dd7"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_draw_g2d_img.c",
+      "sha256": "483de3f594049a666b467fdf482ab26f4ef9f9cf9626bb4588fc6adb319aaac0"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_draw_g2d.c",
+      "sha256": "28aa3ad7bf9d5152dc4ba38efe519e546330efd01bb826588ecb9964d9f901f2"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_draw_g2d.h",
+      "sha256": "a4977fa5e4f13554de36c11fee2fcd30db50853b17ec429bed25812038d4e0e7"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_g2d_buf_map.c",
+      "sha256": "718b2dd9692bf13bd4d30170c7c59d340d656546ebc170fb7a7ed3a71648de0c"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_g2d_buf_map.h",
+      "sha256": "b7e125cdb5d9c113e2051dc3db4c1e5b883a6e73c58fca9c894c62075f7356e2"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_g2d_utils.c",
+      "sha256": "a4b044d2e52fd370a72b1fdd127b38a7894bc9801233f436a57cb3bb0f12a219"
+    },
+    {
+      "path": "src/draw/nxp/g2d/lv_g2d_utils.h",
+      "sha256": "ebde9c678eb7a02f6fb7de377635efd00253894fc8183897104a33ff27944b3e"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_draw_buf_pxp.c",
+      "sha256": "c25940cca3ff174ed93ca1e651633bb5fccdc16d64e344cb69402092830a1d54"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_draw_pxp_fill.c",
+      "sha256": "54385a15e1f4ceba123381eff8210a2970240ea163586cb43aa279368910d15d"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_draw_pxp_img.c",
+      "sha256": "98a9bf15a387f8d34a6336e90230dd9ca1467f281363b6f6bcb8ae5c7fb36f17"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_draw_pxp_layer.c",
+      "sha256": "f3612ef08e739faec66f2cbc9fceb3c426e2a51d933d420dbbfa4d1673ae4db6"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_draw_pxp.c",
+      "sha256": "fab0034460c39add955039dd138d6f7694915b8d4fd3fff143cdaf6b21b16fdf"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_draw_pxp.h",
+      "sha256": "fbd6b60123f178842a2a674e72ee184f0691ddf9a89f5bffabdbeb6526ff435d"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_pxp_cfg.c",
+      "sha256": "12c134378ad740384791378c000b76553d38c1832c73b155d51d655062d45670"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_pxp_cfg.h",
+      "sha256": "d080a9e4ad5d1ad688f851a4341853ecd1f3d9e774dced53a44e0dd797a4c701"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_pxp_osa.c",
+      "sha256": "d0ceec855e74e406bf22d2a3f67d0a18c81f14210aaf249cd3776eca028b4de8"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_pxp_osa.h",
+      "sha256": "b8fa759cf5b41c5bfd94c6951968a8efca37469766d5d84ac632db94e4e8a24a"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_pxp_utils.c",
+      "sha256": "d85887ecdc56c078f57fb82f0d24871433e7ecff991bf6ca33f46707149826c4"
+    },
+    {
+      "path": "src/draw/nxp/pxp/lv_pxp_utils.h",
+      "sha256": "a543db20e98e33361b5f51cfa533653313e2a68d26f6d79a245c545910a592d6"
+    },
+    {
+      "path": "src/draw/opengles/lv_draw_opengles.c",
+      "sha256": "20c765fef575ca3e51e99cac33024de2d8ce13fc4f2a704cededea79c4ba3598"
+    },
+    {
+      "path": "src/draw/opengles/lv_draw_opengles.h",
+      "sha256": "3831b4d46de6670af111fc938d19995ea363306a8d8aae7838aaa67cbfe84480"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_arc.c",
+      "sha256": "426d928894911a5ffea86645067417fa8e41fc2f937e608f3b9c409efdecbb72"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_border.c",
+      "sha256": "cffe24f0b8d9e1124515263ae01387aa492f6f8d1041c1f0e8b4abca546ca009"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_fill.c",
+      "sha256": "7b78c863a642487380e4a0e2106251f5929db8401f88aa66a9a5505c3850a8af"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_image.c",
+      "sha256": "8054054c4bc48e39048fbe7eefac6bad021fe4dc6ba69ee009c546a94e451e55"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_label.c",
+      "sha256": "2479f4b8336077560349a58b2f12204368c5443a17d091372b0cf75154a73ff8"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_line.c",
+      "sha256": "e4a4d8c0731ab6ce56a71f9a45ad8b2da0ecc59b8c060a104800eeeb03058637"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_mask_rectangle.c",
+      "sha256": "1f65ef5e8e49b9f043999b3c68fe734d53620c8cb52b99163b5e062e13a134b1"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_triangle.c",
+      "sha256": "5bdc906fb89232b6dd8a43f09454c0869c1c2dafb8d98741f89ba6f04d9d87e9"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_utils.c",
+      "sha256": "08f8e2c8b56d1226ea216cb5353c454346f724220973f6a806f45a58c45508e6"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d_utils.h",
+      "sha256": "3e6d02d80c4d60f8302acfaff0b8dd3131c1c46ec19b64699facc68baedd0f10"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d.c",
+      "sha256": "30b57282024f1a7cc2c27c6220026415d5116f72c03a0e2eb0e1146ba2e5d36c"
+    },
+    {
+      "path": "src/draw/renesas/dave2d/lv_draw_dave2d.h",
+      "sha256": "7cd54c89ae74e85468425278ae7ce76ee758d8c12ce4ecbf931dfe6c81e56e73"
+    },
+    {
+      "path": "src/draw/sdl/lv_draw_sdl.c",
+      "sha256": "89295a2ce4d0b5a8802ecf427638c4ba295239f8e5f4d99139603b173e6801ac"
+    },
+    {
+      "path": "src/draw/sdl/lv_draw_sdl.h",
+      "sha256": "1eec129e905e6ec2838bca88780910930bc63c60b989f36874393c117f230b70"
+    },
+    {
+      "path": "src/draw/sw/arm2d/lv_draw_sw_arm2d.h",
+      "sha256": "21560adab3618a18c5a5b3cf43a06ed5048d1a7372f2ee4b3b16ebe48361c5fb"
+    },
+    {
+      "path": "src/draw/sw/arm2d/lv_draw_sw_helium.h",
+      "sha256": "46ac67ba9bc5930da79ddc8e9964bd93a0bde9bd647d6ce90a0baf50344b4df6"
+    },
+    {
+      "path": "src/draw/sw/blend/arm2d/lv_blend_arm2d.h",
+      "sha256": "081383ca2f3473321e0257254e647cb93e2589502db6330866a3796ccfcfd009"
+    },
+    {
+      "path": "src/draw/sw/blend/helium/lv_blend_helium.h",
+      "sha256": "e81d8808f60da921e3262a2be4346d81b0d220adf2339dddaf7f2ac39c67928a"
+    },
+    {
+      "path": "src/draw/sw/blend/helium/lv_blend_helium.S",
+      "sha256": "9b92d1fb1d131bc3c4fb5d0cd146a98eef9af7f75e1f84295d967ec0f1918095"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_private.h",
+      "sha256": "e7dbb3f53b4707c6765aa4f24b6c66bf27dd46c9d9876d51e3dc5b14dd1d48a0"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_al88.c",
+      "sha256": "d8e01842232b6ed65163ddc134eeee8a776c714e9a092ba5345c5ad578518dcf"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_al88.h",
+      "sha256": "fc06e6d5faf80a0ee1b01a2f65d5a480a7f023e3752cc4570bb92b7be9ba8961"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_argb8888_premultiplied.c",
+      "sha256": "65f3edeb6986662c41ddfa1bafaee12b6414aa8841b8fd44feb9c590263a0c26"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_argb8888_premultiplied.h",
+      "sha256": "695ad3058d25cfac1411b624f8301db75413dae57fa402df03853098ee9e08a7"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c",
+      "sha256": "45ef5eaa56c52d93dc78b906e441d119de65569269012b87f215f781b362e3e0"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.h",
+      "sha256": "693738b2a2a180f48da3634602c7dd8c8dd504d605ac46b0a5d655b733e31c27"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_i1.c",
+      "sha256": "9dffd8fd471dc8c17d3233faa2d25ebd388fc2861de89092728d58754a444c9d"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_i1.h",
+      "sha256": "a42417112b8104b8b4353ec0c2b3a424ffbc742425cee07db7ee14d1ef7b1af2"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_l8.c",
+      "sha256": "3b626d111a05d5a2dd270bec591646cee2373dc2326b2578304ea8893026b674"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_l8.h",
+      "sha256": "cb3c030560ffc75df2e2c39f6865a1983472d6f712d47346a8fd6abbcd5c24c5"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_rgb565_swapped.c",
+      "sha256": "038fd8ad910bab0ff2f165c9d4c069990f386a5903ca8661be3ed2faa8884886"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_rgb565_swapped.h",
+      "sha256": "5b40b874e78de4b55064e2fd5677e61fc556d8049553dbed31032896d00bd416"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_rgb565.c",
+      "sha256": "ccde3f2161113c840a1164029b6c2434f612653958e6f5b55f8598b0bbd908e6"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_rgb565.h",
+      "sha256": "c0d0c2ed080649805f48731f068ca37ec15b6fb29d5c75cf109efb500dcb520b"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_rgb888.c",
+      "sha256": "a8f8bd798e0db3a9e40487372bb9dd6308c1131549e63711f52af63c7a83298b"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend_to_rgb888.h",
+      "sha256": "11c3ee96d2515a9388b4cc77bc67dd8717c176e4599a9419c3ac43dbcf732708"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend.c",
+      "sha256": "1dd1df95df3e5b92fec89efad10e0cd1b2b4358fb3e69c58cbad1b7475dd3dda"
+    },
+    {
+      "path": "src/draw/sw/blend/lv_draw_sw_blend.h",
+      "sha256": "4a3853e762144d96213cafade50a43208139864e8034c5f8a6fb2211ade31203"
+    },
+    {
+      "path": "src/draw/sw/blend/neon/lv_blend_neon.h",
+      "sha256": "8e1141cefedabfdcd2996e6208cb3b9acbe81c56a9751a41943381fe8269cdad"
+    },
+    {
+      "path": "src/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb565.c",
+      "sha256": "dc5c18c2b07666ddfccd9cfd0b1c84db42a3ff3b344f3acde8b19265d51fd046"
+    },
+    {
+      "path": "src/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb565.h",
+      "sha256": "0df989e84b6bfcaea1dd96d5aefdc515f98a459795323059341f1f2cf1e1e4a3"
+    },
+    {
+      "path": "src/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb888.c",
+      "sha256": "b8c9a972989f76025936fe69d8f921b37c1347e9a5e97f9388191dc563e70db6"
+    },
+    {
+      "path": "src/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb888.h",
+      "sha256": "81d9b77ebd94835def67dc6282c4c16e648d58958e0dc182c8ee448f342efe82"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_arc.c",
+      "sha256": "45ef173b199f35fb0f554f6f67ae65bf3f264297c49631c1fd19b2d5a360cbdc"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_border.c",
+      "sha256": "088ad0d542a1025856f02f18fd198aa11e3900512bbcc5092e63f38f6acef927"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_box_shadow.c",
+      "sha256": "1a1dd48a7e33f14014ac6b0f9b48bd8c457a70672b6c3509e0df3382b415d9e0"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_fill.c",
+      "sha256": "1416f6f35fd1de64736030511abcd420664146974720c227c3bab177925b0ad9"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_grad.c",
+      "sha256": "86866e4639fe4e526f5e8c684ebb8468a01c077aee9eca3d404e2381a44fe203"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_grad.h",
+      "sha256": "f2c9112403b573167984760de04fc07526c8e8e2b1121fcd554826fe461ffd3e"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_img.c",
+      "sha256": "bd8167f0bead935b28674abd84a5f15d868c72a52ed87119ab7a573438246f4e"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_letter.c",
+      "sha256": "2be26be5919ca2000db2f608328eb7109ab1eb9a650c4b1b50aa75f7741362ef"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_line.c",
+      "sha256": "d36f0399946b4dea1d3ea9771616155a1641f09e896d94f01bbc5b28f87dc13f"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_mask_private.h",
+      "sha256": "36c97dbd626e58d1c0ceaab3e18a0038d956f23aaa13dde6afc231a799e401b5"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_mask_rect.c",
+      "sha256": "e85973ba1d5f199a7e6e01914235f0e93ea1f83226fc2e5b53d53eb8916abd82"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_mask.c",
+      "sha256": "d175ace2181b2ec17e92d1a23ef360216f20ede3f58e1e635600d63ce10ce897"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_mask.h",
+      "sha256": "fd8dd5ec399e3ad23c706c9bba450ba358ae67966f31ad781aeb5509ef49f318"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_private.h",
+      "sha256": "39d68b0982fcb8788d05049f800da3a02c846588a7540483713ffb6ed27c5829"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_transform.c",
+      "sha256": "2a8bef3804fabff307d817695d18a084976c61dc79db5dc50f867f2499f9c338"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_triangle.c",
+      "sha256": "26ff32115d7998e77592b01fc110a37403b01b1b6342979803466dd3f136a78f"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_utils.c",
+      "sha256": "0246021a71b12facd8469c8573df162632f1918625e157e781221be02a4077f4"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_utils.h",
+      "sha256": "09573c40fe69dd355967a21afca44714c76562183a6d0b00c64e2003e74dbf18"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw_vector.c",
+      "sha256": "fc769a6812770333ed49dc636b4ef4868f3ef979b6a1d6c2a8f7f3ff6eabc0f9"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw.c",
+      "sha256": "4663af8c725446bf6bf1688eff6a1090f51a34b2344977bb928cb0ca3f236d7e"
+    },
+    {
+      "path": "src/draw/sw/lv_draw_sw.h",
+      "sha256": "874cd7135617ed4bc10fed15f69ba5b769b11ec5636d7bbbc3dc52e0b274f19a"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_buf_vg_lite.c",
+      "sha256": "e0f5ccf172a46cfefe17b9b6efca91308c6d2aeb73ad4f4f4045c255826bd820"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_arc.c",
+      "sha256": "1288d46128bb3fe5d052c864a17a0a0bb3c2264129aa66c3f0141d07576d8981"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_border.c",
+      "sha256": "87f15e19a2a12fd0f792b47bb45143c9347b5eef361439f7517bf3965441c2d6"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_box_shadow.c",
+      "sha256": "002ee62a5b9487b28e5c0a6895e51dae242854fb93a46b561b453202a7700aff"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_fill.c",
+      "sha256": "cc368f2ed660d8569ac6ab8785da53e6c96ef47517e511e14db5031996284010"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_img.c",
+      "sha256": "addeac78ac4750740698735b86816001bda674e32b170b1277621e0e5b7f10b6"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_label.c",
+      "sha256": "f41d9d26c201d6d499a0bf949a14010cbe3d3da95390decfe47bb63441e9522e"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_layer.c",
+      "sha256": "fe951546c1f47e97f2abea74bec7f9af884f47248db3384fbed981eed923e29a"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_line.c",
+      "sha256": "2baa2f345c3fa67f315c6cd90cceb23de8c00e5bc77249daa7c6fc3faed26193"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_mask_rect.c",
+      "sha256": "59b60a787d415e024e70de7f58d92155757e2f5cf996958952bc71e039b802e6"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_triangle.c",
+      "sha256": "042ae79df92233ed24b259e83fa04a747c1abb96614d319e9b59da40cbe86995"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_type.h",
+      "sha256": "1c12bc1f15cdef9becdf42ecc94963155cf10ebc954eaf5f22297442e39259d9"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite_vector.c",
+      "sha256": "182521d3654dc57746c4d95ef68f92a2d1ab5026aa5d34f8a84753e7d20d8c13"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite.c",
+      "sha256": "4d7e34e62991c78172ba589cca5f344ea2b07a7a8d6c35c7cb9078f4e8751f11"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_draw_vg_lite.h",
+      "sha256": "c080f3af47b93142eb6c6d30737611b5fd94399e8e6732b204c942155a339afd"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_decoder.c",
+      "sha256": "898f9ac9472cba6b884b25cad9a39db92db6df8836e020d7082ef20f0ad0b0ac"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_decoder.h",
+      "sha256": "3191c0ed3ebaa03b74823b42bb21d0d747bea2c8c3a45a1c4a5c094b4b8f8ccb"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_grad.c",
+      "sha256": "330bd2902fdc9e524106d973e40dffe315a5b80595dac65ef2c4ed14d5527b88"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_grad.h",
+      "sha256": "10f72598adea22e94826dcc7e3e41a09901d33896bd94506725568537cf73d3c"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_math.c",
+      "sha256": "75871c5ccc8d589dab4942920f712e7edcf8cb8e838e75434e93e05d5748d5ce"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_math.h",
+      "sha256": "5fa1d21c5bb3d6fa83a3d8d9cc58b6ec16a9db255ae92dc3587d51be2dd15151"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_path.c",
+      "sha256": "ca94d167cbe35f377afec48606575b50d9f3374b6be69d5099d14298f373834e"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_path.h",
+      "sha256": "48be54028120b82537f8d82d5bea4d55ff9132d75656304077d509cb510ae2b6"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_pending.c",
+      "sha256": "4040865436a1812bb30a806542f1e6590a85bcd724ea522373214db145f1f4dd"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_pending.h",
+      "sha256": "b1359b8b0bdb65c9d517c73f44f5dcbb9613150fce5a1c6649fd8dd8b37da4d5"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_stroke.c",
+      "sha256": "cb668d184fb4b5a3375890ba6e180d730a8978dec48d335af9c2893af76e7283"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_stroke.h",
+      "sha256": "66ff4121392320add7f98d4ae71387cd4f189d42ec5cfb37d7821a0a54df3d27"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_utils.c",
+      "sha256": "0a06235db88e2257b56673ba52b97652dcffc33d6441afb6144c0e0bf529f40e"
+    },
+    {
+      "path": "src/draw/vg_lite/lv_vg_lite_utils.h",
+      "sha256": "7a3cce274236ceb691a54db5833e17589fe573dd34878f2082a2451694346b27"
+    },
+    {
+      "path": "src/drivers/display/drm/lv_linux_drm_common.c",
+      "sha256": "013ffa94200fdb03fb3dcdbd23773069a1799493721c1e89e468a953e8f32884"
+    },
+    {
+      "path": "src/drivers/display/drm/lv_linux_drm_egl_private.h",
+      "sha256": "f798e9f7fa05f38c5dcb2974f79a3d448cba58f90808b3e81a818686d055cdbe"
+    },
+    {
+      "path": "src/drivers/display/drm/lv_linux_drm_egl.c",
+      "sha256": "9ec42b018313af060f398d6676c59a6823e858997d6a6a86cb7f6c23e820bd1c"
+    },
+    {
+      "path": "src/drivers/display/drm/lv_linux_drm.c",
+      "sha256": "9d5e92ca94a6347c12d4e729c71a3ad3233a4ca87f6bb39122be316b963970e7"
+    },
+    {
+      "path": "src/drivers/display/drm/lv_linux_drm.h",
+      "sha256": "1631211e8f7dc68cd9614786218e6831784d7d1f750177d9979c464ae4dd2638"
+    },
+    {
+      "path": "src/drivers/display/fb/lv_linux_fbdev.c",
+      "sha256": "40534f6af13692c6548ddf1e5681187ca8c491ab3dc886c9fb0eae8c6e073f07"
+    },
+    {
+      "path": "src/drivers/display/fb/lv_linux_fbdev.h",
+      "sha256": "20af37b581af0349930731f9d82a3c22c90b443362cf1fd0e32fcce006f2d7e1"
+    },
+    {
+      "path": "src/drivers/display/ft81x/lv_ft81x_defines.h",
+      "sha256": "c095bb6a93dd9a7bdd3e76a21ec686fd7a9b0c7b3e8b229d7f21771f7b982c56"
+    },
+    {
+      "path": "src/drivers/display/ft81x/lv_ft81x.c",
+      "sha256": "2a628c3aaa788f67b7960e334574c2c9b8c88f505f425f646b7965d1bb077d17"
+    },
+    {
+      "path": "src/drivers/display/ft81x/lv_ft81x.h",
+      "sha256": "4d080d1038e4db8404fff55036e7bef23613519e19f66f5cd5189c8e714a3262"
+    },
+    {
+      "path": "src/drivers/display/ili9341/lv_ili9341.c",
+      "sha256": "76b174e1fe2d7197151efc5955b1fc7e79af0fbca8fab17f680d6cc5f1360bf6"
+    },
+    {
+      "path": "src/drivers/display/ili9341/lv_ili9341.h",
+      "sha256": "0246f038203e491beb5cde959236c67b4bdd6e6ad1a212a060596f9b5850f536"
+    },
+    {
+      "path": "src/drivers/display/lcd/lv_lcd_generic_mipi.c",
+      "sha256": "4408d3e24c7259f538aa89279025a8535c2672ff44ff8bba3d7b7a42e994f2ac"
+    },
+    {
+      "path": "src/drivers/display/lcd/lv_lcd_generic_mipi.h",
+      "sha256": "89832bd721fca158df5337c4d0423552e1b317e077e7fedbb399ca5fada840ff"
+    },
+    {
+      "path": "src/drivers/display/lovyan_gfx/lv_lgfx_user.hpp",
+      "sha256": "bc90eced29ec10ac9545e642e1a30c200fc056f26a25315e69fd29572bcaee32"
+    },
+    {
+      "path": "src/drivers/display/lovyan_gfx/lv_lovyan_gfx.cpp",
+      "sha256": "aa6118f8b35d78a37c3a52f7245c0d485748bb59fd2e7cf635491ea637bb813b"
+    },
+    {
+      "path": "src/drivers/display/lovyan_gfx/lv_lovyan_gfx.h",
+      "sha256": "44b7c05bea4fdb67b2dd9a5c2cc597152604df705aecadb4cfe7f0dcf99b60da"
+    },
+    {
+      "path": "src/drivers/display/nv3007/lv_nv3007.c",
+      "sha256": "fd83aa048acd28149e56588b794a32ffc6294595299a592377302bffa8cb5f65"
+    },
+    {
+      "path": "src/drivers/display/nv3007/lv_nv3007.h",
+      "sha256": "709287fbe3cd9c2e8ec58d56ebb6362c45c0d4aebf47e2ff3968f69b7150f48d"
+    },
+    {
+      "path": "src/drivers/display/nxp_elcdif/lv_nxp_elcdif.c",
+      "sha256": "50db37c1fe5ce57f62641129a8fa4beb156389cc754bc3a970c1993d81c3b2a1"
+    },
+    {
+      "path": "src/drivers/display/nxp_elcdif/lv_nxp_elcdif.h",
+      "sha256": "7e2d4d5a1fc601d703aad3e36e3db86634cb95ad6432fe5c7291dfb6e2f6ae93"
+    },
+    {
+      "path": "src/drivers/display/renesas_glcdc/lv_renesas_glcdc.c",
+      "sha256": "3efec38c74a743a819b067143248c6efdde9b241cda3dbd71335e856f0407455"
+    },
+    {
+      "path": "src/drivers/display/renesas_glcdc/lv_renesas_glcdc.h",
+      "sha256": "8b48e5f117b063674385d34d3d63ce4ae6fbf911821814c7e1b03514ea5b4c76"
+    },
+    {
+      "path": "src/drivers/display/st_ltdc/lv_st_ltdc.c",
+      "sha256": "45f1af3c86d1a31ff03a31348c2732369ae183faeff4a9ef9e022c0860de5fa0"
+    },
+    {
+      "path": "src/drivers/display/st_ltdc/lv_st_ltdc.h",
+      "sha256": "42c770c05b9aa859fb4cf929d1f31b7982cf73db452b12c8ef67394b80c74802"
+    },
+    {
+      "path": "src/drivers/display/st7735/lv_st7735.c",
+      "sha256": "c07c7f71d378c76a37bf7b0e96c19e8859b8b9d38e9697401cee59e5fe2e6dd8"
+    },
+    {
+      "path": "src/drivers/display/st7735/lv_st7735.h",
+      "sha256": "0e08d68cae432dd7ff4b513e2276dd7bbd55b02546cf1db711c33d2f4918ec00"
+    },
+    {
+      "path": "src/drivers/display/st7789/lv_st7789.c",
+      "sha256": "5a4a2f95503246324ccfe9cfb09c936230128d0a29d9284635aedf92be66b6ae"
+    },
+    {
+      "path": "src/drivers/display/st7789/lv_st7789.h",
+      "sha256": "943509ba87fb7a502cb7250e96574c17884faf23ae159e9ea7893b887e259cba"
+    },
+    {
+      "path": "src/drivers/display/st7796/lv_st7796.c",
+      "sha256": "8d1fcee641f2ac4b4fa56c79b4c045f0d5b126e635b32d9fae634634c9ff3d3f"
+    },
+    {
+      "path": "src/drivers/display/st7796/lv_st7796.h",
+      "sha256": "38c575bf32855a6ae8591c989aed22267844bea6238491e686009faa55d4025e"
+    },
+    {
+      "path": "src/drivers/display/tft_espi/lv_tft_espi.cpp",
+      "sha256": "e736f69fc0c397ad667517ae7558338077edccfbc6e1002bbfcbbce71f60a4e5"
+    },
+    {
+      "path": "src/drivers/display/tft_espi/lv_tft_espi.h",
+      "sha256": "ade099fc95e3869fbb8709bda87fd52961dfa7f7c39d120dc0dbdd879982ed40"
+    },
+    {
+      "path": "src/drivers/draw/eve/lv_draw_eve_display_defines.h",
+      "sha256": "493191af0921d81fc6c95fc6ff8c8f4e0f7e4c672c3baef13b4c394d0e52c622"
+    },
+    {
+      "path": "src/drivers/draw/eve/lv_draw_eve_display.c",
+      "sha256": "dce73e33c3e1c63a08249e4014fc44c128c62579a581977d9884f11039e5fefc"
+    },
+    {
+      "path": "src/drivers/draw/eve/lv_draw_eve_display.h",
+      "sha256": "f267f2a19dc6eb5ad478ae043f3acb1e9e58bc262566fddc9bbbd6750eee14e0"
+    },
+    {
+      "path": "src/drivers/evdev/lv_evdev_private.h",
+      "sha256": "c60c18085f35af4bd849a7faa9da97c2504450f2f3227412ebc50ebf8e541f8b"
+    },
+    {
+      "path": "src/drivers/evdev/lv_evdev.c",
+      "sha256": "a98682e19b74099c3be5f19e9f2bbff1d1e067896725d83dbe50dd9d127299c4"
+    },
+    {
+      "path": "src/drivers/evdev/lv_evdev.h",
+      "sha256": "dc93dc9bfd9ab2110184b6618294d51d2fa4c3cc57d6e34f7142ec0bacb914b6"
+    },
+    {
+      "path": "src/drivers/libinput/lv_libinput_private.h",
+      "sha256": "8aeb7d7fb3d81f4d5de192bb14c7afda3c6dcbb0140691958a92e23f10881f46"
+    },
+    {
+      "path": "src/drivers/libinput/lv_libinput.c",
+      "sha256": "829accd9d5d13992be328f4e88bf9baf0862d1570eac40e9e7a446025246b05f"
+    },
+    {
+      "path": "src/drivers/libinput/lv_libinput.h",
+      "sha256": "959ef8d105420709413b2695d9d7247dcc4cd0baa94e745fa3c756625282d408"
+    },
+    {
+      "path": "src/drivers/libinput/lv_xkb_private.h",
+      "sha256": "51fbb6859062649685e48771c45da75ac49378a9b353ab7dab3a1bfb9cddf78a"
+    },
+    {
+      "path": "src/drivers/libinput/lv_xkb.c",
+      "sha256": "31ced6c67442c5a2d8b8fe57bae625e54a99ebcf561bf1d4e809f39d1063ed4d"
+    },
+    {
+      "path": "src/drivers/libinput/lv_xkb.h",
+      "sha256": "4329e9edde84e15a0f37f996f974970ddbbe07cf04be0c476f9e779cad422a97"
+    },
+    {
+      "path": "src/drivers/lv_drivers.h",
+      "sha256": "dbb2872a635a8b68485a3aa217b52efbee16f92119fff948dd8117e822b3bee4"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_cache.c",
+      "sha256": "b7eee86b00d6a66fcafbc05049af0db3508d63252de4bf2ed195eaec112e3765"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_cache.h",
+      "sha256": "8192cbe575c095d39cd52b0c1a6e976ad699820cfb9fa893be59c06ecc0ab089"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_entry.c",
+      "sha256": "25fa5ab4116cad7517642bbeb1bbddadc8c17b4492cb9fe18fb1b6b2d1b33560"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_entry.h",
+      "sha256": "da46ef108ef3cd9fdc9fe41e123f96790b572699a5cd0fae1b3c518569ec4152"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_fbdev.c",
+      "sha256": "4d8078ad403600c400918625242d7daab900f2aa1861b1001709b02fa7f7f080"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_fbdev.h",
+      "sha256": "7e22cb710235c8963a707d7fbe29d2e322954254c3b240728bc40b8c02914257"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_image_cache.c",
+      "sha256": "7310114b21851621eb772e776c673e3400c9a46a383a1e3cd5d625e9c73212d6"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_image_cache.h",
+      "sha256": "d2cbc39e8dad4f7f18e456a624d00a43805aed406a0aa403a4ed5e9b2789bbbf"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_lcd.c",
+      "sha256": "6c0a65ab7d3cc568b9b161f59a11aeab1780afc48b60575381f0e2241fdcc03f"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_lcd.h",
+      "sha256": "336eebff8e8ed644983919591d665b530322fb04bddbe5982520506b99c5d354"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_libuv.c",
+      "sha256": "236878442716bbf20393891d8ad7a376e92b8ca84aa7e9154f8b803b0b68894a"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_libuv.h",
+      "sha256": "3734afe90a65512b8a9a2a3a680f56a5bceda6b74036a2be625b8c284d85fd2f"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_mouse.c",
+      "sha256": "72fcca492e98eafa6755ba67e433a0d444f65842e1bdf409b9945fe5e628e160"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_mouse.h",
+      "sha256": "2d043209156e9a591528375ab790e435872a74532053bb35cdc30d88cdcb067c"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_profiler.c",
+      "sha256": "c60cf43b67f75e7a2a12ee918b5401fb967c676dd18b961aeda1787ecc319e3f"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_profiler.h",
+      "sha256": "711d2ed9d6ebb247ef794c931d72c53afa400d9bd05e2258312dcc47210246bb"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_touchscreen.c",
+      "sha256": "766aa5e868ae8df9db4811e0016e3287020a44267407f709f2cd6571c5416ecc"
+    },
+    {
+      "path": "src/drivers/nuttx/lv_nuttx_touchscreen.h",
+      "sha256": "6b2df7a22d1ac3e10d2270c6889fba1fbfb27d3316bb896b8dddd1bccb51662f"
+    },
+    {
+      "path": "src/drivers/opengles/assets/lv_opengles_shader.c",
+      "sha256": "68bf6c8fad9c31882fbce5c85c50abc5fa3dbf10bccf91dd58811a15d8dfd4cf"
+    },
+    {
+      "path": "src/drivers/opengles/assets/lv_opengles_shader.h",
+      "sha256": "41f5743a960b3afa83b67f35d3bb5d88221a5f9c3a303bfb1f0aae2adc8f7318"
+    },
+    {
+      "path": "src/drivers/opengles/glad/include/EGL/eglplatform.h",
+      "sha256": "7f8a303990d02028b3c5d50302701e15b139f122c9fc5fe88ca3b637d83bb70c"
+    },
+    {
+      "path": "src/drivers/opengles/glad/include/glad/egl.h",
+      "sha256": "5d246e456e1234ef70490a1c45271014c59515971e2113f76406c9649d8f6246"
+    },
+    {
+      "path": "src/drivers/opengles/glad/include/glad/gles2.h",
+      "sha256": "7e707f3b4557575a6b76737d89b9b222a339af5410ebe82b10a7597ec605e84e"
+    },
+    {
+      "path": "src/drivers/opengles/glad/include/KHR/khrplatform.h",
+      "sha256": "72c9ffc96e979770a5dee4f4da8d9939daeb7f90ced8dc84dffe080a20d1f44d"
+    },
+    {
+      "path": "src/drivers/opengles/glad/README.md",
+      "sha256": "5a88ddb16ff7e6b3f8ede7f3477420bcb1c32c45e88f9826a018b68eadf084cc"
+    },
+    {
+      "path": "src/drivers/opengles/glad/src/egl.c",
+      "sha256": "b646a3d6ce22e02d65b9a2b9f27b5a2e049d12d3ec0a83062ebe8a76910a18be"
+    },
+    {
+      "path": "src/drivers/opengles/glad/src/gles2.c",
+      "sha256": "e524f99beb1b4026a5846e58f430636c10625f93bb2b0b9bcf3a3a8ed95dbf2e"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_debug.c",
+      "sha256": "bbc20c892c911a75cc0dbf35403a8a0251310a65b289a804c28476ef158803f0"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_debug.h",
+      "sha256": "04ca76d15401d0a4d39c7b11782a435d0ade96bca66743f80dc47ce98bd0ff7e"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_driver.c",
+      "sha256": "3748fd8739776116b7bd85031a0906e6797b0921a6274e7a61d2ba22cf64ba7e"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_driver.h",
+      "sha256": "f7427dcd1c930da335c245979231baf3a298140fd54342c67efe94568d254394"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_egl_private.h",
+      "sha256": "2db987cf465f521243739a557f89fe08ab56ca61e1d966bda3594a894be956da"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_egl.c",
+      "sha256": "9fe272335a7142fb64d04363a32f2b989101b030697e7d71fe961c5119f64784"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_egl.h",
+      "sha256": "7525896655944a243d367bba06caf3238d1236bc26538af5b27dce2eb45001fe"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_glfw.c",
+      "sha256": "eb5dac7efe91a20744d8a88e7e4fad9306ddfbf6c93e6aff8e1ef5fa5cdd1b12"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_glfw.h",
+      "sha256": "6bb2baf2f6203e25857e2e3837d7037d434a93abecb5d3dd4121420adcf572b4"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_private.h",
+      "sha256": "ded5d119a80ac45defdab78e152791deeb10ba73fea8a41028fc699aaf884586"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_texture_private.h",
+      "sha256": "60f6c20880c20040a863bfc466001249f1cc2228c03bcbe0babf8b860b1fe099"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_texture.c",
+      "sha256": "cdd6f4a04a6a3a73b986c44653e79bc698e5e3fe1e03680206f2c24c5bbfaf93"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_texture.h",
+      "sha256": "59a94f0a925852b7f2aff0f58fff37e6401e89097405036e11f0d3af228ea8a5"
+    },
+    {
+      "path": "src/drivers/opengles/lv_opengles_window.h",
+      "sha256": "e9bbcdb7e5b32e8829248998319f1a4414926dbd517da0e8cdc91556a033fd60"
+    },
+    {
+      "path": "src/drivers/opengles/opengl_shader/lv_opengl_shader_internal.h",
+      "sha256": "c06d637f268685983ff9e1838966c5971a7fc56d439dcca3f3e4f49dbb199800"
+    },
+    {
+      "path": "src/drivers/opengles/opengl_shader/lv_opengl_shader_manager.c",
+      "sha256": "5b87727fb72a6ad9fef318f2eec37fd4923b64529f4e2ca4c2673353e3fc6bdf"
+    },
+    {
+      "path": "src/drivers/opengles/opengl_shader/lv_opengl_shader_program.c",
+      "sha256": "25cfc825a8fa2f2d8532668000d9d66e90f1a72d0006e7c43c92c123903f7da1"
+    },
+    {
+      "path": "src/drivers/qnx/lv_qnx.c",
+      "sha256": "8cafcae18d4fad0c759b946cda7a2acd763c78922ba241707c7c081bd755c256"
+    },
+    {
+      "path": "src/drivers/qnx/lv_qnx.h",
+      "sha256": "415812049dcaa3ab7bcc07761c13a2f97b88fc692d84324fcbe43630381f5e25"
+    },
+    {
+      "path": "src/drivers/README.md",
+      "sha256": "2a9ad36e968e1b69061bd9e8dd88ac4ec6d48ff2b463441ae81bfa4dc67bdc3c"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_keyboard.c",
+      "sha256": "b809082e3ab19443ce48c765d41ac21e2b76dda9a9bbc564d3f9e327bd7a8fd9"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_keyboard.h",
+      "sha256": "8c832bcd3cbfa01177995c1f10abfc30424ec51b36095d896548c808e34ac872"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_mouse.c",
+      "sha256": "eb40db68dec89e8d91cd7004556f8afd65191f0408d0c620108e68e55c5bca11"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_mouse.h",
+      "sha256": "28dcf9f4929ae7c2609ffa8597f0d30002da4151acfbe2bb1034f3b4c1c82ea9"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_mousewheel.c",
+      "sha256": "f74384b995b33d969296083225ace73c87688af383fa3ae0aa58baf4340f046a"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_mousewheel.h",
+      "sha256": "a1f50243ae8d351d37d8f6c048d5aff9a86645a0300f7713081119fb1b56f7a7"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_private.h",
+      "sha256": "8140dd4e21e0d2ec57471e2a2fd03a16eaad41b1f3d334ab3e41d53c25c05858"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_window.c",
+      "sha256": "c68a26d43a555a7f4cff960619efabf73388b0c7d411d2f270b43d0cd26c34a0"
+    },
+    {
+      "path": "src/drivers/sdl/lv_sdl_window.h",
+      "sha256": "9323524cbc1ea69f39e378b119e974df3a535a43af1d7d051745510d563f2d9b"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_context.c",
+      "sha256": "788c7c6e36255ef617146d6976dd018f46ffa119fac01d9af49251631fa90d80"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_context.h",
+      "sha256": "a8c305de39381a9ae934058d934820a1dae17dbc2ab9d50a4a9e0c2b24373bb5"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_display.c",
+      "sha256": "fbef903a3b173a4b09e440db7890d7b4cb31a17ff64a94a7bb6f496f5e9fdda2"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_display.h",
+      "sha256": "7a014073dd1231f8f29dfd285f66a63a4718494e6d661f45b991a0703afdf5f7"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_edk2.h",
+      "sha256": "52fec006310c8d76bacbf0a036bcae1b72ce4c959b3cd89fbfa3c344f64301cd"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_gnu_efi.h",
+      "sha256": "2b0f915ec6f788305d8fafd0c689ec63e0fd6b08e36c5a5bf936dbf55fd1270b"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_indev_keyboard.c",
+      "sha256": "b9a62d18057bb331be161e7c8895ff5793ea35ffc42c710a24509ef525b8eec3"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_indev_pointer.c",
+      "sha256": "6d574f3c750eb5bf73c191f281acb4112ed97ca8de8dfc1024a04908958d54b6"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_indev_touch.c",
+      "sha256": "0789f273002af4154159c37bb97b6e3450880bcf2ccb1ffe155ad25fe29d0333"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_indev.h",
+      "sha256": "420db8bf3109b52cf7df273b2b2a1d2766953160d0fa5379b497718cbfdd5175"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_private.c",
+      "sha256": "96837a23e291582e7f377fdaafd50d477f0a77a3b9be48acd46b2a2743d397a8"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_private.h",
+      "sha256": "56a34dfd1988b91717ab0c0d8a0093d938d1256582d998ae95cf91f1d678a5b1"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi_std_wrapper.h",
+      "sha256": "c93b7184465565d8d2d04d37c090a17c23b602221ba695e472eb45e3d935a2ad"
+    },
+    {
+      "path": "src/drivers/uefi/lv_uefi.h",
+      "sha256": "ba1a3ce93bdf8e56b55375db4b5d585423da096b9cbe561f53e9eaeefb4c3627"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wayland_private.h",
+      "sha256": "7547ec9acc2ec8cc62d5141a87d8d5aae8dd42e8fbf3091fb5301f2924cd056b"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wayland_smm.c",
+      "sha256": "2e116ccc244abe90df5fb005ad72319f1dc910d43f4b917806b7482ec765b781"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wayland_smm.h",
+      "sha256": "bcba5b4ac4a676053ecc9493ed6ff6e665959e0662e41e66f9b3323b99387194"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wayland.c",
+      "sha256": "01a77a6266de950e3186339cf1edf642b78a7c87edc4043a484f0003b1768ec7"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wayland.h",
+      "sha256": "03afe9dcf82d2b3e207dde4d6b393d58ff5fe6bf9b7dcfa108c28a94124349b8"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_cache.c",
+      "sha256": "043b7b479113db8d8ca0ef6fdd6536f3346c68d9ec2e6c23c8cd4640bf74543b"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_dmabuf.c",
+      "sha256": "4b8716775d02cb0684a671b0fb5ecc4903df9d1194ea9de52783ab61f8b15e82"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_keyboard.c",
+      "sha256": "17fe30374c0d0beb9573c2c6615a6ad8582c9223ab7eea7d957cfc505ee40c5d"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_keyboard.h",
+      "sha256": "5aee50d31ee2488dca1c8596103eb094db1223dbd1c43e4220dfde89d4adce3d"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_pointer_axis.c",
+      "sha256": "16292d78517d0707281c8ef6b705a8a58219c35bc02faf7770878b608e107d2f"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_pointer_axis.h",
+      "sha256": "f529b7c5c8ae42e8c1abddccd08c097fcfef0c7fdf511dbabe44f971c87f035d"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_pointer.c",
+      "sha256": "153c6d6530bc78ea5c536bfc98698f39aea3d0996a134b2231b42e20f0d3e25d"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_pointer.h",
+      "sha256": "2a46d2976a48d917bc3056d13f305de66c5f77782ecf92c196d48e19e67230e7"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_seat.c",
+      "sha256": "55910c46f26314430b7b05793b4c935930b02e67c7e496c852d5e007e3d07ce3"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_shm.c",
+      "sha256": "4a99519d9088181b370dd432d53768959e5aed560646cdf4b26aa42565165af1"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_touch.c",
+      "sha256": "b9eb963e6b2ca73a8951c8f59148877f665148d6f9f4fcc27037b7e13d4b0281"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_touch.h",
+      "sha256": "eebda4adbfb54d001a4c39841588ece83a91c78c2a23b44cb154c7724da62f9a"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_window_decorations.c",
+      "sha256": "c1b9ac8b2055b89f03f3fc5c51d5ffcd189d42be17d471d8b5aa2a20025a70fa"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_window.c",
+      "sha256": "be97be60b222f895feccf10bdf6bbc2ec136a45426afc7df4c0f98d7b6a60302"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_window.h",
+      "sha256": "d42830d51b55b1e73a97d236dc37ddd69733cdfdb27eab9d9670d4bf923ccda2"
+    },
+    {
+      "path": "src/drivers/wayland/lv_wl_xdg_shell.c",
+      "sha256": "acc88a67886445fe46e16652c796cb3914b80c3ff3bedc75b80ca2c5f11d43c3"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_context.c",
+      "sha256": "9b3fe11c30da12966654531e8923db9658b3ee3604c1c3d6e9a5801d22f5aaa1"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_context.h",
+      "sha256": "71c9ef3b9093bdc1e119e273a16a50a73acffa65077ba2e7402f61ad532924ab"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_display.c",
+      "sha256": "a5e0c916b46e8d327ec78d02380bd1240f214bddf0b49e1b8096802b57fd9d7f"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_display.h",
+      "sha256": "007cb8294068468d161a7014a5af2bf79c83e327149aeba2031845df2336d947"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_input_private.h",
+      "sha256": "9f7ffcf2e760ccaa0db34e383730240b96aa6f08e4abdde6563d8443c55598b3"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_input.c",
+      "sha256": "c45c092168e4f12012ec56c3c0f6e35d7d6a2bf0c46e4bafef021568a4af7aa9"
+    },
+    {
+      "path": "src/drivers/windows/lv_windows_input.h",
+      "sha256": "6532494643d2e98670d666806366bfd3cb3ca053f0af95535a88dce8fcb07fb8"
+    },
+    {
+      "path": "src/drivers/x11/lv_x11_display.c",
+      "sha256": "ea5149d4c653cd8c76d4e86165904be690d07eb2b4ab5c3eb5e5702b8d6b1ff9"
+    },
+    {
+      "path": "src/drivers/x11/lv_x11_input.c",
+      "sha256": "f67388fde815c748a5b54314fb56a969b8a325e707f42b70aa2e2a9d580d1705"
+    },
+    {
+      "path": "src/drivers/x11/lv_x11.h",
+      "sha256": "c037e1a6dd93f42deea24e0edd235db002ade0340fa2ee8e6510c3c86da78776"
+    },
+    {
+      "path": "src/font/lv_binfont_loader.c",
+      "sha256": "89f25494d954265bda5d690ca9db487f90a84c307767631294d0db2a205aabea"
+    },
+    {
+      "path": "src/font/lv_binfont_loader.h",
+      "sha256": "109d00c9dda0eaa5081f1d67f403175f750c5ece59bbc435234a38feda86c119"
+    },
+    {
+      "path": "src/font/lv_font_dejavu_16_persian_hebrew.c",
+      "sha256": "2ec8d7f5e586a6c785e6726e4eef3a70af0055bcec451d1ee7689c63bd69d634"
+    },
+    {
+      "path": "src/font/lv_font_fmt_txt_private.h",
+      "sha256": "55f2e9210da1d22bc32d821268e3b69e03f76522efb8d67e16ba701784637b11"
+    },
+    {
+      "path": "src/font/lv_font_fmt_txt.c",
+      "sha256": "417f271598efb8d7839ba0a7d4cb2dfee4ef844d10aa03162529e23919508c6b"
+    },
+    {
+      "path": "src/font/lv_font_fmt_txt.h",
+      "sha256": "77416b681e851cb0119755b34a5646700e7b770db9aabb109d06b0d3d27721e2"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_10.c",
+      "sha256": "078be7ad35e8a93cfda6834c052ba7ae9a091b30603f7b4e8b3464b570129b6e"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_12.c",
+      "sha256": "84843df9beb3bd693764deeae829e04801a3b1ba0a98c81c5ecbca4eed3d2ff6"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_14_aligned.c",
+      "sha256": "bbec1c62057fa7ec012b2fce9b36a82695e39e1d6404e25e5b6850618459b2b6"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_14.c",
+      "sha256": "2f985193468187bc8f51cb0444e426bad7b220a34becd93f73a6edb3b229b220"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_16.c",
+      "sha256": "2d8afd27b42dc62e76073223fe88b10d46af3d552c68de5fd9b9f08e7f7f2d3a"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_18.c",
+      "sha256": "d6df5df40a1eaa76f60225e8fc1bba255acfe85b9317d8dea41f593e3d16b79c"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_20.c",
+      "sha256": "cb55d8483ad6d73cd36f57856744b054fc5e0e4ef1b72d9e2e80d5135aacfde5"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_22.c",
+      "sha256": "86b61a10d44f7b8f35a73967337c3d96e69c788e4720fc96ed22accf5e22c1ea"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_24.c",
+      "sha256": "c789bd7574c21bd5031288cb460844ee05203bae339dd8682f28b1e3ac03524b"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_26.c",
+      "sha256": "5e2a1624cf8b6eff77cdd57770514223aa1454426209b4ee706f99fd53cf2625"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_28_compressed.c",
+      "sha256": "e4f492c404520f7fffb93b33e32c727d50d1ef072b3398f958d088313f28be41"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_28.c",
+      "sha256": "ec39829dba1404a451aa967188e87557bdd230f912bf502913e2aa4b2b7f4ba1"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_30.c",
+      "sha256": "4c581a74385fe1f25cca874fcd03229d31417b0b42db4bcf302456dc0a8b825c"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_32.c",
+      "sha256": "2be9b570229926fc72794710896f522c38af85b0dda2315253200ac155c82a7c"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_34.c",
+      "sha256": "3ab1936962f91404ed0b73d6c21c141ee3818d03ec6bfb7ac46f1a56302a3db8"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_36.c",
+      "sha256": "647a1c7ffb5de930e52ff3f387a160b85ce4f926ae0d46d4e77d7c6790073bb3"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_38.c",
+      "sha256": "49dc8c2e71ac88abbd66330ce78219c0a372c768dd72d14c6835d13bdc3b8486"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_40.c",
+      "sha256": "e4350c8478ce808f179b8c38a59d86e7cf8d27848a2121cb3feb95102e22974b"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_42.c",
+      "sha256": "81a4b206d2b588e5b7c7cc8f75e4080ce667d7e5181325a48ba359ae079210d5"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_44.c",
+      "sha256": "019217ce542f07669fa201e03d14f557291ff1ee0b1607fea42e8ab23ee31adf"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_46.c",
+      "sha256": "b0be068e730822e6649b23c66e599da4f726eac212628ba4bd1cef87f61b89eb"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_48.c",
+      "sha256": "62a4a9db98956a109f775e325b767a52c286c7a0162d3c548f9b22b22c12c757"
+    },
+    {
+      "path": "src/font/lv_font_montserrat_8.c",
+      "sha256": "9919568b45a8fa58fe1e6743f3f4afbc7034aa7e835f1615272747444d9d909c"
+    },
+    {
+      "path": "src/font/lv_font_source_han_sans_sc_14_cjk.c",
+      "sha256": "fd10c523df6b9949a89c6ff0fb3e341ff2df7480a3979cd557800972f96986c4"
+    },
+    {
+      "path": "src/font/lv_font_source_han_sans_sc_16_cjk.c",
+      "sha256": "4b8e69b4e8ede32253ea98cefeb49759b354a8c326d896bc468983095628bf5e"
+    },
+    {
+      "path": "src/font/lv_font_unscii_16.c",
+      "sha256": "ec844b571fccafe3621a8a778a2abd8370d7fb66e7d6fc5a7912e2452e685b80"
+    },
+    {
+      "path": "src/font/lv_font_unscii_8.c",
+      "sha256": "ea948472654abf7ae94508779f0c4b87632c6248a33b4760552824e51511745d"
+    },
+    {
+      "path": "src/font/lv_font.c",
+      "sha256": "b1499716c6d5843ec1421446986f3a2fcff594f751b9fed4f050d81790ccda97"
+    },
+    {
+      "path": "src/font/lv_font.h",
+      "sha256": "7904a0dffe38358e204888aea78efd15cccc4a37842ef14237fc66b630acb1d1"
+    },
+    {
+      "path": "src/font/lv_symbol_def.h",
+      "sha256": "59fae633cdc5badfe58750aa6db697e61181cdfb5a1b1cc5e7361a168beb0828"
+    },
+    {
+      "path": "src/indev/lv_indev_gesture_private.h",
+      "sha256": "95ed244901af58568eda03114d1c7b29686a1709e41fb1b24dbc153e103b7ae6"
+    },
+    {
+      "path": "src/indev/lv_indev_gesture.c",
+      "sha256": "3b108399b0edd21663a8adc07a9c6de498e4ab5cf1f36b8d83eca3d091bce38e"
+    },
+    {
+      "path": "src/indev/lv_indev_gesture.h",
+      "sha256": "0b22b1242aae6bad2fe96e399c0d6f950606ff86b8d3c19ae8fb48af01e3a5f5"
+    },
+    {
+      "path": "src/indev/lv_indev_private.h",
+      "sha256": "f718af8b68b5605cd31a3374241d98e807df38e956168724ac4483549d54f209"
+    },
+    {
+      "path": "src/indev/lv_indev_scroll.c",
+      "sha256": "33fef24af23992fe8e63e705b88625f8344ccc8b092dce4eff799bf3db57dcbe"
+    },
+    {
+      "path": "src/indev/lv_indev_scroll.h",
+      "sha256": "0ca3e8726441fdc592d751082b5e9b4828d7b19fa5f79d86204a68278dd32bcf"
+    },
+    {
+      "path": "src/indev/lv_indev.c",
+      "sha256": "8049f0fc4a11243d0d9824630398a4303c41736052c0d2af8d16433792dc349f"
+    },
+    {
+      "path": "src/indev/lv_indev.h",
+      "sha256": "7df32dbf5232087f42b4627129f430ab03da8887d779e9b000bd4cbfe3afccd6"
+    },
+    {
+      "path": "src/layouts/flex/lv_flex.c",
+      "sha256": "2094ffc5ed7d115efcce2751dfc7adabe4fe946c71fffd63d84ad41a8433d044"
+    },
+    {
+      "path": "src/layouts/flex/lv_flex.h",
+      "sha256": "aa701e83ec51faea9e948458e8a193d73fc618b085bce1faa260121e3a43f55f"
+    },
+    {
+      "path": "src/layouts/grid/lv_grid.c",
+      "sha256": "b87e91c136f8a37a4e2af9b51f98e3836eab663550a7480881355e4ab5d5c867"
+    },
+    {
+      "path": "src/layouts/grid/lv_grid.h",
+      "sha256": "5a387b36c0a2382704770f3fdef78615a5a5a9d5fae70caf7ed1ecdb192a3092"
+    },
+    {
+      "path": "src/layouts/lv_layout_private.h",
+      "sha256": "888caf7be92bf806a4cdfee76c153cf060f79d66f35b9d7a941e37efb73ecd21"
+    },
+    {
+      "path": "src/layouts/lv_layout.c",
+      "sha256": "c65bf51c712d1f1062b4f43455d9fc20893603810c2d8df565868db9692f5d5a"
+    },
+    {
+      "path": "src/layouts/lv_layout.h",
+      "sha256": "bd1a030a771eddc1d1fedcbe3c80313b38bf1b30474a6388c38e1229c2a91542"
+    },
+    {
+      "path": "src/libs/barcode/code128.c",
+      "sha256": "6415a963cf0d85ee0d83e9e17a01fc7fba437a4955cd38afa482d49614873038"
+    },
+    {
+      "path": "src/libs/barcode/code128.h",
+      "sha256": "dbad18bcf5a334c221214b649344fef2fbf1bd26a333003a6b4a71316cc3377d"
+    },
+    {
+      "path": "src/libs/barcode/LICENSE.txt",
+      "sha256": "04609557d00ca926fcd5715bbad391121bf3ebec98f253390305d656856d3fcb"
+    },
+    {
+      "path": "src/libs/barcode/lv_barcode_private.h",
+      "sha256": "8fe149cf434a030f1b5b8e86705c089737081a4a8869b18bd7eeaf8d0d5c52bf"
+    },
+    {
+      "path": "src/libs/barcode/lv_barcode.c",
+      "sha256": "e3ee8979b63dbfe4da822b1adc2a520dc0e2040c4124a22c83fdaed92f37cdbf"
+    },
+    {
+      "path": "src/libs/barcode/lv_barcode.h",
+      "sha256": "a2ba60c9d83df741cfd2a2f9be8dcbcbe4ca61a719a12f9372d5102d7ffac1bc"
+    },
+    {
+      "path": "src/libs/bin_decoder/lv_bin_decoder.c",
+      "sha256": "5fc4cb35aa73e858e2bb0e7287132fb89cf35a389095ec74481cffdfa2dd0040"
+    },
+    {
+      "path": "src/libs/bin_decoder/lv_bin_decoder.h",
+      "sha256": "8bf68d1bbf31e13d3fec82fb742f764f1ec7468183fedde45aa14ffedc8318f2"
+    },
+    {
+      "path": "src/libs/bmp/lv_bmp.c",
+      "sha256": "5ddf34e983c787073945bb62f5dd60de1e1fc7ce9f66f3609184e2d3fd1fa016"
+    },
+    {
+      "path": "src/libs/bmp/lv_bmp.h",
+      "sha256": "bbba2456d246058d3143f8ae81380d3b64bf11d97ae677d7ddba2d727eaf7993"
+    },
+    {
+      "path": "src/libs/expat/add_lvgl_if.sh",
+      "sha256": "0152604d754a46ebbaaefacc8d6bb8eae4014c1dddfc4c892aa5c56f94d81a98"
+    },
+    {
+      "path": "src/libs/expat/ascii.h",
+      "sha256": "bb09374888eb0812bf9b8423385c33953b09e5ef5c7cd896adb546d201383dd9"
+    },
+    {
+      "path": "src/libs/expat/asciitab.h",
+      "sha256": "b299c7d9db6b089b22630e5cb55d5a8d9bbf51a04b7e06b4bc8a175b91bcd685"
+    },
+    {
+      "path": "src/libs/expat/expat_config.h",
+      "sha256": "aad160602390165ee897c956cb0d48d3e44593cbcb6b9a77c34f1608caff0b1e"
+    },
+    {
+      "path": "src/libs/expat/expat_external.h",
+      "sha256": "89b06168e23ec2c12939ac6bdbc327437aef26ac7ad5f1014e5e03008f3523c0"
+    },
+    {
+      "path": "src/libs/expat/expat.h",
+      "sha256": "24f0525237795cc0799a90475265ff39293e98586d30a2ebba6b58427ec5e81a"
+    },
+    {
+      "path": "src/libs/expat/iasciitab.h",
+      "sha256": "fc8884e6c543d046b619c9614cd1960af8e1767875e3cb8ba9f96bd074cf5956"
+    },
+    {
+      "path": "src/libs/expat/internal.h",
+      "sha256": "d389e6145fbc717d23fdf0779319f9d05732b1853435b3d3bba640025df5680b"
+    },
+    {
+      "path": "src/libs/expat/latin1tab.h",
+      "sha256": "952533ff2936488861343261ba5da896ad1b5dd471d78664153a502e64a8146e"
+    },
+    {
+      "path": "src/libs/expat/LICENSE.txt",
+      "sha256": "431dd07ea1ffce7b9e525014bbf923006f129ee28ef5cdffc048f8e3eb39191c"
+    },
+    {
+      "path": "src/libs/expat/nametab.h",
+      "sha256": "545905cf0e42f84ef5d8f09239b41904b6cfb1f7602904dd9dfa94d2a47454c1"
+    },
+    {
+      "path": "src/libs/expat/siphash.h",
+      "sha256": "14dc9ab0990aacfa1a35abb3019cf887b6928396bf1320579a3ec8f0edbca432"
+    },
+    {
+      "path": "src/libs/expat/utf8tab.h",
+      "sha256": "115359a2e237074d62545133cfdd1b8e1de55d44ca39667f79d2c318e703e298"
+    },
+    {
+      "path": "src/libs/expat/winconfig.h",
+      "sha256": "5e9fa26a46dad35375706ed3f72ba014daae90c27cae8d7fa55c03c65fa5d3ae"
+    },
+    {
+      "path": "src/libs/expat/xmlparse.c",
+      "sha256": "61f9084515573c7aeea9b58cc0cddd3beb70cc7f32a8d5a73b84219497eec770"
+    },
+    {
+      "path": "src/libs/expat/xmlrole.c",
+      "sha256": "230ae38b2b2acae4ee9975bff41aa52128797cdac2701d3ffd011b899d6905a8"
+    },
+    {
+      "path": "src/libs/expat/xmlrole.h",
+      "sha256": "b005a5406e231c1a4a529d4f116a49800625ab7c748807108e724bd3ee271c2f"
+    },
+    {
+      "path": "src/libs/expat/xmltok_impl.c",
+      "sha256": "b191396734bfbeac12400930c3f41118022c80d93013a803bc47c646484850b1"
+    },
+    {
+      "path": "src/libs/expat/xmltok_impl.h",
+      "sha256": "d93d80ae377597fa5b7ce36403d39633042ebd4533f8c8d9a4ea5b3c9694f47c"
+    },
+    {
+      "path": "src/libs/expat/xmltok_ns.c",
+      "sha256": "1ebb7b20f1580e74bfedaefe747b58ec7ebe80d9509f7e73c6c468ce822b5474"
+    },
+    {
+      "path": "src/libs/expat/xmltok.c",
+      "sha256": "0382814ec899aefbcdec0ce374224abfe8bb0d43cc4c5e0978386e38f75f06d5"
+    },
+    {
+      "path": "src/libs/expat/xmltok.h",
+      "sha256": "9e8f3b7cfb2dbaecde43f3ae81c3f66a44694f83ad4fa186caac261b8c698717"
+    },
+    {
+      "path": "src/libs/ffmpeg/lv_ffmpeg_private.h",
+      "sha256": "7d65086a669f29b6ca2a24ca8298f688e9ffcd0741660ec5ad64401718f384b8"
+    },
+    {
+      "path": "src/libs/ffmpeg/lv_ffmpeg.c",
+      "sha256": "620e19786ee3f27c70472e27c24de5b3703938860b119fbd9f017139940b2265"
+    },
+    {
+      "path": "src/libs/ffmpeg/lv_ffmpeg.h",
+      "sha256": "825d4b409bb8e157da521786263c1111efaeab6d9c6fba0db3a5d9dacb8b5106"
+    },
+    {
+      "path": "src/libs/freetype/freetype-LICENSE.txt",
+      "sha256": "6c6323723550b1178fb721a025828d2fe6b19130a11925ff53d4688378f4cc7a"
+    },
+    {
+      "path": "src/libs/freetype/ftmodule.h",
+      "sha256": "c15f1c9f7275789b65676614bd5cdc7669d04cda3d52088225084075eb2f6357"
+    },
+    {
+      "path": "src/libs/freetype/ftoption.h",
+      "sha256": "4df3cac6f23d89f8f9bcf19e436aa7e5fac13cbc9aef65a4b98d54e30dc88734"
+    },
+    {
+      "path": "src/libs/freetype/LiberationSans-LICENSE.txt",
+      "sha256": "1cfc9eab5a504c8d3496a2dd8f3efc7c5367e0910a038d9e678659473953c76a"
+    },
+    {
+      "path": "src/libs/freetype/LiberationSans-Regular.ttf",
+      "sha256": "3e81ba4717a115f8d125cd2327d4a1246be2997b9ffd7291a45b6f84ed1a27d1"
+    },
+    {
+      "path": "src/libs/freetype/lv_freetype_glyph.c",
+      "sha256": "8267d2fe07235f5c03718823f92b807e3dd8bbf5162ad1f14b9d6e0041e9a041"
+    },
+    {
+      "path": "src/libs/freetype/lv_freetype_image.c",
+      "sha256": "2726539eea5e0e0c7b73fc090112f2a741d8c6f54c1c903ee319b748a91f17ec"
+    },
+    {
+      "path": "src/libs/freetype/lv_freetype_outline.c",
+      "sha256": "2335f41c8a20026ab151c7a59486d9fbec56b479a19abfc13f8bfc208659f097"
+    },
+    {
+      "path": "src/libs/freetype/lv_freetype_private.h",
+      "sha256": "993052a72367174142bb263b7ff4f673315c03ead9590a9cdd63317bc77c7351"
+    },
+    {
+      "path": "src/libs/freetype/lv_freetype.c",
+      "sha256": "7dbd43fc430b38004c31a17f52c748718942d49bab8edab018c66e056a273b77"
+    },
+    {
+      "path": "src/libs/freetype/lv_freetype.h",
+      "sha256": "5f31f1a67d257964a74c346daee89bb4e9a918210ccc7af86fb04250799b18a4"
+    },
+    {
+      "path": "src/libs/freetype/lv_ftsystem.c",
+      "sha256": "e585e283b721fc7e35ba83b052289e6aff21926375863573245f6322d6fda25e"
+    },
+    {
+      "path": "src/libs/frogfs/include/frogfs/frogfs_types.h",
+      "sha256": "4fe084c14714dc7f1a92cf2a5931cd6ea2f58142184ed9a5c8f0ce67abbf4332"
+    },
+    {
+      "path": "src/libs/frogfs/include/frogfs/frogfs.h",
+      "sha256": "2a76e9e7ab7008f0bf81c4c183378ced35ec87da70951dfbb4a0fdb14500b456"
+    },
+    {
+      "path": "src/libs/frogfs/LICENSE.txt",
+      "sha256": "daccd6f5b8e0fd07c0992116280fcddc77c2a612c4ebeb64d8b114ed9da1a10b"
+    },
+    {
+      "path": "src/libs/frogfs/src/decomp_raw.c",
+      "sha256": "b4cf1516816bac6773d6af30665c02d8abac66b38e1f21b5f8a949e3a1d6d3f1"
+    },
+    {
+      "path": "src/libs/frogfs/src/frogfs_format.h",
+      "sha256": "7562040a622cc090192158faffef84200f8c87b9f2451521580362d8e8906ad9"
+    },
+    {
+      "path": "src/libs/frogfs/src/frogfs_priv.h",
+      "sha256": "a7a679231fe4a2c5d3a5dea7f9438b9bca745d8a338a44515faa645e6cb74686"
+    },
+    {
+      "path": "src/libs/frogfs/src/frogfs.c",
+      "sha256": "79008b58f37da124286829a000e9c55704f61bd68e35ee81c4c18a05d561fcb8"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_arduino_esp_littlefs.cpp",
+      "sha256": "08360e5549119310b4793a44263764916c68c3dd4f1f27389a526b7447288803"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_arduino_sd.cpp",
+      "sha256": "408106fe624dff90f5428a6960de4623e2133306066b644f28723b2ef1d7215d"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_cbfs.c",
+      "sha256": "2a9d205e05bf309f33a16deb5b3d323245842cabd7e1d9ad799e1e06c52d9898"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_fatfs.c",
+      "sha256": "1fd3ec407dd2450a587e441d016e4f4544f992e5db372d41b65c9c47a721cc93"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_frogfs.c",
+      "sha256": "3d490d44631cdad4b0b8a96d03a5f7eef96ab6d4a830d4b3c74c85164fdbae56"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_littlefs.c",
+      "sha256": "b375812103c1d95153db01960cb5aa6c37a9a0d240213f41f26329b6675b1ef7"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_memfs.c",
+      "sha256": "3d2f814fbddeab8adea26fa95733e1010b2faa01c85f9b846b79a39456d4f728"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_posix.c",
+      "sha256": "5442a986dd5d41725f68797be46f3f6888b3cc5ff43ee7cefa181df5e5602530"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_stdio.c",
+      "sha256": "254daa9d37a85943212ed8e3bb089fdb5c1398fb94423b333cc39a6f7fe735c3"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_uefi.c",
+      "sha256": "63229aaaed57987c4908adc913bfaa337fc8bc8380dc02cf4fdbef8c0095cffe"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fs_win32.c",
+      "sha256": "9d24a478359c46bee60161c63812c79e5cf76868ba3b9f217f592f84eb2ae223"
+    },
+    {
+      "path": "src/libs/fsdrv/lv_fsdrv.h",
+      "sha256": "69a59485f4f1f2598bc164d75a227fb8d5dd626ff4454e2f16db94fb9cf55661"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE_commands.c",
+      "sha256": "a82bdfa4947ece67034f8545e35a078cc69aec21ce17dd7ef93e2e42ce07ca98"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE_commands.h",
+      "sha256": "57cc2b5be0fb1495301b5813b23d6fbf591ffa0a76cf1b0bc9f920791a1aadf9"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE_config.h",
+      "sha256": "11e81b09599fe299eb1fe9b2b36b0e1af4ac0e0b809835b901a33e9b9748de76"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE_supplemental.c",
+      "sha256": "32871f7932ea589cb32351d10168af08ed47f5ff1394688aeb30dfb88528c552"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE_suppplemental.h",
+      "sha256": "ae79e4bc53f8fce192bed187fdfdeba989fdc72201a7bcfec245c0247193f139"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE_target.h",
+      "sha256": "3186606e40d01149411be8c387737624f9ef3fc961d4b41bf8e179ed4731ac2a"
+    },
+    {
+      "path": "src/libs/FT800-FT813/EVE.h",
+      "sha256": "aec8a8bbf537d9ab8c8ff990be5b8970e479d9e8f60c4d5ce29b1275ea6b8798"
+    },
+    {
+      "path": "src/libs/FT800-FT813/LICENSE",
+      "sha256": "1ec95a48c1b3eb05a726177df84766d188046e327c8e9a9e590836c4969b8f10"
+    },
+    {
+      "path": "src/libs/FT800-FT813/README.md",
+      "sha256": "2151fb9c6e4d07c9764f7d964c7223174b7ee5ea281e8e39a1b01d6ccf83eb64"
+    },
+    {
+      "path": "src/libs/gif/AnimatedGIF/LICENSE",
+      "sha256": "eba63867579d6b216a76c816e84d7c540898c27c122d7223fc828fd9fe95311c"
+    },
+    {
+      "path": "src/libs/gif/AnimatedGIF/src/AnimatedGIF.h",
+      "sha256": "136b4fd107b493983ac97a75c8b193c60ae0264d0da59e31cc9c9120cd2102e8"
+    },
+    {
+      "path": "src/libs/gif/AnimatedGIF/src/gif.c",
+      "sha256": "813aa77eb1c9bc6ceb4175ecdcb62b652429ba5c8a90708323477d45326e668a"
+    },
+    {
+      "path": "src/libs/gif/lv_gif.c",
+      "sha256": "a1f710665dd9d3dfae78bb6919ce904a15e2af9efe1ab55c20e8a602e0d697ad"
+    },
+    {
+      "path": "src/libs/gif/lv_gif.h",
+      "sha256": "1a7efaeb2e1afe1882f73fccddd6c5c9b34f039ee47903152cc142e5ebb94cf0"
+    },
+    {
+      "path": "src/libs/gltf/fastgltf/lv_fastgltf.hpp",
+      "sha256": "e025d9af5a88a5f96e14b2cbec11f866ef50aa97ed28dd978bd17c5d92cae204"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_bind.cpp",
+      "sha256": "0708b759f2937b8a9e52ac03fb85adeb1a8019821ca8c878170390c06e063be3"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_bind.h",
+      "sha256": "d1041b1fd0ffa148087bc351b91c5210fc1c2383ec95f6c752316abc335b8baf"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_animations.cpp",
+      "sha256": "23a187a9488f20a98062f568ce60ee56d2ce7cea12d38d12b6d94b0763e14105"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_cache.cpp",
+      "sha256": "efd207605c3c184aded7241ad00f61a9c884b23abb2a4154980c3c0777d02f40"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_injest.cpp",
+      "sha256": "e2a0b78d4e88dfe3accaa6e9da164d62e7c1a7686546b35b5d924aa48604c986"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_internal.h",
+      "sha256": "40aa3ac0482df6e26d5d2732f814c2b8c2bd20d9b8f5fd1516a77d4274712bde"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_internal.hpp",
+      "sha256": "a41d361aafcaa6d16813f1bc24b5b12f1c0005f364260a7388acac630f027cbe"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_mesh.cpp",
+      "sha256": "86249877937f12a13d5e8717f59a75226b2ed1bbae0d3a7a0ef2a123cb4751ef"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_node.cpp",
+      "sha256": "ed1b3a25194d1254c25cfc4ce06627dad4bd775a01e03be38efd3d83663f7771"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_primitive.cpp",
+      "sha256": "92f9971278c612041c6b2e8fd2e62393ce53e65ece9a2680f9951ee837fd069f"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_shader.cpp",
+      "sha256": "7190963c69405e1992e4e3a6715b962db46f3f4199f3c2126d3a57449d7d3402"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_skin.cpp",
+      "sha256": "0cb6e0807404134f6cf96d6bf35ba35dd1aeed59394114715da6bd86f533b462"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data_texture.cpp",
+      "sha256": "d1ee773784fc2742ce0d8466420ad2b85df04f8b5052ef3e65a339699e6c7532"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_data.cpp",
+      "sha256": "40159df3e18167bf86b9dff5df2baceb210c65d1add9b67dcc2c419249e7cfbc"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_model.h",
+      "sha256": "3e5f350939dca4facde29b419dd06d72605a65ec156783c491a35ea4adbe3d5c"
+    },
+    {
+      "path": "src/libs/gltf/gltf_data/lv_gltf_uniform_locations.cpp",
+      "sha256": "60a9d8fd8a942cc1e3b3bcb5ce416af49eb871c3e7fef0f6c4b4f7c38a511146"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/assets/chromatic.c",
+      "sha256": "13d2cc81bfd70bc9623343170c3dfe95bac8785d37c58b8de3a2b98c4b918aad"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/assets/lv_gltf_view_shader.c",
+      "sha256": "a3652d6375914fa09f04a473290de3afc66064020bbffedd1dd25e7c29937dcb"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/assets/lv_gltf_view_shader.h",
+      "sha256": "68648079da91c51649e93f45b034da8462e8229cac0b0ee759ce61e6e4d5662f"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/ibl/lv_gltf_ibl_sampler.c",
+      "sha256": "71a12980f307262a2207901d8124bb2f13ebccd5ddce0287139d10db5753f244"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/ibl/lv_gltf_ibl_sampler.h",
+      "sha256": "001fd66d7f87e7901414a35c198e4f1fd593f2e20e1dd9d9adc7ec8ddab7896e"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/lv_gltf_view_internal.h",
+      "sha256": "abb5523a29d005a3cbc1ea1bb7874a4a8510ec997e8244c60ee782e31cf61711"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/lv_gltf_view_render.cpp",
+      "sha256": "eae203f42434e5f3b56d9b1dfbe73640b130ea675f8d176d5f7109f38db32b92"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/lv_gltf_view_shader.cpp",
+      "sha256": "ded9bcbb6d175851d797f416278070966e2f26a44d3e2bc8af1b384f8968b4cf"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/lv_gltf_view.cpp",
+      "sha256": "f77800f29e965c2b74e06d72bcda0974a418de171afa757d633160d3951ca417"
+    },
+    {
+      "path": "src/libs/gltf/gltf_view/lv_gltf.h",
+      "sha256": "df407c4507dee4e71778977bfd7df9117b1a106e03a9511d7b7062adcee75e7d"
+    },
+    {
+      "path": "src/libs/gltf/math/lv_gltf_math.cpp",
+      "sha256": "237ffc25f1a3ade827e9d34902f6d679a4d21c98e46f79a70b97c07a30fb1b7e"
+    },
+    {
+      "path": "src/libs/gltf/math/lv_gltf_math.hpp",
+      "sha256": "515eb5cac4f9346c13ddd2b212737a6309bea256077ae8e21291166b7d30ea87"
+    },
+    {
+      "path": "src/libs/gltf/stb_image/stb_image.h",
+      "sha256": "abb7524fe09f741ca6811685a142c90d659a84f868a58468e7e6b0aa5e0fcbee"
+    },
+    {
+      "path": "src/libs/gstreamer/lv_gstreamer_internal.h",
+      "sha256": "7a25a39febd298e19b27748456bbf7e7de27e61314eee7ffab242ea594ddd36f"
+    },
+    {
+      "path": "src/libs/gstreamer/lv_gstreamer.c",
+      "sha256": "545aadde8467e950064306792157eba91e98d0dc8001de4ca7a34d0e8413651e"
+    },
+    {
+      "path": "src/libs/gstreamer/lv_gstreamer.h",
+      "sha256": "753eef04fb7a5e8b8283ea8690d7d6a8ad822f71c632522701f255309dcd9f2a"
+    },
+    {
+      "path": "src/libs/libjpeg_turbo/lv_libjpeg_turbo.c",
+      "sha256": "74d8930912751bf8941cab58383c3fa9014d61975b59560ffd959a1d75f87209"
+    },
+    {
+      "path": "src/libs/libjpeg_turbo/lv_libjpeg_turbo.h",
+      "sha256": "f406aa8cbfaf14240c4c55460e8f4d69da4522394f41a404351d80681aa34946"
+    },
+    {
+      "path": "src/libs/libpng/lv_libpng.c",
+      "sha256": "000d210803696f1f145d55bf3e6f6bbfc5fa8683a988df91f673ce8f6c578c5d"
+    },
+    {
+      "path": "src/libs/libpng/lv_libpng.h",
+      "sha256": "3a2753f7c39304e68e89b155e5dad6d8a6dafd7a15a094db966e4bebfab7965e"
+    },
+    {
+      "path": "src/libs/lodepng/LICENSE.txt",
+      "sha256": "7c52a851e19f36cd1c1969b353ccbe87d395251722d6ae4cb1e2efe4f46611af"
+    },
+    {
+      "path": "src/libs/lodepng/lodepng.c",
+      "sha256": "76b2683f158f0e4b5a458ac8566c9ac4d16fb802b05513ceaef4f6458554b6d4"
+    },
+    {
+      "path": "src/libs/lodepng/lodepng.h",
+      "sha256": "3da1d0acb825ac5c77b40d4c896d6055dc73d6afaa8a49ae9fe26c773893a3f2"
+    },
+    {
+      "path": "src/libs/lodepng/lv_lodepng.c",
+      "sha256": "6595feb0735b06c531f59743233066c5515fe8fe81bc2f0e0f23ad373abb9005"
+    },
+    {
+      "path": "src/libs/lodepng/lv_lodepng.h",
+      "sha256": "cdf878b6c3e3263f8f3bb5ec9d122e607f89c4907847692afa4355d81451707e"
+    },
+    {
+      "path": "src/libs/lz4/LICENSE.txt",
+      "sha256": "862c882ee58eaffdbefb4e789aaec2a5ed0310315be989c4404c77827ea7fe96"
+    },
+    {
+      "path": "src/libs/lz4/lz4.c",
+      "sha256": "a6383f56e0bc20e2e9797f79d927d23d33c98269689e9deb86260d525401b4bf"
+    },
+    {
+      "path": "src/libs/lz4/lz4.h",
+      "sha256": "08ea762c7bba7ce63c123d7761224595bf4c3d24009852913d2373e1ed894233"
+    },
+    {
+      "path": "src/libs/qrcode/LICENSE.txt",
+      "sha256": "55bffe27c17e8dcee25f56758dbd3241ee2aac7454b36ee4b60e89c02b85a060"
+    },
+    {
+      "path": "src/libs/qrcode/lv_qrcode_private.h",
+      "sha256": "8194965d5ec134b09b96e6a49be1120dc46fc7dc5b4e0c99a27674c992850288"
+    },
+    {
+      "path": "src/libs/qrcode/lv_qrcode.c",
+      "sha256": "5498e9eedf9d2ea675e360cc6972dc1bd9f7be1f18c74fcc0ee736aea8272819"
+    },
+    {
+      "path": "src/libs/qrcode/lv_qrcode.h",
+      "sha256": "01ac49e91cc397b977d33bfbd04d36a462d2f7b9b8ff98b64485e8083411949e"
+    },
+    {
+      "path": "src/libs/qrcode/qrcodegen.c",
+      "sha256": "22d99030f515f8262f63760c8a607f1be5d97d5bdb36fe6edc556ca67dc66c11"
+    },
+    {
+      "path": "src/libs/qrcode/qrcodegen.h",
+      "sha256": "b0bd6d7045044826bb05574817be4ee977357c0f4e5275ab55167e20715a071a"
+    },
+    {
+      "path": "src/libs/rle/lv_rle.c",
+      "sha256": "f0640fc4e2ae0c85de1ae5abb6b14744cb851006bf81688ca501dc5ce5aca35a"
+    },
+    {
+      "path": "src/libs/rle/lv_rle.h",
+      "sha256": "b9d978dd8e6e814b4b015007e7f4179fea7c270756217d6b9f08610c9e3bd09a"
+    },
+    {
+      "path": "src/libs/rlottie/lv_rlottie_private.h",
+      "sha256": "8342437c2ff4b3f00ef206a0d7dddfccae3367b1aebaffc4439c9c2ef7b165d2"
+    },
+    {
+      "path": "src/libs/rlottie/lv_rlottie.c",
+      "sha256": "f9648b995fd20e45a914b5d8dc414e40c38babbc274763f6aeae5c44d900d971"
+    },
+    {
+      "path": "src/libs/rlottie/lv_rlottie.h",
+      "sha256": "aad41208bb5ce937f1eeae64326f66af33f3215222fbb944bb23e9b3a2904328"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_decoder.c",
+      "sha256": "f0cd4c11c3f24e6d46c3c459ff6cfb8c5329d99241409dabaadcec169e2f541d"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_decoder.h",
+      "sha256": "debe932b7b9b92c8aa5c9da76320416e380255839b7c1931f037872a2b49ca5e"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_parser.c",
+      "sha256": "6a51ec1650a8d6c25beecfb2ad26222d84b49c6c1b94c7ff862eb0e0a37c9c06"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_parser.h",
+      "sha256": "efc3cb830d2ac7fb9e81dbf30101822be8dc1370ad574b7bf061f9da2884e9e6"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_render.c",
+      "sha256": "688a4a6a2f5985c0cdb83b350e7a415217b271507066aa84c2ec582b71641a65"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_render.h",
+      "sha256": "75f19ec3a2fc3a64c133b22a1f245b05206c6dc7be2bc5c3234b574b1ea623c9"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_token.c",
+      "sha256": "81ebad0d41baa0a95534ed199701eae5e8c23f60cddf06b70546982030f69e2c"
+    },
+    {
+      "path": "src/libs/svg/lv_svg_token.h",
+      "sha256": "37d4736b7027311aa10a544066238b2cf6c89d81d52c2f1b9b054758327af199"
+    },
+    {
+      "path": "src/libs/svg/lv_svg.c",
+      "sha256": "a391efd0ae540d37ef9e1599c44ce7c660b21f69877e4f22176214dde9723359"
+    },
+    {
+      "path": "src/libs/svg/lv_svg.h",
+      "sha256": "8d02051941653c98068cdc98d8b6b012b8a93e73c8f5fc36a9b18fe421c322b7"
+    },
+    {
+      "path": "src/libs/thorvg/add_lvgl_if.sh",
+      "sha256": "819c81991f2149fad99a9414fcded075f201325e64fcaadc368d8962c4b993f1"
+    },
+    {
+      "path": "src/libs/thorvg/config.h",
+      "sha256": "8b05a678e9f1ab5dbdc1f3a3393db7dfdd0d8970cad8ee34669ba68ade386926"
+    },
+    {
+      "path": "src/libs/thorvg/LICENSE.txt",
+      "sha256": "66b184a2bf5458e470ca08500e6ee711578eac5546fa6c2a98124c502d7757f4"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/allocators.h",
+      "sha256": "12d7b1ce5f34c44c707f9b36d6795abafd8e2b4628dc273f00429ef73edee4bb"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/cursorstreamwrapper.h",
+      "sha256": "a9025aa3ccc52a925db700b328acda46b684ffa81a0b868c18c81858c25b75e4"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/document.h",
+      "sha256": "47ce2635cf9468592db4968d59913eefe63e8fedf9f3a2902caffda7e20061de"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/encodedstream.h",
+      "sha256": "deb17378d3cdcd0488404a31ec86ce9fb3ae9ac24f3dd66c60cb6a2994f203f9"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/encodings.h",
+      "sha256": "48c49491fc864d74f721d3798616a2074ce1f3e1a646c68433935d20c1b287d2"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/error/en.h",
+      "sha256": "6b66ddd656a95fd2e3ee41c7c52800ca22c13e8cf3468e4dcc3c076e3c858280"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/error/error.h",
+      "sha256": "274f12f98a2662a730a7397cafaa46828dfd6f98d78bed1a169067b3bca130ee"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/filereadstream.h",
+      "sha256": "ab7d8da8785d066ed9c174b46720171575403e677c481dc446b53e05a45c6d1e"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/filewritestream.h",
+      "sha256": "76dc876963a82ef559838d72745a0c0c6120214ba1b5af6da84228a09322dfab"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/fwd.h",
+      "sha256": "59749822317c4ef43c6eb0843cbfc4bb376a1d1e1eaf46c03e4321d3bd871e48"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/biginteger.h",
+      "sha256": "4f05f6e6893ce937a282015e0baad32b0978ba7a3e0fb29e9461265c2315aed6"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/clzll.h",
+      "sha256": "b4efc12286bb63284cf24a06ee55d4f200cbb086a023395b408d00d05b829424"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/diyfp.h",
+      "sha256": "7bbd56742c687fde07be4a7ada0ebe2ef3d507545ce853693a7e1162c214c5f7"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/dtoa.h",
+      "sha256": "dbdb99c208d2273a981bbd57576ec5d66da7886a2c77408a7e5f2a0ef590384f"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/ieee754.h",
+      "sha256": "75a0f6106ea1c9c0f4ad4eaa7dc371e62800b33c2cee1c3e1eb6848f95c2a833"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/itoa.h",
+      "sha256": "8ef53210a23ec576a1a0f8227aeb576af29992b0dcb12f641c7747eb4818c9e1"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/meta.h",
+      "sha256": "2961cc8dee982a9a665f9f12d9b7b5a1d7b591098021fb80bb66ec39949a3d54"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/pow10.h",
+      "sha256": "3e1c1c54c8ea7f3ba9f45bb1468b15820b5e65bbb507e14942657c22650c67da"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/regex.h",
+      "sha256": "efb8d7607b4cad5f29ac2e5fbea40614c69d7dcab52159a84933a6a21f70b875"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/stack.h",
+      "sha256": "82beb5c619f8063d3037d9063ee1fccb4da3e0e501e6d9bca9c7f50500a09cdb"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/strfunc.h",
+      "sha256": "c7e34a3f7c386823595d70c7fa2023d69484831fcbc772c09cc193cf90183b81"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/strtod.h",
+      "sha256": "1dbd9532452b9d2ded2b198aad89e46795e1af9bd7ce4345dd1237b67282ec70"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/internal/swap.h",
+      "sha256": "4b73639aeb82c64599533996341f38a1d24081e268cb93c0cc14f3d37856251e"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/istreamwrapper.h",
+      "sha256": "68c2b71216aae420d4c5886f5574d9ffa58d8e37a5f0558398eb2783da51ccb3"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/memorybuffer.h",
+      "sha256": "cb1853b2cea045df8644b538296ecb4a11965af8d8d87185dbaadde1f8ff2a0c"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/memorystream.h",
+      "sha256": "07c3ca0992f9514bce5565143c6411c41223fe15e4b3c75e65d7ca2cff3c37f0"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/msinttypes/inttypes.h",
+      "sha256": "779b3f700783cae6d7e937da6fdca980b913afff942c64497d443b170671909d"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/msinttypes/stdint.h",
+      "sha256": "f58227119c8f97120d32cca62272045777372aa19df7d5a1eb34063ac9afbeb3"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/ostreamwrapper.h",
+      "sha256": "ee6a7da587f727f9ca5197fe6e88902770c22a30487c519a952c7c0a9327e598"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/pointer.h",
+      "sha256": "c26ffe2c5dfac85868603ce39a3ecb6a8afe2d50a475536af3bb378b0628eb02"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/prettywriter.h",
+      "sha256": "cc5440c21e2b838e00da289b89436b51d0242832e62b4f7f6e31ab8441ac752c"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/rapidjson.h",
+      "sha256": "158e97422785bc0ef0e70e3a2743e30b528035a5ebacb974e1598dc6ac24db61"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/reader.h",
+      "sha256": "27e15fb1c31c5d0bdd1ecdba78a78d5ffc73226d78fb30de3b3fb6ce6e1f073b"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/schema.h",
+      "sha256": "56605d401dc155b16e6faf11b83f06719f1c4f4e7c76fdbe503b38e02888570d"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/stream.h",
+      "sha256": "45d6bed601d70940fca2ebe4bb5bdc49b142d00d4c5b175d824e122e78946643"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/stringbuffer.h",
+      "sha256": "a0cbcbff1aae05952128e41cd534454b92e20fe47d4c1c906088a7a809d9020c"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/uri.h",
+      "sha256": "b5dabbff0a6c7aed4d9cc64c31f507d2ef7a2c1ac3136a037733d230c38622c0"
+    },
+    {
+      "path": "src/libs/thorvg/rapidjson/writer.h",
+      "sha256": "2b4e9149bda215ca955dc1086e8d194b4808a37e1303e52300c8b7a944ae5490"
+    },
+    {
+      "path": "src/libs/thorvg/thorvg_capi.h",
+      "sha256": "b97cb42be9f6e8d953af28ce4e5911d60a60f471fa18e1f454236e2965f48bbc"
+    },
+    {
+      "path": "src/libs/thorvg/thorvg_lottie.h",
+      "sha256": "7685770394fe950e471465d1aaf2f4dc7f45313e63dccbe19d68f91647966626"
+    },
+    {
+      "path": "src/libs/thorvg/thorvg.h",
+      "sha256": "07af8483a8ec0dff135b2cbdaee3613e16057f42a4ed5494ff1fc88d741ee15e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgAccessor.cpp",
+      "sha256": "4cc5e5270bdfc7ce874d57904afdf829d3a0aab0aa6fefefbb66be561f91d5cd"
+    },
+    {
+      "path": "src/libs/thorvg/tvgAnimation.cpp",
+      "sha256": "ad02950edbe677c71c3bb01b1e41f251ff8cdeb8a60a398fd6636bfddc50e1e4"
+    },
+    {
+      "path": "src/libs/thorvg/tvgAnimation.h",
+      "sha256": "02045a73a164d8bd2584d54fd5caeeb4f58284623501d6a7415afe3892719426"
+    },
+    {
+      "path": "src/libs/thorvg/tvgArray.h",
+      "sha256": "e26a40552db33df80118d7f9a2b5d05f2dc72d6c3afff78d8dd7d9fced8aa184"
+    },
+    {
+      "path": "src/libs/thorvg/tvgBinaryDesc.h",
+      "sha256": "9853641ff852039c3470f3ba024e2c8c004260b306576347170ab720c7a71319"
+    },
+    {
+      "path": "src/libs/thorvg/tvgCanvas.cpp",
+      "sha256": "260787febda46caac6ba71d20fed12f81df27691eeefa7a634191a1f8c1c3c5d"
+    },
+    {
+      "path": "src/libs/thorvg/tvgCanvas.h",
+      "sha256": "0a4b880dd7bb0bf1dd10ace3b198dfd18defd05cdb5147fb16f7b4625b207ba0"
+    },
+    {
+      "path": "src/libs/thorvg/tvgCapi.cpp",
+      "sha256": "08199edcf473725ad16d7ba2af01057af5d2899de614973d4dd6c3c89316e9b2"
+    },
+    {
+      "path": "src/libs/thorvg/tvgCommon.h",
+      "sha256": "cf0c9c922ac2d7aef90a8e6c14204edef8455a13358840dff16f87a9ff646138"
+    },
+    {
+      "path": "src/libs/thorvg/tvgCompressor.cpp",
+      "sha256": "6efc0eec6fdca838d37a8c373123aae1f9ce56edfed94d70da4f318fd10a3eb9"
+    },
+    {
+      "path": "src/libs/thorvg/tvgCompressor.h",
+      "sha256": "f90b0f8b0ac574da338e12c5e108877d91a8c2e50d5de9ce0f8c0fe8cfb2405a"
+    },
+    {
+      "path": "src/libs/thorvg/tvgFill.cpp",
+      "sha256": "6aa2a25b09f9a6f9503e0f7d02a376becabd76d77bcd8c542abeadc4447d412a"
+    },
+    {
+      "path": "src/libs/thorvg/tvgFill.h",
+      "sha256": "fe759facd5173ae0c05d92921476657406715e9dddc1b4293d178983d98799ab"
+    },
+    {
+      "path": "src/libs/thorvg/tvgFrameModule.h",
+      "sha256": "073196584f6890055ac669d6d1faf08bde773a0b039c40add6bf2bec80869447"
+    },
+    {
+      "path": "src/libs/thorvg/tvgGlCanvas.cpp",
+      "sha256": "c97d9b4f5ba90c4082cc118786eeb76f679441327fe731e26fb967a0d37b159a"
+    },
+    {
+      "path": "src/libs/thorvg/tvgInitializer.cpp",
+      "sha256": "a8067d80179e9c01eb249aa754a8190a5a323ec6e294fce46ad250b78ac14c0c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgInlist.h",
+      "sha256": "323d3eabb939cfd9dd14a0b036db9d14d9198af11ba5ff4400024daac47500ac"
+    },
+    {
+      "path": "src/libs/thorvg/tvgIteratorAccessor.h",
+      "sha256": "3bae505a4541a4f79460c9c2252981c8224049036c82a769bc2ddd243100900b"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLoader.cpp",
+      "sha256": "0161abc94ec16d4f0b6daf83541b52aa08d338bec98acad67b24b27224eab13f"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLoader.h",
+      "sha256": "fd715f6471630a5a2c9b08a936f24cd494dcaffe9760673d18ca97bbf54dd092"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLoadModule.h",
+      "sha256": "c8dbcb0497cbe1e838d404050e7065c460162ada3513a3da53cff02f5afaa1c4"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLock.h",
+      "sha256": "373711f504e186faf3b1d18f8f8c05d071a2fb29bbdc786d24343664a1fa0cf0"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieAnimation.cpp",
+      "sha256": "d97a3987c6780e237b02912a5e2a016a7ac57fff10de69e082e4866805443a12"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieBuilder.cpp",
+      "sha256": "abf0161d9872196734619ae7a14f886c3b9f11ccf5c885f7cadf2475315eb107"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieBuilder.h",
+      "sha256": "0474abe7f7e1d47cf8337225845d3ab400b3211fa6c879ee4da197320fd48ec5"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieCommon.h",
+      "sha256": "0bdf8d5b86f6d91ba08768c4a5f831397dd71b6a64aabb0cae88f66ba69781c1"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieExpressions.cpp",
+      "sha256": "1165c94749129c9d9cb4a26d18f4900372eac53a6b345fb0c7eba69cf2006f40"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieExpressions.h",
+      "sha256": "cffab2f09524a199ee1abb9e566c12c0aa87ff8b24189d7f7ab61b7be586d17e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieInterpolator.cpp",
+      "sha256": "1bff63f6e36bdb95879959ee0ef2d4f0d06c091cdd1ca0ce913ea86af77193c5"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieInterpolator.h",
+      "sha256": "a561d472eb698d0892c7d4b02cdbc860b0a8af29767721ad5efffc3ff9a018d3"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieLoader.cpp",
+      "sha256": "282bb84b182a6611835be0a065a850e6a9ff669597c29646c0280223abbb8b8f"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieLoader.h",
+      "sha256": "41bcb444d1654dc318c5c9dec2be6d9d0a32e8eddf17191f65d43e26ae71b5f0"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieModel.cpp",
+      "sha256": "1ae9968e19c1f059a75a1e0fa3c9252981adc4ae26ff90707496c9b1e0946dbc"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieModel.h",
+      "sha256": "4b16b9bf4d152c0fec92dd135c2a793814485584cc9ad5c22eedf302d32126e0"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieModifier.cpp",
+      "sha256": "5ccefa4d4f9b24070bbcd9e4ad7a28637cf6e7b1ad3e5e1d46e29965d4f0e5a6"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieModifier.h",
+      "sha256": "25cfaad15eb4ad7de83c467251d54f833fb7c4f52ecf0d3c58acbcf25d8cf98c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieParser.cpp",
+      "sha256": "8b877a885e1edf7edbc3edd972d4a77638168d64aeab265209a219511d0d5745"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieParser.h",
+      "sha256": "3e0d4bbc83384e89fde2e5325af3e8d11a06dfe2df70518213b535ff066ee28e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieParserHandler.cpp",
+      "sha256": "aafce7e9a21b8aec5ce62b5590e92ea53d3144444a6b4efaed83da28ee5b079a"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieParserHandler.h",
+      "sha256": "3c4c5a65ba1c435adba918cd4d5bf390d7e61e90f0cb96312e2cdf0415c4a45b"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieProperty.h",
+      "sha256": "dfe60312f44f5a582a7fe058ebd0b9bdb1cede2f8333b7ffcdc8d6e623818a49"
+    },
+    {
+      "path": "src/libs/thorvg/tvgLottieRenderPooler.h",
+      "sha256": "52b712a4d0c2a0004618dfcbb2e3aa238ceeeb779b8fe1159bc0b56fb6573b8c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgMath.cpp",
+      "sha256": "c7856574710c79fcb18cb89cfe2c99a03b530bf3a36a29b20a96ea1013422028"
+    },
+    {
+      "path": "src/libs/thorvg/tvgMath.h",
+      "sha256": "9a101e6ea269540114fb09efe15db920bf5bd4bc85ffa85c04257bb9bbbbbd65"
+    },
+    {
+      "path": "src/libs/thorvg/tvgPaint.cpp",
+      "sha256": "1972850c134242a59f5b309af4957034ec57e19070f46a7f75e2acc209523bdf"
+    },
+    {
+      "path": "src/libs/thorvg/tvgPaint.h",
+      "sha256": "a19d60fc76c2a2e7a28557c19b8a6cc3dfb0389e63249f8090742772ab2cf386"
+    },
+    {
+      "path": "src/libs/thorvg/tvgPicture.cpp",
+      "sha256": "c9f91f969d2f1a6192f798f4033fd4bb4f11d81081e706f8559eb104217b4afe"
+    },
+    {
+      "path": "src/libs/thorvg/tvgPicture.h",
+      "sha256": "8e1bf25ccad968b3a5ee7601b3cbc8930741e246f9842343619149e519080172"
+    },
+    {
+      "path": "src/libs/thorvg/tvgRawLoader.cpp",
+      "sha256": "9b289670f8af2cbff88252ba8605f82459769add078ffac4dbc701db048df15c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgRawLoader.h",
+      "sha256": "da202f039df860f0819e2cf540ef9347d8f398f51c5ebf53f8472ebf327337f6"
+    },
+    {
+      "path": "src/libs/thorvg/tvgRender.cpp",
+      "sha256": "7fecc71e16cca7ee354246db0c2edfe1ca3e7b934e299163bf09ed1bfe43f83b"
+    },
+    {
+      "path": "src/libs/thorvg/tvgRender.h",
+      "sha256": "1afd612bcdf88da22367f0e7e8417e978c145fcc6a3441c32e8058eeb5f5bb5c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSaveModule.h",
+      "sha256": "ec40ffe802fd9f54eb42007106db8e6e94a59706bb43db0e87d5e487b3f1ab80"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSaver.cpp",
+      "sha256": "46dee73b0525548de4e8bdc5266f68726a3fdb9f6f89a4c201105228b9f64c42"
+    },
+    {
+      "path": "src/libs/thorvg/tvgScene.cpp",
+      "sha256": "84ed59fd85e15e54c25acdad5918f215d3cf2f3eda136830751d1b801ff44391"
+    },
+    {
+      "path": "src/libs/thorvg/tvgScene.h",
+      "sha256": "bf5566f1650b00b0187486bcb11d5379fa8e398cfe3b2cb6183998afd015a6ae"
+    },
+    {
+      "path": "src/libs/thorvg/tvgShape.cpp",
+      "sha256": "f5dc47e5e1354be00bae036d2c1dd7b1ed9a2df0ce2e08f004897b6d446ff53e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgShape.h",
+      "sha256": "a62c1d667c18653f06ffa71913cb0808139ed2eb7e60c1a79eb55496b86d24ee"
+    },
+    {
+      "path": "src/libs/thorvg/tvgStr.cpp",
+      "sha256": "1b4f73b022cbab7e65a1e5e59540e0741b8fd225c9f796fedb679ead3c5634f1"
+    },
+    {
+      "path": "src/libs/thorvg/tvgStr.h",
+      "sha256": "53e0a40b1eeb3cd66b19fbe4c9dfbff8cf90d0011573ca4daaa0420073ce5469"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgCssStyle.cpp",
+      "sha256": "d27a57ee425bc38431879fbc19c09493489eb62e6e12302792e2d7a8833c24f3"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgCssStyle.h",
+      "sha256": "59a78d9511e66e9920099ad1b52c95c322c196e02486a37c9c48cc5f0698ee42"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgLoader.cpp",
+      "sha256": "66165e6bb4c485dd43db7f93fad94db58cc777ea3de68c1b2c487619e720c641"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgLoader.h",
+      "sha256": "f2f325bbdef074e6d6dfb58dfda840745e9355b680afc89bd845924ee9a03981"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgLoaderCommon.h",
+      "sha256": "7486d29abf292a15ae02d200dc75923bdc5f9ca4a1971004d4b41fa242b9ecd0"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgPath.cpp",
+      "sha256": "91a67106108c09d1f01b2a55bf74ea8646d4fd41f39ebe7ce8038a8917159658"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgPath.h",
+      "sha256": "8b22c9249d1799d6422164a3312393bfe173a78c526facdf6f49a7b3ec9d5769"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgSceneBuilder.cpp",
+      "sha256": "83babfd0c92594d956b25b8ced127cc70ab715dc9656b9dd1fbbbb4d532dd18f"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgSceneBuilder.h",
+      "sha256": "f7bac5653927701f7a408b1da341dfc4b65538a6eb2d9035e79bff8bf30f64b2"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgUtil.cpp",
+      "sha256": "244145798e7416b74c746792696274a22e03473da0a249fde325d7d321a12c99"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSvgUtil.h",
+      "sha256": "f1f1909c9f529a252c913a73272363a14bf732b25e1efac4e95d873d451bf7df"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwCanvas.cpp",
+      "sha256": "d0aa649f5a2439ea20389a5aec2edf095eff7fcefda1654707127a0f20bcfd1e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwCommon.h",
+      "sha256": "da7858ffff3c9b5d5a631548019ed5c2c0110699ab5b356f0b8fe8c8b1b8419e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwFill.cpp",
+      "sha256": "51945a5793995d25f8bb7eade7c1dd4f15706d5755974dc0b5bdcb780f45436d"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwImage.cpp",
+      "sha256": "cd282f0a81aa9f43b52c9960255f5cc58933ca2548ccb5a37355810e79117f5b"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwMath.cpp",
+      "sha256": "6ec0284741bc13ff8692dd77aa647506f0549d1d4d73808df446e41c7ab879db"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwMemPool.cpp",
+      "sha256": "9c759d10c6f9362359aa00138768b6eb496f242ba421b55fedac99a569f4fd23"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwPostEffect.cpp",
+      "sha256": "83a216b0a2c4625fbde3d86d3dd22b10f6b159b004aeeeba507537afadb1d9fc"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRaster.cpp",
+      "sha256": "c0152f087a130a5ec0c9676740a69ed70b8c007e67c1a7cb0eceb07e42fcaae1"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRasterAvx.h",
+      "sha256": "e8a62a6e000de24128a2e63417eadec632e1d182c6199fd8794822659e03c835"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRasterC.h",
+      "sha256": "5e600d1a0d89e2d0e985675b57d351870ebba7e32a91c9120c09090f3b3321a5"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRasterNeon.h",
+      "sha256": "5d0887b00221229a72c7c9083c1dbdecba44a46aa0396a3f384d2d143fe3e40c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRasterTexmap.h",
+      "sha256": "7a7a7ca386afd7ef5c93249a1811dceb505986da44e37906e772998f5ab81b93"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRenderer.cpp",
+      "sha256": "9606c76371d458408d89f1a48532eb2e93739c0618eedc45839db1a262f95c5c"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRenderer.h",
+      "sha256": "dcff0ac947560be4c9a1ad45bee5845c026f0e7cfb138f263601e2bac15bfe23"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwRle.cpp",
+      "sha256": "8deb2a5cdffb0e710c189dc302077c5a971e0ab11c08160adbf2b75f4157cb88"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwShape.cpp",
+      "sha256": "da9a5069ef92284ffe2df8c5a8d8076526856b83d7a5188e17148f4acffbde1e"
+    },
+    {
+      "path": "src/libs/thorvg/tvgSwStroke.cpp",
+      "sha256": "2c1e94c74fca05c8e65eb8a29bafadd379ff7a0de6e95ce55a082d78e759ab7f"
+    },
+    {
+      "path": "src/libs/thorvg/tvgTaskScheduler.cpp",
+      "sha256": "e1943af7ddbb4bbb40ebf904b5adb8811cfe1b3ed24e59e6d94d36527756f55a"
+    },
+    {
+      "path": "src/libs/thorvg/tvgTaskScheduler.h",
+      "sha256": "cce7be7e05a2851c2937e06396a989600e3e111a4615f4bad73bfbc296b14dad"
+    },
+    {
+      "path": "src/libs/thorvg/tvgText.cpp",
+      "sha256": "c75b67628f3fa32dcd51a330e4df0996f07da10ab4c32538b9a27caed8ea6ab2"
+    },
+    {
+      "path": "src/libs/thorvg/tvgText.h",
+      "sha256": "fe14e84647efb0a46c11baecfa129e785874e723200beb83c5ec1e0358e25dd4"
+    },
+    {
+      "path": "src/libs/thorvg/tvgWgCanvas.cpp",
+      "sha256": "1c532531d9319c23eae5a82f81e026eb053beb38eaf35505f0abb10ac9baed6b"
+    },
+    {
+      "path": "src/libs/thorvg/tvgXmlParser.cpp",
+      "sha256": "7d4b0aa41caada2150874f3a437b9fe90c15edf4504e91aedafd0b6c68b317e8"
+    },
+    {
+      "path": "src/libs/thorvg/tvgXmlParser.h",
+      "sha256": "51ae762c25e38e6205861fe6c41eced7d52cd3baa239b4cc0aa773ee6ea44f92"
+    },
+    {
+      "path": "src/libs/tiny_ttf/LICENSE.txt",
+      "sha256": "0b4f55531f448ac7d3a960a9a3434337d4dac1dcf644b431d1793f2d536e8ce3"
+    },
+    {
+      "path": "src/libs/tiny_ttf/lv_tiny_ttf.c",
+      "sha256": "3eace2db833e2870163df56b70dda8a23c6e5893d64b61c30f8ad976b1412872"
+    },
+    {
+      "path": "src/libs/tiny_ttf/lv_tiny_ttf.h",
+      "sha256": "b58110421c8c871a78ff4f5759fd181fa73f6e25e475d2a7f9257ff568688fb2"
+    },
+    {
+      "path": "src/libs/tiny_ttf/stb_rect_pack.h",
+      "sha256": "7edffc3f3d0b073c325d429eb07b317bbfa9da2364871b607bd33ef5d7f2eef4"
+    },
+    {
+      "path": "src/libs/tiny_ttf/stb_truetype_htcw.h",
+      "sha256": "8fd5e1d68db8973287ba0730ecc3fdcb602c10b3b6560d77a66135fdfbbce64f"
+    },
+    {
+      "path": "src/libs/tjpgd/LICENSE.txt",
+      "sha256": "55893357e9cd00860e4b02ab03bd653eda26effb67942a8609f7082ca62802fc"
+    },
+    {
+      "path": "src/libs/tjpgd/lv_tjpgd.c",
+      "sha256": "c301e3314bf1cc0ccc6df4241af6e1cede7a9a50b1085908a925ca51b1a15938"
+    },
+    {
+      "path": "src/libs/tjpgd/lv_tjpgd.h",
+      "sha256": "7e6838e1c357e015f8aee69beff0f42b7a3325fa3e65dd865163bebff0d1e2c8"
+    },
+    {
+      "path": "src/libs/tjpgd/tjpgd.c",
+      "sha256": "b05364e223966c8b6e20d4ce0e5d29abfe8f325cf3e4cde3d1a95fab4b9a9f00"
+    },
+    {
+      "path": "src/libs/tjpgd/tjpgd.h",
+      "sha256": "60604e6f91c3e45d8e6186647a17d507e42bca721d733ec8dd56a3b8f1adb7dd"
+    },
+    {
+      "path": "src/libs/tjpgd/tjpgdcnf.h",
+      "sha256": "a2761e4cf3edee2da41c20ef145192d443e451e306b8ffd40524acbed0bcd426"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/add_lvgl_if.sh",
+      "sha256": "51579705b29503144be37b6a2a1aabf0e0f29e8c39a3985d590e965a9ca7fa28"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/inc/vg_lite.h",
+      "sha256": "fb068bf5d6875de879aa154efe72387e5833af0b062069ca025e3302a1ee9ca6"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/LICENSE.txt",
+      "sha256": "0adaad54f4b439ee8ca118e96cbeb8be50025f93f7d5dc24be8946d5cee94458"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/lv_vg_lite_hal/lv_vg_lite_hal.c",
+      "sha256": "9184831263af99e2b87112cd975b54079d04cb5ed8559efe3e5ef694da3291b7"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/lv_vg_lite_hal/vg_lite_os.c",
+      "sha256": "3f62d790a0b9dbfa6c18db5b886e6d9f4500fd76fd4726539f41105ffab2beab"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/lv_vg_lite_hal/vg_lite_platform.h",
+      "sha256": "fe30b84d57ba77391093be6322c1e5f56d81389bfd46f5ac8fd982145b8a5656"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/Series/gc255/0x40A/vg_lite_options.h",
+      "sha256": "669cddb91fa94063f9cceddc499202b8c7a7e9b400a26375f812b97b30307649"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/Series/gc355/0x0_1215/vg_lite_options.h",
+      "sha256": "469c7bfc67716b4391c3afe10ca7debd32ab24ed90806655ae0f61a13cbe85af"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/Series/gc355/0x0_1216/vg_lite_options.h",
+      "sha256": "fad093c8341ce10169f83af07965d21cfd2db3fdd6cb5ab88711c70528e99ab0"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/Series/gc555/0x423_ECO/vg_lite_options.h",
+      "sha256": "375865e4f3043a672494588dcd1c20938b937dc4b70d3ad581f83100c1f60481"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/Series/gc555/0x423/vg_lite_options.h",
+      "sha256": "1a688aa53af3626dfb5a4aa585c4d4f894df404bf479c7f0f8937c4ea75fec96"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite_context.h",
+      "sha256": "e5b3387438692e00668dfd18e11962c08e8ed1d4af1bee24d8dcbcbaa2910be3"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite_image.c",
+      "sha256": "a61aa29bedb71730b128fbb38442d3070ef028e6b8aecae91de4edf5aee14283"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite_matrix.c",
+      "sha256": "7ac15f6e5c17a746c84e44f7642685995a3c5465b64905624cba542b95486e88"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite_options.h",
+      "sha256": "42026e99d0db89cda40b309ef89de9dfcaa17079c0aa8fe5936dfb542f48a183"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite_path.c",
+      "sha256": "d14c85784bae660e13406a4a40188348abccc1e81080c5000ba99612f023b9e4"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite_stroke.c",
+      "sha256": "249a47800f85bd6d9da6e8e848c9849c74d5b0b7515ed7ca91e6d85ac575ef59"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLite/vg_lite.c",
+      "sha256": "103fb6c6659895d64b5fe0cfe1d82403ad988a422c7b66b79807284aeb142951"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_debug.h",
+      "sha256": "c8895b012cddcf85489d519ac30bcdb7781271a4471fd6f7fbd6b702a25860f6"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_hal.h",
+      "sha256": "0fe72da8f7b8d9040560882f6842e45618e62582ddbe70774091d2ea58485574"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_hw.h",
+      "sha256": "a17a7c5623a41a1256723561edddad32b50f398e88a9a5a7e320ccb57077dc2d"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_kernel.c",
+      "sha256": "79b9e9104c8c5ab5d3d11ad7a6c9fde9ef70044dab3fdf008e725ca68016b98d"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_kernel.h",
+      "sha256": "4c49f690cafd92adfc0f7edf598e2bf77141256b0b14c58f8fbc6d612ef0867b"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_option.h",
+      "sha256": "0c40521f616f688f201de48c2224a68fcfa2613024d619229dc2f1c9c103b3d6"
+    },
+    {
+      "path": "src/libs/vg_lite_driver/VGLiteKernel/vg_lite_type.h",
+      "sha256": "0cc94b2a7c6c5b192ba141649a1602b6f7f812479d3d9b674ae2da540e96e6ed"
+    },
+    {
+      "path": "src/lv_api_map_v8.h",
+      "sha256": "e76247781739bdd66d00536bae8bcdd18fd94ad921ce5db3ceced10d5232977e"
+    },
+    {
+      "path": "src/lv_api_map_v9_0.h",
+      "sha256": "d3e91f6669ae0a8145a432ad19a9eb4a47a217f497ff8222079a92dee3b7ec04"
+    },
+    {
+      "path": "src/lv_api_map_v9_1.h",
+      "sha256": "483e201580db5528fde77d37e48449fe60f448bd0fea2a741294731c1cccb0af"
+    },
+    {
+      "path": "src/lv_api_map_v9_2.h",
+      "sha256": "536b2b47a46dbfa82649b4f976bf49e247b24c158f7c62a23310333e440121c6"
+    },
+    {
+      "path": "src/lv_api_map_v9_3.h",
+      "sha256": "8ebc7a6f365eb3f1df941ffb2bd22b37e2dbd28473fac28bd67d00e5d4a90512"
+    },
+    {
+      "path": "src/lv_conf_internal.h",
+      "sha256": "381021f14fc62976edf732902211a7c135b3536ea8bf6d8c6536af229e25386d"
+    },
+    {
+      "path": "src/lv_conf_kconfig.h",
+      "sha256": "523074339673c224ef92fdf84c40b674a38db17895a207b97e7a572d1b4b73aa"
+    },
+    {
+      "path": "src/lv_init.c",
+      "sha256": "b60819cb87c7adae605ac77d64c3107732a8e0ebf87f8eb544dfade2fc960904"
+    },
+    {
+      "path": "src/lv_init.h",
+      "sha256": "b41b66482ff3ad2788ce808454ad92071450764e59b98a331497f4be357d453a"
+    },
+    {
+      "path": "src/lvgl_private.h",
+      "sha256": "93e4ab1c2275e06d829396436518d06520a21c5a99a496950951a8156cd075c8"
+    },
+    {
+      "path": "src/lvgl.h",
+      "sha256": "26ffb9556b07f12e844091945397b464473cd2ec71f06cdf817a29f319ce7745"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_class.h",
+      "sha256": "bceff09d2d62cb63c7f1a8547329b5d5480d41854db00ff552fd0b2be9d72a30"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_lru_ll.c",
+      "sha256": "0f70f04b670361d0a3bc5399c49997303e4047be3511b277e4e4703d0ef22318"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_lru_ll.h",
+      "sha256": "783afd49a3746661ba817bbbf3d8a09aed1c726ce652deba8390b7f294b31011"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_lru_rb.c",
+      "sha256": "3a998ce5c7bbf5ef640c18ff228f3a95382ccda61ef418ab9109eeb010b1b000"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_lru_rb.h",
+      "sha256": "0a0192870cc8aab2b557c0d94cddfa2b929fabd27cf14eae10a8d2263cfb7acb"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_sc_da.c",
+      "sha256": "c466afae96e94de4da8d2bdb135f393f7183f768a4276a53b8b57868681ab488"
+    },
+    {
+      "path": "src/misc/cache/class/lv_cache_sc_da.h",
+      "sha256": "87c62068d3126bb1f5ee9b00a4947d66d1823ed4532ef931ca2df1f1ebef8c3e"
+    },
+    {
+      "path": "src/misc/cache/instance/lv_cache_instance.h",
+      "sha256": "642639aa3c132a44e8e18acb6f480c5a1793245e6b88cda03582744983969e55"
+    },
+    {
+      "path": "src/misc/cache/instance/lv_image_cache.c",
+      "sha256": "b4c4a4691cc83a9b76c9611259f6c7f827254f2e94776c674e2152d46efec4a7"
+    },
+    {
+      "path": "src/misc/cache/instance/lv_image_cache.h",
+      "sha256": "f6a6687d4dbac1cd701b89183c16ca24706e7e8066ae317f39d48a8c59800d44"
+    },
+    {
+      "path": "src/misc/cache/instance/lv_image_header_cache.c",
+      "sha256": "c35dbbc9c3820b49cf26e406d80cf24da13d367528ecee00302344f7b57f8cce"
+    },
+    {
+      "path": "src/misc/cache/instance/lv_image_header_cache.h",
+      "sha256": "e526242f23d48fc9590d50e88b701b97ff1547131a16b6da9c32ed5c65389c1f"
+    },
+    {
+      "path": "src/misc/cache/lv_cache_entry_private.h",
+      "sha256": "8430299ba4b5aab626751b1a6a752d508538014c28af04c10fd8d6486bef1b84"
+    },
+    {
+      "path": "src/misc/cache/lv_cache_entry.c",
+      "sha256": "b3e0c7e68955bd77fa49878ab6504a59876a011f230507c14193764e099ab64a"
+    },
+    {
+      "path": "src/misc/cache/lv_cache_entry.h",
+      "sha256": "02055a40bd9fad0db45ff5d31daf13f6680c61f9db0e57df1b031bf09b5743f9"
+    },
+    {
+      "path": "src/misc/cache/lv_cache_private.h",
+      "sha256": "24e60a940eabaacbb6a5c1f1d9bb7ae889f788210e824f9e3db48d13938e83eb"
+    },
+    {
+      "path": "src/misc/cache/lv_cache.c",
+      "sha256": "bcf85584315c3b514b336563697cded05c23a5d7fca9dfc5b535e3ea4352429b"
+    },
+    {
+      "path": "src/misc/cache/lv_cache.h",
+      "sha256": "c3b663a74ee9cef91a0eab3fdfc238cbd34f10ae738c67cd3a61e11da7e6f229"
+    },
+    {
+      "path": "src/misc/lv_anim_private.h",
+      "sha256": "62cd9a3a94240bc4863cb26e5ab25cbaa824b26d683788cc1d6e5e875f50889f"
+    },
+    {
+      "path": "src/misc/lv_anim_timeline_private.h",
+      "sha256": "ec64cd688e4e742645e277bab73422ea3029ec505d7796863fb736dc1c37c5fd"
+    },
+    {
+      "path": "src/misc/lv_anim_timeline.c",
+      "sha256": "bab8a3d1411dd65a18d0ceab30545bc56710a95b989116fee7c87bc323937abf"
+    },
+    {
+      "path": "src/misc/lv_anim_timeline.h",
+      "sha256": "bdba5502c2c44a5c0ffb54529b1ba4d64a6b3586a09b6656cf5c22c756f01b51"
+    },
+    {
+      "path": "src/misc/lv_anim.c",
+      "sha256": "21a293782bf5a180caf3377db8f4dd626dbc4414f1226be1b894decadba14a7a"
+    },
+    {
+      "path": "src/misc/lv_anim.h",
+      "sha256": "4bfe8820a4d89d2c960fad63cd69ce11f094602fb7990b9e406891bf1b271890"
+    },
+    {
+      "path": "src/misc/lv_area_private.h",
+      "sha256": "d3fc1c735f5f7d8414991809e7ae0985c8c6ad08adf4c45f6d1f4e10e713cfc2"
+    },
+    {
+      "path": "src/misc/lv_area.c",
+      "sha256": "8a043d25474181431d369ef6704a75618ccc36f5b649a88f770195e184b44a60"
+    },
+    {
+      "path": "src/misc/lv_area.h",
+      "sha256": "2f34ea8d3f11d9b047f7d1b30adea9e248771333443c1b187c05448620a53b31"
+    },
+    {
+      "path": "src/misc/lv_array.c",
+      "sha256": "beecd1f234a319d4d727274ab7e52b7d13351c74cb87c198f96369678dd27f2f"
+    },
+    {
+      "path": "src/misc/lv_array.h",
+      "sha256": "d89288d06ffe73c4cd505884b3da04ffe26f1b68f8ad819e21515e119b296e72"
+    },
+    {
+      "path": "src/misc/lv_assert.h",
+      "sha256": "706a1909d3c26f04798277b8fdb886287f754077dd50267e2a9f9f30da3d00ec"
+    },
+    {
+      "path": "src/misc/lv_async.c",
+      "sha256": "98f4a44177070629577d753af64d771ec34be536b37b4f859f3a5f0696599c60"
+    },
+    {
+      "path": "src/misc/lv_async.h",
+      "sha256": "b60d6d35fb74b8bd90e80e2ce98bebf7262521222aca3360d4052078a3c2fce8"
+    },
+    {
+      "path": "src/misc/lv_bidi_private.h",
+      "sha256": "ea4c121b7a86ef47d45443d1b2d0be3be9fdfdfb22ecf74e28f1b80dc05601e1"
+    },
+    {
+      "path": "src/misc/lv_bidi.c",
+      "sha256": "7b13178713ffb762c26decc8c63c6d8b93ce13407509c6b03a8a95ef5580855c"
+    },
+    {
+      "path": "src/misc/lv_bidi.h",
+      "sha256": "b3675d6445392fd77facfef33aa0c9606f026150584d8024b1fbe6a78e51fc88"
+    },
+    {
+      "path": "src/misc/lv_circle_buf.c",
+      "sha256": "644a1e6c8a9b63a5e012397060f85d117c2625298a33b89e44cfc1b38d43ea25"
+    },
+    {
+      "path": "src/misc/lv_circle_buf.h",
+      "sha256": "14fe51b4f70ee1e56ad55a39d81cb91263b0ec69f8c0cb6734b7c9aef21852ba"
+    },
+    {
+      "path": "src/misc/lv_color_op_private.h",
+      "sha256": "17522632baff90e56e9dc834fd9346eb75a6c1db2637c48a83c2e516133efcc3"
+    },
+    {
+      "path": "src/misc/lv_color_op.c",
+      "sha256": "e917ce8c456626c307b5ddcecead317ebeab87d61b404665a564a86d81990a5d"
+    },
+    {
+      "path": "src/misc/lv_color_op.h",
+      "sha256": "7c5e0e55405e502179303373f06c2481a132c1ebb4137f3167b0273d37d3848d"
+    },
+    {
+      "path": "src/misc/lv_color.c",
+      "sha256": "9c5222cc3ec6c497558324a5322f4f6cb99ff8044a8af198eb22517db3152a6e"
+    },
+    {
+      "path": "src/misc/lv_color.h",
+      "sha256": "bbafc09fa943bd7833937abc9c838967d42228dc380193f03997e5a01e9548b9"
+    },
+    {
+      "path": "src/misc/lv_event_private.h",
+      "sha256": "68efe11188bf3419dc94aab4adc622b5316cb7facce8ab7445b6ce7dbb092181"
+    },
+    {
+      "path": "src/misc/lv_event.c",
+      "sha256": "b53aecf774abfb6a7934f7065930669753b943b675ffb14f2a2f83b4868fdd0e"
+    },
+    {
+      "path": "src/misc/lv_event.h",
+      "sha256": "0aa69b11bd1c977f84fd567fa303f3edbd9e8955849a68fb54c1c6c670e9362d"
+    },
+    {
+      "path": "src/misc/lv_fs_private.h",
+      "sha256": "85a7491d1f5615f1952c49777865896e4595b10ada6a633ef1ad43c59dccd582"
+    },
+    {
+      "path": "src/misc/lv_fs.c",
+      "sha256": "e515acb3de0e251d4ffce680c4d7abb4618c98a16061ec7cd6e22c46bf0fb2c7"
+    },
+    {
+      "path": "src/misc/lv_fs.h",
+      "sha256": "f3036f89c3d6e5d350443da1beb8f8bd7b14bef16453750b02e049b7b1dc135b"
+    },
+    {
+      "path": "src/misc/lv_grad.c",
+      "sha256": "58b6ae5797cf5fde38662c9db8624833d22cbe7321199e2c69f7c56d65a05977"
+    },
+    {
+      "path": "src/misc/lv_grad.h",
+      "sha256": "30c7d213d0e42242e914851264128796b65f035d99089fb7f588fe793b2f33ab"
+    },
+    {
+      "path": "src/misc/lv_iter.c",
+      "sha256": "85838c47e52436be1dd5744c6c29c58fe548aaae6ef2b49bb42adf485247d52a"
+    },
+    {
+      "path": "src/misc/lv_iter.h",
+      "sha256": "78fa17d4271c207267eb0c063b60570d23707d2cd4ac25bf58cd05be0001fcbe"
+    },
+    {
+      "path": "src/misc/lv_ll.c",
+      "sha256": "4ce6b701c129d4334c2fc09b20e3ab674f224607e0101b88fe2ba535ffdf66f7"
+    },
+    {
+      "path": "src/misc/lv_ll.h",
+      "sha256": "8480546350ed8baf2602dd79f080f330ade9d868dfc5cf920b0ae76722271558"
+    },
+    {
+      "path": "src/misc/lv_log.c",
+      "sha256": "c5a6cff039636753d15f42439d0d09be3f58badfc9ca5a327f18451a2aaeaff0"
+    },
+    {
+      "path": "src/misc/lv_log.h",
+      "sha256": "9705f097312a76f0fb8b762d97fa65bdd771b0a7a425d2c50c1b33ef8d5a49c3"
+    },
+    {
+      "path": "src/misc/lv_lru.c",
+      "sha256": "83f9d33b695c78dd851871703df497f37c05517bf3214378c00f7408ab863d16"
+    },
+    {
+      "path": "src/misc/lv_lru.h",
+      "sha256": "a5f02b0ca5bb651319461323e82c11b079a99db6bd92a050e847775fe76bc147"
+    },
+    {
+      "path": "src/misc/lv_math.c",
+      "sha256": "f4c16283a9c94a70ee2b3a66fa5a2a9757c7809a1d2f76efa3245cef261e78a1"
+    },
+    {
+      "path": "src/misc/lv_math.h",
+      "sha256": "bc110d028a700177a3135355dccbf9b437e439a36d56469496ea5b853407d90b"
+    },
+    {
+      "path": "src/misc/lv_matrix.c",
+      "sha256": "6b8dd19dcf071e9583654206e09deac34c5d27c50ca7c58385afb7a42c6700a7"
+    },
+    {
+      "path": "src/misc/lv_matrix.h",
+      "sha256": "3f6b61cf0e4f8133d1624cf4653e4dc692ef9f540d713fbb83d4b5525138862f"
+    },
+    {
+      "path": "src/misc/lv_palette.c",
+      "sha256": "48268a27e9e978ca16939cf8f24eb337968f1dc0e585bb33f4f7a32b4ef1bedf"
+    },
+    {
+      "path": "src/misc/lv_palette.h",
+      "sha256": "aa804eb9255862208c81a55001db21c90d35a33bd6ad1afda07c7ae5f39279f5"
+    },
+    {
+      "path": "src/misc/lv_profiler_builtin_posix.c",
+      "sha256": "3ea097367506cb95cb69fb518f0a5cd2e874f7a5cbf1dc40488e039dd351ca8a"
+    },
+    {
+      "path": "src/misc/lv_profiler_builtin_private.h",
+      "sha256": "a7030338be9494741436e42faf66c5a481180feb5924175b4b3979f32e6163a8"
+    },
+    {
+      "path": "src/misc/lv_profiler_builtin.c",
+      "sha256": "fcffb2c711c1c95e9d6a3cc036c48d5801b85b000a178295ff0f75885c1f7233"
+    },
+    {
+      "path": "src/misc/lv_profiler_builtin.h",
+      "sha256": "05319f2de7305a41fc5ecc9cb2efb56151aee365a229ea10131bcd4b5b9d393d"
+    },
+    {
+      "path": "src/misc/lv_profiler.h",
+      "sha256": "57f762d38ec2713fa567e82000c3da98ef70a50f98f76f67f54dcfb47d54fe12"
+    },
+    {
+      "path": "src/misc/lv_rb_private.h",
+      "sha256": "23c2c4856e0beb1fb5d2c2030133008f75b62122347cfc778db867da123d9a28"
+    },
+    {
+      "path": "src/misc/lv_rb.c",
+      "sha256": "2e8e58922957ab0036d897e844ad273338d646db06803ec3d9563114a068680c"
+    },
+    {
+      "path": "src/misc/lv_rb.h",
+      "sha256": "79dbaa5dce9507580a69d41293fa6b5859000dc87324e21d0047d07664c51910"
+    },
+    {
+      "path": "src/misc/lv_style_gen.c",
+      "sha256": "e6c17bf0c6c26a46154add0cda141a6355335129da83396545f229f67b6c8636"
+    },
+    {
+      "path": "src/misc/lv_style_gen.h",
+      "sha256": "7cb2f136bbb22a00cc9d9f0e927385e18ef6e185f19f5d2f67c57ff22ab68d85"
+    },
+    {
+      "path": "src/misc/lv_style_private.h",
+      "sha256": "b42b15614b2ae3532cc70e1957289d9540a9088d7bf78a4af535c70228e59b81"
+    },
+    {
+      "path": "src/misc/lv_style.c",
+      "sha256": "2a6bb7b705f4213e4716b6730d091594140021eaa52a84095d1938a92da1f483"
+    },
+    {
+      "path": "src/misc/lv_style.h",
+      "sha256": "9db9687255a08be177fbb199df5c6517c5963509b2a482e1f5247b518dd60df9"
+    },
+    {
+      "path": "src/misc/lv_templ.c",
+      "sha256": "a0d64407c2c2371cb051f05843074645718bb98d72422d10141f5ec2066fdcab"
+    },
+    {
+      "path": "src/misc/lv_templ.h",
+      "sha256": "c5252b726b61f2c5d6accd4e6a472ac1bd9640fa9961cce252f32750129bd4b8"
+    },
+    {
+      "path": "src/misc/lv_text_ap.c",
+      "sha256": "7f362b72a39608708eb673b9bf4770de5b2eea14a43446a60d3be9be7ef43e72"
+    },
+    {
+      "path": "src/misc/lv_text_ap.h",
+      "sha256": "58e9409eb7925d2b8a85569ed80ad61b7da0f9b051e685989c1f7cfb35508549"
+    },
+    {
+      "path": "src/misc/lv_text_private.h",
+      "sha256": "5350fa7895859aadcb2e33019fa05bfb7143e8854a51d123018483c68956670d"
+    },
+    {
+      "path": "src/misc/lv_text.c",
+      "sha256": "565f0824dfe00db131bec1269046c16dee474ca11dbbb4ebfc7d1c2e32d82001"
+    },
+    {
+      "path": "src/misc/lv_text.h",
+      "sha256": "741c8f6b264a87c114ec721131f927d7ff80f19d1bcbeb14c23b5d6024ea378f"
+    },
+    {
+      "path": "src/misc/lv_timer_private.h",
+      "sha256": "eb1ea2415065d6f95140632ccaa3efb5ebaffd8a8d1f9dca3d5a5f0a18f312d8"
+    },
+    {
+      "path": "src/misc/lv_timer.c",
+      "sha256": "8d6e6a7524ac0efd78aade81dea1d29dc48721df02d3f4d20e5c01f0c976fcb9"
+    },
+    {
+      "path": "src/misc/lv_timer.h",
+      "sha256": "2c79b6e0a107807ba04c0ab7ae19a635f7f7deac958d9cf9f2eb0109a60b8338"
+    },
+    {
+      "path": "src/misc/lv_tree.c",
+      "sha256": "3e1c72e4c6db42fb3dc3b7daae560794bd1eb3c2ca97fbc73a199eb8c263e08f"
+    },
+    {
+      "path": "src/misc/lv_tree.h",
+      "sha256": "9b49e49c22f9b0d2a836f628accd3976307d9ea1cc1aae46759296627ec90387"
+    },
+    {
+      "path": "src/misc/lv_types.h",
+      "sha256": "35aa7d5b93d8240123d586166f5d69e1fc938b5ce0f88e3b97f0f76f1a54bc45"
+    },
+    {
+      "path": "src/misc/lv_utils.c",
+      "sha256": "8021cf822dc5c31edd332604e8274b5e965c34ec62396784ee5a98f57870e740"
+    },
+    {
+      "path": "src/misc/lv_utils.h",
+      "sha256": "5599266c74e6921c85d218802289b3384fcbbab502163f15f9c56c1ae9e06041"
+    },
+    {
+      "path": "src/osal/lv_cmsis_rtos2.c",
+      "sha256": "c440d425359b7664079e1e34cc412fbaf0aca5cf1b1a48508f858ac59cca53ca"
+    },
+    {
+      "path": "src/osal/lv_cmsis_rtos2.h",
+      "sha256": "534cdd0d6107f983f58590dba0e03e55880bfeede58eb88829b9ccaeec6a79dd"
+    },
+    {
+      "path": "src/osal/lv_freertos.c",
+      "sha256": "cd1e937adf42721882f95866e42c08683f935c052803275e00a6aaaae992b56f"
+    },
+    {
+      "path": "src/osal/lv_freertos.h",
+      "sha256": "f085762f8c86f22403a9bd2e90fbaaa516355e362758b6af1a25fe2843725c3a"
+    },
+    {
+      "path": "src/osal/lv_linux.c",
+      "sha256": "5f9dee13bca275eb7f84d887f9d72ccb14b986a127ec2fe59b5b0831c737f610"
+    },
+    {
+      "path": "src/osal/lv_linux.h",
+      "sha256": "a2608663557d2ac8cd8578bfaca28db0bf37cd7d3c79229f229308b06c5fe2cd"
+    },
+    {
+      "path": "src/osal/lv_mqx.c",
+      "sha256": "2d261a8e82fa4b4b496a4dbc61df10e25cbcca5888825a632afe4a99b548fc5d"
+    },
+    {
+      "path": "src/osal/lv_mqx.h",
+      "sha256": "9d64c442b7963ef7ebb1f51d6ece1ad80fb1c95f6558eda55977c7cb84c80544"
+    },
+    {
+      "path": "src/osal/lv_os_none.c",
+      "sha256": "fd27bc052a5d39ce7d913b9fbee9c712afeb4b54469d983563e46aefe732a5fb"
+    },
+    {
+      "path": "src/osal/lv_os_none.h",
+      "sha256": "31ecd4529c1e23e7878e58a64d5a51b839094f37242a95cde4c95edd89f648a9"
+    },
+    {
+      "path": "src/osal/lv_os_private.h",
+      "sha256": "d23ae854e6137364a612b432e22151156d9c2d1de7439e3b2a448fe1ffeef853"
+    },
+    {
+      "path": "src/osal/lv_os.c",
+      "sha256": "46efdc2a03091ddc029d1a5347c6aa9584f21e6a50fe21a1a0d6114213ce3298"
+    },
+    {
+      "path": "src/osal/lv_os.h",
+      "sha256": "5d631c08a5c41c0921bb2891c3ff242723d3b5ab50a8ddd24c756477d485ff6a"
+    },
+    {
+      "path": "src/osal/lv_pthread.c",
+      "sha256": "66534cc007fae3c530bb9ac7a93f62685650c11161af34396543c32e1e27b1a4"
+    },
+    {
+      "path": "src/osal/lv_pthread.h",
+      "sha256": "f46958e0cfc657a8175e7d0c04eeb827b88105c5c2c959ca1a9a5107ecb56b70"
+    },
+    {
+      "path": "src/osal/lv_rtthread.c",
+      "sha256": "5a2d7d403ba8e9234c39cf8e4db1891bfa3283d230ce69002f03611f08f8ba64"
+    },
+    {
+      "path": "src/osal/lv_rtthread.h",
+      "sha256": "4a50b1552cdfee9a06db666dd086093b36bdc380b4ce69fa51cd1860dba4018a"
+    },
+    {
+      "path": "src/osal/lv_sdl2.c",
+      "sha256": "a7e9e18a633d56b5bd6ccf877f6139bf69355fffc41996c2464eea7a325ef64e"
+    },
+    {
+      "path": "src/osal/lv_sdl2.h",
+      "sha256": "8f3469074e3cefebc99bae413fa46da7b32d4a539d55dd50a8409cee24efa709"
+    },
+    {
+      "path": "src/osal/lv_windows.c",
+      "sha256": "cd307f7453cfd12ab9c6c118f67351366a5260a7824a288b24d754242be627d0"
+    },
+    {
+      "path": "src/osal/lv_windows.h",
+      "sha256": "41a97e4c35bf41bc11cc667e56185f7a7aa9007d60077c369fe94716bf459a99"
+    },
+    {
+      "path": "src/others/file_explorer/lv_file_explorer_private.h",
+      "sha256": "024f470eede4c2c77b653dd208e4ea5476e94307e0fb3056d7aa13c8fe65b8de"
+    },
+    {
+      "path": "src/others/file_explorer/lv_file_explorer.c",
+      "sha256": "6447ac59135c6142c0820fdc4580956a0b2ddec68d76fe17c115692caac60c95"
+    },
+    {
+      "path": "src/others/file_explorer/lv_file_explorer.h",
+      "sha256": "4b765f0b87fa6e6dc5e4245f8532fa42dc23eedb03ba06b7ac738d55e4ce3f39"
+    },
+    {
+      "path": "src/others/font_manager/lv_font_manager_recycle.c",
+      "sha256": "d6386f3c033ce159d1b4c7639f4a276bc077d324bde12b975ffa5dd15bc99386"
+    },
+    {
+      "path": "src/others/font_manager/lv_font_manager_recycle.h",
+      "sha256": "b6beb8f9970bdc6522924449b9a2828b3e1e87e837364df40e040945591bc32e"
+    },
+    {
+      "path": "src/others/font_manager/lv_font_manager.c",
+      "sha256": "74d188da006e7a56d5000845009e7584a3c8b921d9fdae898e6db0c829ee3b32"
+    },
+    {
+      "path": "src/others/font_manager/lv_font_manager.h",
+      "sha256": "cb6bc7f5d9bd314da391d6c577b9ac481ec4636ea88b6f464e777e8f6235fd9e"
+    },
+    {
+      "path": "src/others/fragment/lv_fragment_manager.c",
+      "sha256": "132ea8c2e1ad8ed61b504cc1707707932d55369ab1c9a3fa9efa10fac6e73b3d"
+    },
+    {
+      "path": "src/others/fragment/lv_fragment_private.h",
+      "sha256": "0445d02b308ae90d2401082ac3e36c2b70c0d7b9a458c1b6a839a1f3d6a7dbbf"
+    },
+    {
+      "path": "src/others/fragment/lv_fragment.c",
+      "sha256": "ea66c3641b1f67912fed83411e3d24541924ef43b08e3467bc2a9c2294701a9a"
+    },
+    {
+      "path": "src/others/fragment/lv_fragment.h",
+      "sha256": "58fd9cf4db833b0c91d15fb0881852dc21d676ad6ee9b5b1f0d11ad78723f982"
+    },
+    {
+      "path": "src/others/fragment/README.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/others/gridnav/lv_gridnav.c",
+      "sha256": "54078e33751960168d30de0d391b7586889a349f38ec0d1586c97de105e24199"
+    },
+    {
+      "path": "src/others/gridnav/lv_gridnav.h",
+      "sha256": "f31fb22015abac22033e31a225e0e7378f1c5ba9d31bd4b7ff479855fd6390cc"
+    },
+    {
+      "path": "src/others/ime/lv_ime_pinyin_private.h",
+      "sha256": "834865804f3962067f7e60dfdd2c5cdcd3597d3a1c6cbee7122bf487175a217b"
+    },
+    {
+      "path": "src/others/ime/lv_ime_pinyin.c",
+      "sha256": "d87d6621d3ff2395dfaa420e7af9ee79c6891365a0ebe45b8aa45707797c567e"
+    },
+    {
+      "path": "src/others/ime/lv_ime_pinyin.h",
+      "sha256": "66df33ec70cca8d69cc8ee8f19d6ed4c61caaec840ab6180b519281609f37102"
+    },
+    {
+      "path": "src/others/imgfont/lv_imgfont.c",
+      "sha256": "9c1a40015f74edebe5638add16b87adef1c1e318c339af4651916a9b1d02f4f5"
+    },
+    {
+      "path": "src/others/imgfont/lv_imgfont.h",
+      "sha256": "5c013188850c4a9c2256eb04dad512abb5807255111dd7725cf8d97c5df0ce64"
+    },
+    {
+      "path": "src/others/monkey/lv_monkey_private.h",
+      "sha256": "0dc9dcc04d57ee8d30f173bb5600b3f0a3255a3bfad2db604f038b8404195808"
+    },
+    {
+      "path": "src/others/monkey/lv_monkey.c",
+      "sha256": "67b3a7ee179bdd7514d8c53b1b7724c6d1978c87aa6b0b34c9960bfe0c18e7e8"
+    },
+    {
+      "path": "src/others/monkey/lv_monkey.h",
+      "sha256": "73a0eac5a5c704318302f5b41f3596c7ae6a32a3afdc365546ffe944a68c0261"
+    },
+    {
+      "path": "src/others/observer/lv_observer_private.h",
+      "sha256": "db7f1688b6229771cd9da4730ac7cb2da4a45f482996429dd90bcf642c68c6f5"
+    },
+    {
+      "path": "src/others/observer/lv_observer.c",
+      "sha256": "8eeb1352c20685777b658336700cb2066b812b5aa61d40e87c887b55bd928475"
+    },
+    {
+      "path": "src/others/observer/lv_observer.h",
+      "sha256": "2bb4f7eca1a43b5c7777fb0536eabc59a82d2c3e272d1b4593a185254f3ada52"
+    },
+    {
+      "path": "src/others/snapshot/lv_snapshot.c",
+      "sha256": "e248cc36ad4c3e699c60ec8e04aa33e918694f02b512b97951ae249ed5d04d80"
+    },
+    {
+      "path": "src/others/snapshot/lv_snapshot.h",
+      "sha256": "e0f853b87966fc36e1ab303a1e344c903cf235f277438f012fbeeb7d80596b04"
+    },
+    {
+      "path": "src/others/sysmon/lv_sysmon_private.h",
+      "sha256": "ed09b17fe8ed0dd11b07777e63e19f07fdba5955886778d2c175f6cbb5ccc10d"
+    },
+    {
+      "path": "src/others/sysmon/lv_sysmon.c",
+      "sha256": "721c274bead6ff9bb7cad680cc47058fbfceb2969bbed6418e148e12c60327eb"
+    },
+    {
+      "path": "src/others/sysmon/lv_sysmon.h",
+      "sha256": "6a5b8baecfb72bb8a886e45e8c4dbc8a64a2ff15ebb122fef3de96c32d4b4675"
+    },
+    {
+      "path": "src/others/test/lv_test_display.c",
+      "sha256": "0e2418fc42a5e75a64616b6ff4d11646782cfc545777826694eaf7eb4c11c5bf"
+    },
+    {
+      "path": "src/others/test/lv_test_display.h",
+      "sha256": "fa0edeed9217ebe34c33cadc225cf283ec2be9a53924e8f579a52b7ed5f2b68b"
+    },
+    {
+      "path": "src/others/test/lv_test_helpers.c",
+      "sha256": "2832e6859c08542070e9a798b33623cd07b92cebad12c4f68ac113e3c60a94fc"
+    },
+    {
+      "path": "src/others/test/lv_test_helpers.h",
+      "sha256": "6fa42a603fa74781bb924ceea380e49b03b01f51554c40bfabe3c4543f809012"
+    },
+    {
+      "path": "src/others/test/lv_test_indev_gesture.c",
+      "sha256": "e1106434dbd90ca5a5665c4a1a163c4c428c3c7e3393836452d75268847d50cd"
+    },
+    {
+      "path": "src/others/test/lv_test_indev_gesture.h",
+      "sha256": "68f741ba79b21f8ca3332c0c42e23e21b91a7d03c8ba17026c68ade1e25a531b"
+    },
+    {
+      "path": "src/others/test/lv_test_indev.c",
+      "sha256": "a495395f196c465273060a640b9e23de0d44f0b24b7817bda374d8ca93cd22a7"
+    },
+    {
+      "path": "src/others/test/lv_test_indev.h",
+      "sha256": "89d23d8671e9638117d6b8e0b5330a42f032adb94705d5d559c1efb642fe80b6"
+    },
+    {
+      "path": "src/others/test/lv_test_private.h",
+      "sha256": "ad7c50df2f62e1cb3731705ce7e6511695f794fcee5d51c3b1fd973f6d2e402d"
+    },
+    {
+      "path": "src/others/test/lv_test_screenshot_compare.c",
+      "sha256": "482e9baba94a257d45f628c6c0a8aadb23b46ec2eaa5a70c4981afdb8c3432ae"
+    },
+    {
+      "path": "src/others/test/lv_test_screenshot_compare.h",
+      "sha256": "d0bf1e100fc77c104f928b17ad2a44f6a5ddfad802f65c875725d56bcaa1bce3"
+    },
+    {
+      "path": "src/others/test/lv_test.h",
+      "sha256": "408d338b5cf26fbe083030a0f28d362432884a0f6466d4746b3b517993beb5b5"
+    },
+    {
+      "path": "src/others/translation/lv_translation_private.h",
+      "sha256": "e3b4c076030a15dca6661c907221029f966de7e69790152317118617482e47d1"
+    },
+    {
+      "path": "src/others/translation/lv_translation.c",
+      "sha256": "90bb53bccac80c043c0b5e6e9ce0bd82a51e08119d2cbe8eb132724f6439a616"
+    },
+    {
+      "path": "src/others/translation/lv_translation.h",
+      "sha256": "996639adbefa3a39178c9c26c4bb3d69ff2ad3e58d1673848ea02c206aa96570"
+    },
+    {
+      "path": "src/others/vg_lite_tvg/vg_lite_matrix.c",
+      "sha256": "411b3fabcaf60e552636206e41225fdfa20ae346631151793a2b839ef10528d3"
+    },
+    {
+      "path": "src/others/vg_lite_tvg/vg_lite_tvg.cpp",
+      "sha256": "b0e77e4cafe21440c537e189a254738243cb8e29ec55c6d0c4001ba67a92e89c"
+    },
+    {
+      "path": "src/others/vg_lite_tvg/vg_lite.h",
+      "sha256": "df8a5d0a24d0ec3901e32931167d961ed70d81efa306711c83b341a7668632bc"
+    },
+    {
+      "path": "src/others/xml/lv_xml_base_types.c",
+      "sha256": "702f0d97553f7f90e7606ba2f4eb29a7938d221a3087236eeb2d01349fa078d7"
+    },
+    {
+      "path": "src/others/xml/lv_xml_base_types.h",
+      "sha256": "ba23b097ec972e7bf320998580994732ded8941a48a89a00d321e2f742a377aa"
+    },
+    {
+      "path": "src/others/xml/lv_xml_component_private.h",
+      "sha256": "3a2509e00d9eb2a3e1813789e57624982048a2a1aaf42b3ff8b90a5e6be108b5"
+    },
+    {
+      "path": "src/others/xml/lv_xml_component.c",
+      "sha256": "ce0e9f2a8d51232dc47b52b3da5c5ac619889896c87392f422c3960b33ce681b"
+    },
+    {
+      "path": "src/others/xml/lv_xml_component.h",
+      "sha256": "ac0d1f64f70787a7033a29b7f3ff42919b0793de1719777dd644b8b95548d0ac"
+    },
+    {
+      "path": "src/others/xml/lv_xml_load_private.h",
+      "sha256": "d56d6bdfe73bc46a51c0cecf4d03f011069ab55d02f33c11860defcc6aa19797"
+    },
+    {
+      "path": "src/others/xml/lv_xml_load.c",
+      "sha256": "cdfd81bcf85ee9b68d6031a10b4ceae008d2100095c2a69d8e6432d38c4d5ece"
+    },
+    {
+      "path": "src/others/xml/lv_xml_load.h",
+      "sha256": "b8c8678daa4f3fb89d789df8e12c3d4dc1c11c807ad5c3ddb31271a43ce64447"
+    },
+    {
+      "path": "src/others/xml/lv_xml_parser.c",
+      "sha256": "6d7c1ff17dfd4e9a530e0f15876249ef69951c8451c701f279f5870fb1344d8c"
+    },
+    {
+      "path": "src/others/xml/lv_xml_parser.h",
+      "sha256": "37b546f7a6be9abad9c5c0a3e0d43ff27bce5def2ffd8b7f2ff66c0c3d62f187"
+    },
+    {
+      "path": "src/others/xml/lv_xml_private.h",
+      "sha256": "824cf06b989bbae8782d368d7bc513db2a0905067be855e26271127291e5d05e"
+    },
+    {
+      "path": "src/others/xml/lv_xml_style.c",
+      "sha256": "2dc1ce0406e5c42911d7461d6d00b272fbe8a72533647716c957846bab00ff9d"
+    },
+    {
+      "path": "src/others/xml/lv_xml_style.h",
+      "sha256": "bfb90f984868ff7f91f143065b22794f3e3c6d2d7a3399e46cc1d56703f78737"
+    },
+    {
+      "path": "src/others/xml/lv_xml_test.c",
+      "sha256": "c74d29b324dbe88885af3655c325864be237cb27132e34ef4a078b554da3d157"
+    },
+    {
+      "path": "src/others/xml/lv_xml_test.h",
+      "sha256": "4f641602e473fa8aea5dd03030bd938a31114fdfe1e9a1e7e19520b7c2d64f6e"
+    },
+    {
+      "path": "src/others/xml/lv_xml_translation.c",
+      "sha256": "f320811a917fcdc4d98b2ef7d54a4f53b298010c4ad08c03a76e5491cc659f3b"
+    },
+    {
+      "path": "src/others/xml/lv_xml_translation.h",
+      "sha256": "d6550c052d85454f98a0ac3e65c21ef391ebc23c3c9676dd4bdfdbc8ba2f19fc"
+    },
+    {
+      "path": "src/others/xml/lv_xml_update.c",
+      "sha256": "4a4a70556cc1ed3c9516dd373c82d42e1d6bed56cc6aa1049014e7a0438c4e7f"
+    },
+    {
+      "path": "src/others/xml/lv_xml_update.h",
+      "sha256": "2f6b1fc1c47eac976f7ebaf9748024e51759671c42655180ae47fde929301d89"
+    },
+    {
+      "path": "src/others/xml/lv_xml_utils.c",
+      "sha256": "95f7a8c65bef2f382230a12021c997322a718a2e90ebade477139af15244a5a8"
+    },
+    {
+      "path": "src/others/xml/lv_xml_utils.h",
+      "sha256": "cf0231892c86020ab279d9f187eaf187f9e37e5d4ed17e2a862ffdee7dd06c75"
+    },
+    {
+      "path": "src/others/xml/lv_xml_widget.c",
+      "sha256": "19d640e629351a061c258b75da8e9cfc566547812f30ba762c36016bcbb28538"
+    },
+    {
+      "path": "src/others/xml/lv_xml_widget.h",
+      "sha256": "efbd482ff414ed74a996dee8233ebe129294955b2a965f5c5c4c4dec1720eb97"
+    },
+    {
+      "path": "src/others/xml/lv_xml.c",
+      "sha256": "94ee9bdb26b064b6a3e9fd5dab4be75a5e69bcf13e58c5743e936e1c3bf3d815"
+    },
+    {
+      "path": "src/others/xml/lv_xml.h",
+      "sha256": "0c07fa9ed8b2d1283760411149bee449af2457cb75a503a79d69c1314559ac80"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_arc_parser.c",
+      "sha256": "ee9ddf34c40d2c0ebe75f91c81d72a05faeb47e601004b6ccbd4e213128ce0ac"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_arc_parser.h",
+      "sha256": "1cbaf8a389ec2b86bd777a76ecedb70e19354f013764062d6e687d02139eebe9"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_bar_parser.c",
+      "sha256": "9c4e6b8478da5c68f416fac3bd5dfe11c11a69eb3b24b54890b1b30562364b9d"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_bar_parser.h",
+      "sha256": "4992f977c4c191164a438e4946431a41f69940bc3c128464e479e38dd7c870c5"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_button_parser.c",
+      "sha256": "4bf9f2e28bfb455693f6494528377aa88600255c70d3da24c5331fcccb7e2fec"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_button_parser.h",
+      "sha256": "c263fd2cf64fb4ae480c990783b2f4235f433964785a62177f985101347e15b1"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_buttonmatrix_parser.c",
+      "sha256": "ab669e496fd725a9a6bb565cfc863f65c30e5dc614261c3a10dff7bf69b64725"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_buttonmatrix_parser.h",
+      "sha256": "f553c4ba222ee2177cff4664c64515de06f8056e230048ff2b6a3939766a88ee"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_calendar_parser.c",
+      "sha256": "3007c131f54ce481279fe6dce866c82eade0ba7d4aade9df1d4460306a493ad5"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_calendar_parser.h",
+      "sha256": "a6009a88f4cb3e55e28b1146f21d7d68a99540435390f3d4199111f6cb847831"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_canvas_parser.c",
+      "sha256": "89d6e65b775343b5c431115932050d557de97b1187f2f8008da8c24972ce2d97"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_canvas_parser.h",
+      "sha256": "68034c78db931409da043a836c2814d8652079c4d996d19ad104444f8929df31"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_chart_parser.c",
+      "sha256": "f17f5356e9496ebf8cf81b23a6eaa4a85949923cf5407d022a36434565f0679b"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_chart_parser.h",
+      "sha256": "a7a4ba0e9b777a5515d14e9b43a33de51dd55862ea5d082e61ea75e46fae4d25"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_checkbox_parser.c",
+      "sha256": "8c01ac3a7360059c84320594eb6847a6e1fdadd961bd30115146179b4090965d"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_checkbox_parser.h",
+      "sha256": "4dd50275a15dbb366ff0a77e348f0d5362429fdb9509dfb935a0a87418e1b74e"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_dropdown_parser.c",
+      "sha256": "04e2b4f5fcb6176f0b86d291d654cbeb5e6db1c60e88e3c3642549b879fe286e"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_dropdown_parser.h",
+      "sha256": "c71593bcd4d70b44dbe3c0122d37e02998bf8ac22fc6bee4c40efa2d15ac7a49"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_image_parser.c",
+      "sha256": "22407c8521613796ffd886d3abccbf0e6b34c75866d0395d9a9f690e1817eb4d"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_image_parser.h",
+      "sha256": "91a203e98371eb205518847deed4f1cb82bdf51c538ec6307417c9d2da9410fc"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_keyboard_parser.c",
+      "sha256": "0051165bb86a818970845aec47df925d837e46e0895bc234d80e74d1bde698d9"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_keyboard_parser.h",
+      "sha256": "ec6070800426472c2466a527ca76a4e27dec7cc8a22036436fa88b5dd0746be6"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_label_parser.c",
+      "sha256": "141a521b5f67070fba9c65944c1a1c77c8dd42b2c5a7dbacff42c8d6d5919868"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_label_parser.h",
+      "sha256": "21669eebb63e25b6701f03a99289c6145ce46f2aa7b8f4e8e32fa77e8d12a3af"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_obj_parser.c",
+      "sha256": "45b284384dcc9a3fbdd357781671fe6d981b0d20132f71d39cf656801a1796d2"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_obj_parser.h",
+      "sha256": "2c967f39f93ff37408874a0d04ec363338232ffca4549378159506de0bb9bf44"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_qrcode_parser.c",
+      "sha256": "6756c65ebaa2da955a967d69d9d13568cbc3b44d45ead36c0fdd0ab5ef76e228"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_qrcode_parser.h",
+      "sha256": "9433783715e2a931f70167ccc16bf77d3cd5b50041130117185333edd90a8bf0"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_roller_parser.c",
+      "sha256": "8fe9357547c5794fdff00bece4dca6690305dc528ac84db3c563c4cdd775a8fa"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_roller_parser.h",
+      "sha256": "9dad891c69c5078012d04e95664261a4d87add6f2c3ed06b5d15aba8a7dcdb8d"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_scale_parser.c",
+      "sha256": "9def4d3728dd3587be40eaa4ccaa3e14460cfac5671342723a4d17ba126b54e1"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_scale_parser.h",
+      "sha256": "6cccfab5de868063d87a153f102b4926b77519bb63771b80c535c859501031bc"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_slider_parser.c",
+      "sha256": "d25522da0717bb6a62a10f686bb1603c5f6384fe8d141b3182c70e2c83169cc5"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_slider_parser.h",
+      "sha256": "b2464bd549b1df66764fd93c11b0135bc388f848060b6ab75a74f1fd59de695c"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_spangroup_parser.c",
+      "sha256": "d072aa7b947b78dd364e0fa839b5962980312370b5f28ce6e7131d5337b454e1"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_spangroup_parser.h",
+      "sha256": "d376f4fb5535c605055cfe975f6d6f88320dc4ffc465eec0d5f380516d3a5ceb"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_spinbox_parser.c",
+      "sha256": "e8a87ffee9fbc3489cdbbc5eae34703d54703c5a309afc22f7349475f1fb0a52"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_spinbox_parser.h",
+      "sha256": "4bb2b9982bd612d1edb5d579fbc598968ed0bff443989fd2d01e23aec8954746"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_switch_parser.c",
+      "sha256": "f05847f0b1c1f95fad6f31ffe4903b58d2d98e050e3b440c7a08474aa8484b63"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_switch_parser.h",
+      "sha256": "055ac839855a71fee448fdf703978a39494aa8dc341160745942175279eee766"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_table_parser.c",
+      "sha256": "367f7b5e5fd40f8656f4f3e24614b0c6674445519c790fe8fcffd56d8d3060a1"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_table_parser.h",
+      "sha256": "d4ceeae277c77e2ff158e78b9d1b3130bff4436f7a81228958dda1afc30d3c20"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_tabview_parser.c",
+      "sha256": "d566d9f0d0060fae1f13861a38e1a91a7efc6810bdff485664f32a53c3956fe0"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_tabview_parser.h",
+      "sha256": "a1df946500f6fa609ad4b6cacbafe162a66614cf6d888672739a058fcc44b451"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_textarea_parser.c",
+      "sha256": "3346241747aa0efcae861cff37f1214fb815a7d4c874fdc66749e4701f137f21"
+    },
+    {
+      "path": "src/others/xml/parsers/lv_xml_textarea_parser.h",
+      "sha256": "0fe7e4627060fc68e1971421ac778a6c4a83d1a24726a574690de9a90611f518"
+    },
+    {
+      "path": "src/stdlib/builtin/LICENSE_SPRINTF.txt",
+      "sha256": "8bf1e31953244c1dfc6f089f2cbc90cac0718f2e712e2a05a1ae360539ea2766"
+    },
+    {
+      "path": "src/stdlib/builtin/LICENSE_TLSF.txt",
+      "sha256": "6961bde96280a52f2fb383bbf1c2ff24cb9de7e7c7cc9faff1a124f28a9d18e7"
+    },
+    {
+      "path": "src/stdlib/builtin/lv_mem_core_builtin.c",
+      "sha256": "3b836396dc83e8c41c0e77aa9f31ddc2311db0462a99d9cb6416b239f3837508"
+    },
+    {
+      "path": "src/stdlib/builtin/lv_sprintf_builtin.c",
+      "sha256": "281f0fd04eeb072ca32af9fd43576ff1249544d8022a2e0781758924702f1ea2"
+    },
+    {
+      "path": "src/stdlib/builtin/lv_string_builtin.c",
+      "sha256": "0869347d83ca0c3323d006d1cb56836d76c0582c34f84dea2d632eada7dc25c0"
+    },
+    {
+      "path": "src/stdlib/builtin/lv_tlsf_private.h",
+      "sha256": "0f7b8c2da87910fc5d5a095841b4f8cf8c6ba0ac3d6622ec1c6d4231d58c2526"
+    },
+    {
+      "path": "src/stdlib/builtin/lv_tlsf.c",
+      "sha256": "fc19876893d362a7329762ce7f534e9918094501a23b23e1578876f9a6720aa3"
+    },
+    {
+      "path": "src/stdlib/builtin/lv_tlsf.h",
+      "sha256": "87eb9d782eab82934f6f04ac2a4355e410295ab89bc85072957e69bf8c97cc25"
+    },
+    {
+      "path": "src/stdlib/clib/lv_mem_core_clib.c",
+      "sha256": "db2c70199c6db618d4806d053513ffca8080fafa1472bda39a1baae560d3d710"
+    },
+    {
+      "path": "src/stdlib/clib/lv_sprintf_clib.c",
+      "sha256": "41a3490e1d3ffa2a18ee04e24b233c34a7394516f5865464fb8251bd4ef79fc5"
+    },
+    {
+      "path": "src/stdlib/clib/lv_string_clib.c",
+      "sha256": "fb0e83df1484667f06395121236c1456e3ba48797ee2ada064ce3d8986002f8c"
+    },
+    {
+      "path": "src/stdlib/lv_mem_private.h",
+      "sha256": "d7f6dcec8bf083a851f7ed48c3523326d6756277d6e1421f301bf4305c27ae0d"
+    },
+    {
+      "path": "src/stdlib/lv_mem.c",
+      "sha256": "8178b28d317d7ff3773d3f4314b04cf0e039f4c3cf2c9934517010180c317112"
+    },
+    {
+      "path": "src/stdlib/lv_mem.h",
+      "sha256": "09fda760b177a0205b80484fe28b60a0289884c6e0d8f722964fd3f10526f905"
+    },
+    {
+      "path": "src/stdlib/lv_sprintf.h",
+      "sha256": "73029d4377231891a768d790a9aef800833d124fbfb440d4481e111974ad6307"
+    },
+    {
+      "path": "src/stdlib/lv_string.h",
+      "sha256": "51bb2c6f92991451a40540855363a801543904cb7da5862595a05f2c19338d3a"
+    },
+    {
+      "path": "src/stdlib/micropython/lv_mem_core_micropython.c",
+      "sha256": "ce18ca8a609f5832986ec1578ae9a999eaa812ecd13dedfa62e03609078945ed"
+    },
+    {
+      "path": "src/stdlib/rtthread/lv_mem_core_rtthread.c",
+      "sha256": "04aa1be1abc9a20ea3eb4bb9b5eb0222852558ad53316179f75512266965062d"
+    },
+    {
+      "path": "src/stdlib/rtthread/lv_sprintf_rtthread.c",
+      "sha256": "456deccd9f4a6c5e58aada71dc503d731f2e1173b32afbc99600117c1a9c8abf"
+    },
+    {
+      "path": "src/stdlib/rtthread/lv_string_rtthread.c",
+      "sha256": "3954696f77a6f01e75acaaabbfafcd9d2489f940ea7370cf9f6d2ca6543a5b16"
+    },
+    {
+      "path": "src/stdlib/uefi/lv_mem_core_uefi.c",
+      "sha256": "7fbb2aff29714fa517c2d0223e2bb7b5d65df2d746e9d033cab9513ab1c6d2db"
+    },
+    {
+      "path": "src/themes/default/lv_theme_default.c",
+      "sha256": "069cea542eb06792456ea5ce8b189f6bf3c418a0ada3476ff5ada8fed4f41283"
+    },
+    {
+      "path": "src/themes/default/lv_theme_default.h",
+      "sha256": "c7df13763cb41b50aa89ff29621c96cc7f15ac1fc97b07de5f4313a991581cc0"
+    },
+    {
+      "path": "src/themes/lv_theme_private.h",
+      "sha256": "cd559490efb7aa179181ca1cc699eab2171cb64d803281feceae395718aecb33"
+    },
+    {
+      "path": "src/themes/lv_theme.c",
+      "sha256": "5c847ccc57cd1665e2d3a92158f478b7fff80cb5b70e91aeca6034a3f9511281"
+    },
+    {
+      "path": "src/themes/lv_theme.h",
+      "sha256": "62a71aa6a12f253f5d5ddd26048e490a8109b39790bb4d19b839b9db8203de69"
+    },
+    {
+      "path": "src/themes/mono/lv_theme_mono.c",
+      "sha256": "5a549cf2fd1393a1d4b1047693e578636f67c561acfc6e8c00f90e6e9eaaf41e"
+    },
+    {
+      "path": "src/themes/mono/lv_theme_mono.h",
+      "sha256": "9d838632bded5dd0157395b26a1b3f6eff3f95900b070f7abfff543b2a637cf3"
+    },
+    {
+      "path": "src/themes/simple/lv_theme_simple.c",
+      "sha256": "152b5080cf2e19a9bbf4dbca9b145f8c5507445c1a1a80695df3a3a78ac8e243"
+    },
+    {
+      "path": "src/themes/simple/lv_theme_simple.h",
+      "sha256": "0270fec0cf09ffb18c2a66b7aac724233a77500d5b3611828c5ec2743f08f18f"
+    },
+    {
+      "path": "src/tick/lv_tick_private.h",
+      "sha256": "b7d4fdf506f95cde69134eddb7f37f1c6e6a0059f97449328bfa83c9e894c0bb"
+    },
+    {
+      "path": "src/tick/lv_tick.c",
+      "sha256": "b8283409b904c3d61c0ba8f91e9eb2aeddc42d7f377c2fc1fe1e79164f1d0f01"
+    },
+    {
+      "path": "src/tick/lv_tick.h",
+      "sha256": "0d46bc201b810995a1f18aeda38ee8c61be8d57593bf9e902acb7cbf16b59e8c"
+    },
+    {
+      "path": "src/widgets/3dtexture/lv_3dtexture_private.h",
+      "sha256": "d3e1ad465caf828da10dd51470399a4ee2cb970c0610df9799ef8ef0b9c72487"
+    },
+    {
+      "path": "src/widgets/3dtexture/lv_3dtexture.c",
+      "sha256": "b73fea0c1dc36eab5316f05d715fe50413cc5be0e7a871ca673109088dbbf98c"
+    },
+    {
+      "path": "src/widgets/3dtexture/lv_3dtexture.h",
+      "sha256": "d5da040ac380d967287a5fb340da1b2a53fbf20a7f17dc6c99fbedd66ea0fd7a"
+    },
+    {
+      "path": "src/widgets/animimage/lv_animimage_private.h",
+      "sha256": "47da4ef75f59606eac7d20cf9c6db10cf05b98b0654e294ddb0315e6f01e1db6"
+    },
+    {
+      "path": "src/widgets/animimage/lv_animimage.c",
+      "sha256": "f3cc863f6fb3e7a2abc64e6c9e50c485d26b125d9c7976962b60a43cde6408f2"
+    },
+    {
+      "path": "src/widgets/animimage/lv_animimage.h",
+      "sha256": "af3a6886171358508fc78d563d71dc55db4c9621345bccb0427229e0cd4bac00"
+    },
+    {
+      "path": "src/widgets/arc/lv_arc_private.h",
+      "sha256": "c1219b9c64ec3c9e79daf6f2f13a28678d8ba306b5cafa5f6a922d252ff54f62"
+    },
+    {
+      "path": "src/widgets/arc/lv_arc.c",
+      "sha256": "5aa23c90cfbc2b03ba073aa9524ddc564db55ec4b063979bc1fc4143c5f82f9a"
+    },
+    {
+      "path": "src/widgets/arc/lv_arc.h",
+      "sha256": "3e52d0a89c240ff6b1e827fa94c0d39ce65694a7117dfafb3de87df25213dcb8"
+    },
+    {
+      "path": "src/widgets/arclabel/lv_arclabel_private.h",
+      "sha256": "d593261a0f5eedbdd71778d40b30f71a0cf7d2ddbf4ed76e91f9fae43fcecbfe"
+    },
+    {
+      "path": "src/widgets/arclabel/lv_arclabel.c",
+      "sha256": "bab00b3a4fd993e7db4289814e787590884a072a1a44b330ac3da26b337458ce"
+    },
+    {
+      "path": "src/widgets/arclabel/lv_arclabel.h",
+      "sha256": "1d916eefee028d23beaaa443a75f5c5ed54a6cbc3050ae82b36a73b92ffb28a1"
+    },
+    {
+      "path": "src/widgets/bar/lv_bar_private.h",
+      "sha256": "72aa765d501bca5dacd67ff15f5acf3c7c122085c11f8d40aeff677dd671d895"
+    },
+    {
+      "path": "src/widgets/bar/lv_bar.c",
+      "sha256": "d2131ba05ff62e593c87262908a13534e208939b71919c134ce4be53f811c9dc"
+    },
+    {
+      "path": "src/widgets/bar/lv_bar.h",
+      "sha256": "cdccaa70640d1141713e373d930ed9a1b55f19326606b4855590aaf5a495c3cb"
+    },
+    {
+      "path": "src/widgets/button/lv_button_private.h",
+      "sha256": "a7fe8e099fe42366b5b31a5175a42fd1a780c299d838da032c66c2b8b316de8c"
+    },
+    {
+      "path": "src/widgets/button/lv_button.c",
+      "sha256": "673d2c045ba7cf0e6a45edc79b5bac8b42f8742033409b6ce3911fda915ca4bf"
+    },
+    {
+      "path": "src/widgets/button/lv_button.h",
+      "sha256": "1f98fb658a459413db885baa89af11a387e8d37207bdc56032d34eb318e7619e"
+    },
+    {
+      "path": "src/widgets/buttonmatrix/lv_buttonmatrix_private.h",
+      "sha256": "49036069bbaf9be949faa5218714dedc80c0dac7b93cb57e7756430d32e40d6d"
+    },
+    {
+      "path": "src/widgets/buttonmatrix/lv_buttonmatrix.c",
+      "sha256": "071d13cb7fa92002c6b297d724398164bcfb45d9a6acac6e9ac2180c805759a4"
+    },
+    {
+      "path": "src/widgets/buttonmatrix/lv_buttonmatrix.h",
+      "sha256": "1a5f66b594dbb95716cb661dc08ca489cfce24c5485747da895b0cb1e475d8df"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_chinese.c",
+      "sha256": "6001b2abc33c2ecac09c2611f32cde1e97d420ff0c3e8f040014974ccc6667fc"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_chinese.h",
+      "sha256": "e406636fd7b989fd4204e3ec82a9d2272141c2e53da76bdd638d18ad687460e3"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_header_arrow.c",
+      "sha256": "0724801901547b8eb9364ab6762bd0f09187d6c70b9d67a08d3fcafcf2f35bb2"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_header_arrow.h",
+      "sha256": "3de10e371122d3adcfb923628f42a2dc89c1da09ab4240ddae310f5360ea548b"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_header_dropdown.c",
+      "sha256": "074f1753f2e664af1313771462612f369165ab44c280fbfead6c636f91f39cfb"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_header_dropdown.h",
+      "sha256": "7f11b8f0b9389bb3e55d267e3289239a1cf9ea75b93eec4088dae6993da2a32a"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar_private.h",
+      "sha256": "80e348731f8a4175248c4c77e131f7924b055567f3d412385d8c6e39ca5002a2"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar.c",
+      "sha256": "165ab22979572207c44955a550e96a319bf0b3da7a6afc28e7462e7d24515adf"
+    },
+    {
+      "path": "src/widgets/calendar/lv_calendar.h",
+      "sha256": "daa8fa915adfbd5b50d9ab67c93cefe7fe7d42bfea35053a2a51a6f23e0e9c76"
+    },
+    {
+      "path": "src/widgets/canvas/lv_canvas_private.h",
+      "sha256": "32d36934a7f8e5f671ec1448ee44c078dac084753c3433da3b9cff9a6f0ebc86"
+    },
+    {
+      "path": "src/widgets/canvas/lv_canvas.c",
+      "sha256": "cb3ce809dee957793fe690718b46ccacfb8d1bcfa6dd189e389a532507380c27"
+    },
+    {
+      "path": "src/widgets/canvas/lv_canvas.h",
+      "sha256": "8de418aef0500850d1e208fbc5d8f09891cd8546709dd5ad2763604174f23b12"
+    },
+    {
+      "path": "src/widgets/chart/lv_chart_private.h",
+      "sha256": "a6a629fc27088b2a995d8f14c67b68293e5f5ac37a1d058274f3d19a63c5e188"
+    },
+    {
+      "path": "src/widgets/chart/lv_chart.c",
+      "sha256": "330286d6672beb9cccbd512346109d501b194c39ab56cf9a577ad3596e91bf27"
+    },
+    {
+      "path": "src/widgets/chart/lv_chart.h",
+      "sha256": "85c8f004c387e46e0497d71fd8b59abd6f804f7e09ef431e39a3f6bbdd8dbc0f"
+    },
+    {
+      "path": "src/widgets/checkbox/lv_checkbox_private.h",
+      "sha256": "a39beadd7e25113545360545b4e21caffd4df0880a9079c404411572161867ae"
+    },
+    {
+      "path": "src/widgets/checkbox/lv_checkbox.c",
+      "sha256": "9f3f93833be7333d5ba7e3b84e18ec1ed707fcf9512b14d3c84bbdeb14362c7b"
+    },
+    {
+      "path": "src/widgets/checkbox/lv_checkbox.h",
+      "sha256": "b22e791600aa757b5607a80a696810c29d1aa4f45a9c4fbdfbc6ede341e6e073"
+    },
+    {
+      "path": "src/widgets/dropdown/lv_dropdown_private.h",
+      "sha256": "15af1d730b68e2a8e348013bf52eedf8763ed1a3dbf1868962e1957d3d2c2b49"
+    },
+    {
+      "path": "src/widgets/dropdown/lv_dropdown.c",
+      "sha256": "130d74666f0edf806b4823551cba44cf099e27208e57292b9a6ba64a06ce8c35"
+    },
+    {
+      "path": "src/widgets/dropdown/lv_dropdown.h",
+      "sha256": "bcf30fa405bd4a0009267571260459e979616f802f87370d85a0e8fe35dbc7d9"
+    },
+    {
+      "path": "src/widgets/image/lv_image_private.h",
+      "sha256": "ac474ddf0b890ad94107c2b427ea80d4f74d20750109e69740a5769a74e7561b"
+    },
+    {
+      "path": "src/widgets/image/lv_image.c",
+      "sha256": "05de9ce638e3f5efd720f4a112338c00bc87ed6b5c7f43c4eca3e414dfee6fc7"
+    },
+    {
+      "path": "src/widgets/image/lv_image.h",
+      "sha256": "a67492c5f2da9fb2aaa876eddf1e65fb04ed52db3c60b378524c0b35b7957954"
+    },
+    {
+      "path": "src/widgets/imagebutton/lv_imagebutton_private.h",
+      "sha256": "1a1d754bc53fb7d7a2904f98a061afb28d56711d75165a319e0dcef72a7df96f"
+    },
+    {
+      "path": "src/widgets/imagebutton/lv_imagebutton.c",
+      "sha256": "f0cdfc6a606ab07f6521a043ec12c45884a4f5a97fae1bda9aa7c1de79ce3e2a"
+    },
+    {
+      "path": "src/widgets/imagebutton/lv_imagebutton.h",
+      "sha256": "8d80b9b26ee4da7f13c111df933071d14c9bfe6c6ad6a6ff6179a932616e9b79"
+    },
+    {
+      "path": "src/widgets/keyboard/lv_keyboard_private.h",
+      "sha256": "4f584f117faa5923c0c957511e6943133f20b3d4321aa441c4b5b1dd69dbdf8e"
+    },
+    {
+      "path": "src/widgets/keyboard/lv_keyboard.c",
+      "sha256": "2a4935443018c43f232abac7fa9de2499e1aa2bd64f17c59e029467dcce0bfb1"
+    },
+    {
+      "path": "src/widgets/keyboard/lv_keyboard.h",
+      "sha256": "03ede625dd8f7b5cd3be30a6bf86a67a445dda081dc5f8025f669a8d927c7e7c"
+    },
+    {
+      "path": "src/widgets/label/lv_label_private.h",
+      "sha256": "f4f961f701e3ab5a043bcf61418183b60c307326e263135a8125f7a68227947f"
+    },
+    {
+      "path": "src/widgets/label/lv_label.c",
+      "sha256": "21f1adae15a0e6a232cb90026c89531be387c8b2a60a0d37db386761ae79ac5d"
+    },
+    {
+      "path": "src/widgets/label/lv_label.h",
+      "sha256": "932c5300b310f87305a8be75f47f35ed52977bb2f2be6ed76f99177bb1b8681b"
+    },
+    {
+      "path": "src/widgets/led/lv_led_private.h",
+      "sha256": "0924c7b0987ffc6207d87d5382ed1731c36841d0e8b738a0be42eb72588194ef"
+    },
+    {
+      "path": "src/widgets/led/lv_led.c",
+      "sha256": "7609047cec616845aeb302882fd2e5239fe18908e83c3eb8d412030a437a1b6d"
+    },
+    {
+      "path": "src/widgets/led/lv_led.h",
+      "sha256": "387bb76f6f0524e213e82bd561458bdd58ba53a9dc0be1d575e129719c71dc61"
+    },
+    {
+      "path": "src/widgets/line/lv_line_private.h",
+      "sha256": "2820c70b1fd44de8082a093ee6465586a9c3a8d72b22981bcad40169ef065b7e"
+    },
+    {
+      "path": "src/widgets/line/lv_line.c",
+      "sha256": "6b478a5a3a3350f01a909f13a0ef2dcf023b86e80bae9b01a34bba6afca596e5"
+    },
+    {
+      "path": "src/widgets/line/lv_line.h",
+      "sha256": "f83d2cf855f21d9884e87f2e0031f226dc10a5c25ad4f6a0a4113762c6b6df63"
+    },
+    {
+      "path": "src/widgets/list/lv_list.c",
+      "sha256": "5414d90b1288145064958422bfee01682c887256d14880b7be93d498c9b1b533"
+    },
+    {
+      "path": "src/widgets/list/lv_list.h",
+      "sha256": "684b7d066a5d0c9c3f5786c8a6fcc6bd530ef219225637d5e75672869569909c"
+    },
+    {
+      "path": "src/widgets/lottie/lv_lottie_private.h",
+      "sha256": "e58c86778714926e23e8d089b2c935a9e8df806ebd9a7d272fbcc6b3499deee3"
+    },
+    {
+      "path": "src/widgets/lottie/lv_lottie.c",
+      "sha256": "7f4dcd9b381905ee9075fb00538df460ff0b9e348d78b10aa0211ac4a3629aea"
+    },
+    {
+      "path": "src/widgets/lottie/lv_lottie.h",
+      "sha256": "5d65ba9cc44496cec3e4fa233a40dd87a8e0204d9131bbaa923094ca1377351e"
+    },
+    {
+      "path": "src/widgets/menu/lv_menu_private.h",
+      "sha256": "6b6987e7804ae678c2983bdbfbd053fe1c9064e1459f6c9b88123a0d326898a5"
+    },
+    {
+      "path": "src/widgets/menu/lv_menu.c",
+      "sha256": "a9e88cad06f007313eaa73cd18bf245ba42d1790e8e21811a8a154290dffe47d"
+    },
+    {
+      "path": "src/widgets/menu/lv_menu.h",
+      "sha256": "47a88ac8fbd13be718c81fc74ab31305754d9033497092de1f4ccdb96f016bde"
+    },
+    {
+      "path": "src/widgets/msgbox/lv_msgbox_private.h",
+      "sha256": "d7d709d7088a9c15e7365d301dea6a953726f6efec9a1b1294f773a3708e8eae"
+    },
+    {
+      "path": "src/widgets/msgbox/lv_msgbox.c",
+      "sha256": "9234347d741f2d5e8ca80e1bd8b2bebe53c2bd02acb953c81dab671dbd569e3d"
+    },
+    {
+      "path": "src/widgets/msgbox/lv_msgbox.h",
+      "sha256": "7f15c22e99c3140a0c2e1ba46ba9742f8ccc95c923418b0b15573195db3a2e4e"
+    },
+    {
+      "path": "src/widgets/objx_templ/lv_objx_templ.c",
+      "sha256": "3ae8c145157df4785a34896f6170c2edc11cd09ea8ccf400d125847ac5e59767"
+    },
+    {
+      "path": "src/widgets/objx_templ/lv_objx_templ.h",
+      "sha256": "255d01224cdaaee13713adab716fc6aeb2ca5db73adc7f25884091c53ee3cc0a"
+    },
+    {
+      "path": "src/widgets/property/lv_animimage_properties.c",
+      "sha256": "3cf68ac3eef56f4f91886eaef194497dbe79a76f59db54786745d50ccc67175e"
+    },
+    {
+      "path": "src/widgets/property/lv_dropdown_properties.c",
+      "sha256": "7835d454625e549dc35d2050ee9424efb5904e5b0ad84c1ef1bfffa188ef9c73"
+    },
+    {
+      "path": "src/widgets/property/lv_image_properties.c",
+      "sha256": "9999d31a2badbd6bfadf885e8652c962debeb60951037ee2adb7d8203e452610"
+    },
+    {
+      "path": "src/widgets/property/lv_keyboard_properties.c",
+      "sha256": "664ec944ec6656c27ad9f30fe16244405f2334a7db31a79a5c3e1e6ab7a4caf8"
+    },
+    {
+      "path": "src/widgets/property/lv_label_properties.c",
+      "sha256": "1908f2deabd6b89042c4732d019cd5f2ea907bc8469966bb5166b0f02db449c1"
+    },
+    {
+      "path": "src/widgets/property/lv_obj_properties.c",
+      "sha256": "3e6d137af1feeb397adf2003385ad5d62f919c663d8a27f75cad5a45107023e9"
+    },
+    {
+      "path": "src/widgets/property/lv_obj_property_names.h",
+      "sha256": "3637dab708f33ad097ebeca7560ba2153042a9aa2ba48254ba8d648a8379677d"
+    },
+    {
+      "path": "src/widgets/property/lv_roller_properties.c",
+      "sha256": "98e7f5ff8a2d353bf7ab50b0555f3abd9fd1483fbf27ddd55fe3be55b59faa67"
+    },
+    {
+      "path": "src/widgets/property/lv_slider_properties.c",
+      "sha256": "dd2501f51c29fffb6c1ddbd6262562ccad2732105c61129ec8641208f6815ba7"
+    },
+    {
+      "path": "src/widgets/property/lv_style_properties.c",
+      "sha256": "429024545cd30f351986be9f121b8b967ec68c3d3e7db4c80656660804d867d6"
+    },
+    {
+      "path": "src/widgets/property/lv_style_properties.h",
+      "sha256": "07025c08068948a5d8ac8bcdc104a3745e1387983d8ef73d534e88f1aaf0073e"
+    },
+    {
+      "path": "src/widgets/property/lv_textarea_properties.c",
+      "sha256": "10c1e46808eba1a47223ae55bf4bd63f223a7bb7121ea51f0eeb8190dd4a20b1"
+    },
+    {
+      "path": "src/widgets/roller/lv_roller_private.h",
+      "sha256": "7c4320338f3c3e4d9508ff62849b1a6485568794bfb2c52f3d51c165ef124b29"
+    },
+    {
+      "path": "src/widgets/roller/lv_roller.c",
+      "sha256": "13e001263ffa8f6088cd4da19a33b02a223f5683eacae0b41cecf69eaf1f786b"
+    },
+    {
+      "path": "src/widgets/roller/lv_roller.h",
+      "sha256": "4683eeb329c7c00c8e054cd88d827563cb889ef91c8368b2feeb0da462e04705"
+    },
+    {
+      "path": "src/widgets/scale/lv_scale_private.h",
+      "sha256": "de75b7fcb1920b28321853ab04461cea5f9fe003163b178e6f4f176fbf7b6a98"
+    },
+    {
+      "path": "src/widgets/scale/lv_scale.c",
+      "sha256": "e45d163e5e092ba9d3a31aaaf1cc1477ac3b1eaef40df16888595cb145381642"
+    },
+    {
+      "path": "src/widgets/scale/lv_scale.h",
+      "sha256": "f2f5a7f1c260027612287813ad2108542185d402b25c18fd37f9d790911f4411"
+    },
+    {
+      "path": "src/widgets/slider/lv_slider_private.h",
+      "sha256": "5728f74b7ea194c30787370b31b74fc3f9df363d59e59ff52a3244b1ed56ad87"
+    },
+    {
+      "path": "src/widgets/slider/lv_slider.c",
+      "sha256": "6fbe81e98cde60bbd214026ccfd4c11ec9803f3cdeb8f0109b31c1a78a4163a8"
+    },
+    {
+      "path": "src/widgets/slider/lv_slider.h",
+      "sha256": "5550bcdc67b503b2d1e10e6be9f21c096336c73f024f101feb9720295957bd47"
+    },
+    {
+      "path": "src/widgets/span/lv_span_private.h",
+      "sha256": "b92b87a58337294d503c260eef786e1e2d6c96073843d72157e66320d84a38e0"
+    },
+    {
+      "path": "src/widgets/span/lv_span.c",
+      "sha256": "17180f20bbd71317e1ce19d8d3612dc4c15c1dfa6b127721305d2ba532f2c2ef"
+    },
+    {
+      "path": "src/widgets/span/lv_span.h",
+      "sha256": "fb665feb171febf0f995e8c1a4dcc159c9abde9a37866408b8e8de932220cb55"
+    },
+    {
+      "path": "src/widgets/spinbox/lv_spinbox_private.h",
+      "sha256": "573a21b889a884ac3334686840759ac0bdf3478f5c1cfd0ba3e647bcf8e18809"
+    },
+    {
+      "path": "src/widgets/spinbox/lv_spinbox.c",
+      "sha256": "61c1ee67cc35fed7483c00a30a80e043f5077bdac2eb018abcf6463dc93a0f1e"
+    },
+    {
+      "path": "src/widgets/spinbox/lv_spinbox.h",
+      "sha256": "493220702cda4aa46b81bd6970833995a2efeeffc60c376297981b9cffccff13"
+    },
+    {
+      "path": "src/widgets/spinner/lv_spinner.c",
+      "sha256": "f831547880f8a1d36f36e447d7feb62ae48128219243074bf08c24d453464c9e"
+    },
+    {
+      "path": "src/widgets/spinner/lv_spinner.h",
+      "sha256": "1b5695be2aa5df1602a32e4ffa40ad823c2e0e5d5552141f02e2b8cb52d4b9a4"
+    },
+    {
+      "path": "src/widgets/switch/lv_switch_private.h",
+      "sha256": "31250a5d9107257a7690535e5ffa62db9b2e115b843b30bd492edc4c8aa618b2"
+    },
+    {
+      "path": "src/widgets/switch/lv_switch.c",
+      "sha256": "bd7621771e4c2f12ebecd593d9cf025f0a684c7058520531affddfec28ce175e"
+    },
+    {
+      "path": "src/widgets/switch/lv_switch.h",
+      "sha256": "0b134ae1d9082dc21e34603f7e9441a2490d40c898cff4b465510e891d564046"
+    },
+    {
+      "path": "src/widgets/table/lv_table_private.h",
+      "sha256": "3b010392e530709fdf511372d11fc6cc802d9a41937e54f2b31fb0644a300808"
+    },
+    {
+      "path": "src/widgets/table/lv_table.c",
+      "sha256": "df2b0fb374e5cfb09b2041942b7a3d7b10265345ed23ee6fe991f713683b96f7"
+    },
+    {
+      "path": "src/widgets/table/lv_table.h",
+      "sha256": "db06aeb4f8a1b1db294044cc14b63aa82189ac65eb5a3944e974e95f5217739b"
+    },
+    {
+      "path": "src/widgets/tabview/lv_tabview_private.h",
+      "sha256": "8ed78a3df456a7d3d52656238dd8db33ae1e6a0d050bab0e242d95d81cfa1c8d"
+    },
+    {
+      "path": "src/widgets/tabview/lv_tabview.c",
+      "sha256": "b7136474d6f7c1c14e04fc1a5654b5ff205e97019a684e4c6c8feb0f4b4a144b"
+    },
+    {
+      "path": "src/widgets/tabview/lv_tabview.h",
+      "sha256": "8755f850a5e24ecec047ed2e31e63c19a316b84169801aab2c907ce292d60d95"
+    },
+    {
+      "path": "src/widgets/textarea/lv_textarea_private.h",
+      "sha256": "fa34455a64e2929b1356c1cd4db9d7a63b6390301e0be356dde5692021c8a8ba"
+    },
+    {
+      "path": "src/widgets/textarea/lv_textarea.c",
+      "sha256": "1e9f87ced3f3895578aca77f370e98b4b3dae23ba2507d55affc59fe28f809a7"
+    },
+    {
+      "path": "src/widgets/textarea/lv_textarea.h",
+      "sha256": "50554e94cb5c459db88ec7d30500aa120a8fa2a45ddbffbc0b8e3ca8729c3a32"
+    },
+    {
+      "path": "src/widgets/tileview/lv_tileview_private.h",
+      "sha256": "d85d0f4d69cd4cfd8c3059d86a41f05a225b0e32e67b717f4e10626bd432ac26"
+    },
+    {
+      "path": "src/widgets/tileview/lv_tileview.c",
+      "sha256": "a5e1c9b2cd93a433bdb2e8e249187946a30b836361ab776c2145fae19b6075cd"
+    },
+    {
+      "path": "src/widgets/tileview/lv_tileview.h",
+      "sha256": "faa6ce85226a06e06ddb45582f28786215b5360474aa21abeeedcf98ea2e0f24"
+    },
+    {
+      "path": "src/widgets/win/lv_win_private.h",
+      "sha256": "af15b7711b63cf21f68df56bcfc18bac19c99ed13438a444eb9d673b5de1a5b9"
+    },
+    {
+      "path": "src/widgets/win/lv_win.c",
+      "sha256": "d0b4a708aab802276f8842be60de06ec916b65095f85968bcd6e9059584b252f"
+    },
+    {
+      "path": "src/widgets/win/lv_win.h",
+      "sha256": "970d90ee3fb0e09d77ae3b79545dcaf0bad40a9d8bc0309ecef828a1f1557c42"
+    }
+  ]
+}

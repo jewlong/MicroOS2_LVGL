@@ -1,0 +1,8 @@
+PASS: 18 unmodified vendor files at bfc6120f20cb27a927a9fc5dd667f9e455495777
+PASS: firmware files match fixed commit 12eeaa12865869b07db760f4bbb7507ec6f1976c
+PASS: 1153 LVGL files match v9.4.0 at c016f72d4c125098287be5e83c0f1abed4706ee5
+PASS: whd, 87 locked files
+PASS: lwip, 310 locked files
+PASS: nanoprintf, 2 locked files
+PASS: radio-resources, 6 locked files
+PASS: newlib-notice, 1 locked files

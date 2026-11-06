@@ -1,0 +1,3 @@
+PASS: all sources rebuilt from an extracted ZIP in a fresh short-path directory.
+PASS: rebuilt image matches sdcard/kernel.img byte-for-byte.
+SHA256 e18edb39575ee8be08690b4e2018fd170b8ee6276e07f2eeb76cf7592f963ac4

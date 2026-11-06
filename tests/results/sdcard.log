@@ -1,0 +1,7 @@
+PASS: bootcode.bin
+PASS: start.elf
+PASS: fixup.dat
+PASS: LICENCE.broadcom
+PASS: config.txt
+PASS: kernel.img
+PASS: file integrity only; FAT32/MBR and physical boot require separate checks.

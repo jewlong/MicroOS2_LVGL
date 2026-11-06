@@ -1,0 +1,80 @@
+{
+  "os_version_macro": 29300,
+  "commit": "bfc6120f20cb27a927a9fc5dd667f9e455495777",
+  "repository": "https://github.com/weston-embedded/uC-OS2",
+  "source_header_version": "V2.93.01",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5"
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "7a06c36b509e5da62eceae54e26f14c31ece8d0dd129534542be08fdac992b22"
+    },
+    {
+      "path": "README.rst",
+      "sha256": "3e0b5c8a9cc856e6b1b6597326f93943bee604d69dd329fd8c416904856aaf01"
+    },
+    {
+      "path": "Source/os_core.c",
+      "sha256": "dc6ffbe27d58365ad91d07bfedad3d27931a21b8e21c480578bdece09f10994b"
+    },
+    {
+      "path": "Source/os_dbg_r.c",
+      "sha256": "fbe3adca7c0d496003ad2c3a16d1b8e80f1a5d758f72a02f41f2660ec4131ee8"
+    },
+    {
+      "path": "Source/os_flag.c",
+      "sha256": "e77251d57762a7b7496132c434a6f8489869e716176af3054d1a11556c7d9e4d"
+    },
+    {
+      "path": "Source/os_mbox.c",
+      "sha256": "f1c5b54786da1f4fe61a65af9d1b00efe6a7765bcaf1e77c13fea40192a8129f"
+    },
+    {
+      "path": "Source/os_mem.c",
+      "sha256": "070c54e4cd9754491430d8c28b839e71d60a2ed319c24b2498c16f6bb38333e6"
+    },
+    {
+      "path": "Source/os_mutex.c",
+      "sha256": "6d924d84017bb08043db240c908049bdc849c8de331894cda75817b0a5d023dd"
+    },
+    {
+      "path": "Source/os_q.c",
+      "sha256": "ed2562ecb1fef46fab383b0165b8de79f40581ceb24402c0d9dca15e18b1a8ea"
+    },
+    {
+      "path": "Source/os_sem.c",
+      "sha256": "704ef9a9330afea1f800aeb455083974b967e85f132f59369af7e4d38e2e9775"
+    },
+    {
+      "path": "Source/os_task.c",
+      "sha256": "7b892f8c020076a86cd9e31936e8bb5e0608e11b83c1f021afc361d6b0660255"
+    },
+    {
+      "path": "Source/os_time.c",
+      "sha256": "99e4ae012334ee82d32df13a32eecd9558d1b65d36f1cec861898c279484cd9d"
+    },
+    {
+      "path": "Source/os_tmr.c",
+      "sha256": "a0f8b0ee205ad49eb61bfc2057fe50856f39b98ba127d05c5bf8dd434a31a673"
+    },
+    {
+      "path": "Source/os_trace.h",
+      "sha256": "df5fbcf935e696e8e8b25428b8ab66e31bebb16a7603f23d94cb07816d093715"
+    },
+    {
+      "path": "Source/os.h",
+      "sha256": "98575861940e713d96c2fe6133576762d00e7c7a75604db90015a0fae6608cd8"
+    },
+    {
+      "path": "Source/ucos_ii.c",
+      "sha256": "51cbd81693d8e562cc158563ba06b6131a5ce6b827cc08b2b92df1d0c6352767"
+    },
+    {
+      "path": "Source/ucos_ii.h",
+      "sha256": "e0200e106ee830fdf96409b16e3ae101291651e90052138b5bdb907b4e303856"
+    }
+  ]
+}

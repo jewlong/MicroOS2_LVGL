@@ -1,0 +1,22 @@
+# Raspberry Pi Zero W (BCM2835 / ARM1176) cold boot only.
+# uC/OS-II ARM11 + HDMI + LVGL 9.4.0 dedicated GUI task + SDIO Wi-Fi. No Linux.
+kernel=kernel.img
+kernel_address=0x8000
+kernel_old=0
+device_tree=
+gpu_mem=64
+enable_uart=1
+init_uart_clock=48000000
+init_uart_baud=115200
+
+# Legacy VideoCore HDMI output: DMT 640x480 @ 60 Hz.
+# Pi Zero W uses MINI-HDMI, not micro-HDMI.
+hdmi_force_hotplug=1
+hdmi_group=2
+hdmi_mode=4
+hdmi_drive=2
+disable_overscan=1
+framebuffer_width=640
+framebuffer_height=480
+framebuffer_depth=32
+framebuffer_ignore_alpha=1

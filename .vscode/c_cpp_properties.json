@@ -1,0 +1,37 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "ARM1176 bare metal",
+      "compilerPath": "arm-none-eabi-gcc.exe",
+      "compilerArgs": [
+        "-mcpu=arm1176jzf-s",
+        "-marm",
+        "-mfloat-abi=soft"
+      ],
+      "intelliSenseMode": "gcc-arm",
+      "includePath": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/port",
+        "${workspaceFolder}/vendor/ucos2/Source",
+        "${workspaceFolder}/vendor/lvgl",
+        "${workspaceFolder}/net",
+        "${workspaceFolder}/vendor/lwip/src/include",
+        "${workspaceFolder}/vendor/nanoprintf",
+        "${workspaceFolder}/vendor/whd/inc",
+        "${workspaceFolder}/vendor/whd/src/include",
+        "${workspaceFolder}/vendor/whd/src",
+        "${workspaceFolder}/vendor/whd/External/hal",
+        "${workspaceFolder}/vendor/whd/External/rtos",
+        "${workspaceFolder}/vendor/whd/External/bsp"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "defines": [
+        "LV_CONF_INCLUDE_SIMPLE",
+        "LV_DISABLE_API_MAPPING",
+        "CYBSP_WIFI_INTERFACE_TYPE=CYBSP_SDIO_INTERFACE"
+      ]
+    }
+  ]
+}

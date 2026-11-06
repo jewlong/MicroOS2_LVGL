@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-03",
+  "board": "Raspberry Pi Zero W / BCM2835 / ARM1176JZF-S",
+  "mode": "scan-only; no credentials",
+  "kernel_bytes": 928944,
+  "kernel_sha256": "e18edb39575ee8be08690b4e2018fd170b8ee6276e07f2eeb76cf7592f963ac4",
+  "compiler": "Arm GNU 14.3.Rel1 / GCC 14.3.1",
+  "tests": {
+    "gui-rgb.log": "67d02be8f3596a5d16f14c2d9fcd5b25c2c5cb3d367ee336c4f16ab32afb4790",
+    "ethernet.log": "f2180673685610b64d52f8b835f4edbc36c47d44355d3f83c9c3926b85324a24",
+    "sdio.log": "1f8edc05f6058617f2d31099d1b35b9d9cebfec39a6425644fcdd6baf57e3bd2"
+  },
+  "clean_archive_rebuild": "PASS: byte-for-byte identical",
+  "physical_wifi_tested": false,
+  "physical_hdmi_tested": false,
+  "clean_rebuild_kernel_sha256": "e18edb39575ee8be08690b4e2018fd170b8ee6276e07f2eeb76cf7592f963ac4",
+  "windows_path_note": "Extract to a short path, e.g. C:/pizero-wifi; deeply nested LVGL include paths can exceed Windows toolchain path limits.",
+  "production_elf_sha256": "a3d9ac4d8ca8734525ff5de198ae9fb0761649623e745542652a818eaab3c1da"
+}

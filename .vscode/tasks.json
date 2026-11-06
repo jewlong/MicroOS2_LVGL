@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build uC/OS-II Wi-Fi HDMI LVGL",
+      "type": "process",
+      "command": "mingw32-make.exe",
+      "args": [
+        "all"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Inspect ELF",
+      "type": "process",
+      "command": "mingw32-make.exe",
+      "args": [
+        "inspect"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Refresh SD staging folder",
+      "type": "process",
+      "command": "mingw32-make.exe",
+      "args": [
+        "stage"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Clean build",
+      "type": "process",
+      "command": "mingw32-make.exe",
+      "args": [
+        "clean"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

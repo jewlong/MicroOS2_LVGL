@@ -1,0 +1,14 @@
+Raspberry Pi Zero W uC/OS-II + HDMI + LVGL
+New CPU port, BSP, GUI integration, runtime and test harness: Apache-2.0.
+
+Includes unmodified uC/OS-II core at bfc6120f20cb27a927a9fc5dd667f9e455495777.
+Original copyright and notices remain in vendor/ucos2.
+os_cfg.h is a modified upstream configuration template.
+
+Includes unmodified LVGL 9.4.0 source at c016f72d4c125098287be5e83c0f1abed4706ee5.
+LVGL MIT and embedded component notices remain in vendor/lvgl.
+lv_conf.h is a modified upstream configuration template.
+
+Raspberry Pi boot firmware is supplied unchanged under sdcard/LICENCE.broadcom,
+separate from this project's license.
+The binary links GCC runtime arithmetic support; see THIRD_PARTY.md.
