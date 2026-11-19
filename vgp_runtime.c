@@ -16,6 +16,7 @@
 #include "mouse_queue.h"
 #include "vgp_font_cjk.h"
 #include "platform.h"
+#include "uart.h"
 
 extern char gui_usb_text[64];
 extern volatile uint32_t gui_heap_free;
@@ -56,6 +57,8 @@ static int32_t g_history[16];
 static int32_t g_history_depth = 0;
 static int32_t g_active_popup_idx = -1;
 static lv_obj_t *g_popup_layer = NULL;
+static lv_obj_t *g_popup_close_btn = NULL;
+static char g_last_action_info[80];
 static lv_obj_t *g_status_bar = NULL;
 static lv_obj_t *g_status_label = NULL;
 static lv_obj_t *g_ticker_bar = NULL;
@@ -366,6 +369,9 @@ static void rebuild_kbd_group(void)
 
     if (g_active_popup_idx >= 0 && g_active_popup_idx < g_proj.num_screens) {
         add_screen_to_kbd_group(g_active_popup_idx);
+        if (g_popup_close_btn) {
+            lv_group_add_obj(g_kbd_group, g_popup_close_btn);
+        }
         return;
     }
 
@@ -438,7 +444,18 @@ static void execute_action(vgp_element_t *el)
         case VGP_ACT_POPUP:
             if (el->target_screen_id[0]) {
                 int32_t pop_idx = find_screen(el->target_screen_id);
+                snprintf(g_last_action_info, sizeof(g_last_action_info),
+                         "popup '%s' -> idx=%ld", el->target_screen_id, (long)pop_idx);
+                uart_puts("[VGP] ");
+                uart_puts(g_last_action_info);
+                uart_puts("\n");
                 if (pop_idx >= 0) open_popup_screen(pop_idx);
+            } else {
+                snprintf(g_last_action_info, sizeof(g_last_action_info),
+                         "popup '%s': empty targetScreenId", el->name[0] ? el->name : el->id);
+                uart_puts("[VGP] ");
+                uart_puts(g_last_action_info);
+                uart_puts("\n");
             }
             break;
         case VGP_ACT_CLOSE_DIALOG:
@@ -1037,6 +1054,21 @@ static void switch_screen_to(int32_t idx)
     lv_screen_load(sc->lv_screen);
 }
 
+static void popup_backdrop_cb(lv_event_t *event)
+{
+    if (lv_event_get_target_obj(event) == g_popup_layer) {
+        close_active_popup();
+        vgp_runtime_update();
+    }
+}
+
+static void popup_close_btn_cb(lv_event_t *event)
+{
+    (void)event;
+    close_active_popup();
+    vgp_runtime_update();
+}
+
 static void open_popup_screen(int32_t idx)
 {
     if (idx < 0 || idx >= g_proj.num_screens) return;
@@ -1045,13 +1077,16 @@ static void open_popup_screen(int32_t idx)
 
     vgp_screen_t *sc = &g_proj.screens[idx];
 
-    /* Create semi-transparent overlay covering the screen */
+    /* Create clean full-screen semi-transparent backdrop on top layer */
     g_popup_layer = lv_obj_create(lv_layer_top());
+    lv_obj_remove_style_all(g_popup_layer);
     lv_obj_set_pos(g_popup_layer, 0, 0);
     lv_obj_set_size(g_popup_layer, (int32_t)g_screen_w, (int32_t)g_screen_h);
     lv_obj_set_style_bg_color(g_popup_layer, lv_color_hex(0x000000), 0);
-    lv_obj_set_style_bg_opa(g_popup_layer, LV_OPA_50, 0);
+    lv_obj_set_style_bg_opa(g_popup_layer, LV_OPA_60, 0);
     lv_obj_remove_flag(g_popup_layer, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(g_popup_layer, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(g_popup_layer, popup_backdrop_cb, LV_EVENT_CLICKED, NULL);
 
     int32_t scale, off_x, off_y;
     calc_scaling(sc->width, sc->height, &scale, &off_x, &off_y);
@@ -1064,11 +1099,27 @@ static void open_popup_screen(int32_t idx)
     lv_obj_t *panel = lv_obj_create(g_popup_layer);
     lv_obj_set_pos(panel, pop_x, pop_y);
     lv_obj_set_size(panel, pop_w, pop_h);
-    apply_box_style(panel, sc->background, 0x00475569u, 2, 12);
+    apply_box_style(panel, sc->background, 0x0038BDF8u, 2, 10);
+    lv_obj_set_style_pad_all(panel, 0, 0);
 
     create_screen_widgets(idx, panel, scale, 0, 0);
+
+    /* Built-in corner close button so popups without a closePopup button can always be dismissed */
+    g_popup_close_btn = lv_button_create(panel);
+    lv_obj_set_size(g_popup_close_btn, 32, 28);
+    lv_obj_set_pos(g_popup_close_btn, pop_w - 40, 8);
+    apply_box_style(g_popup_close_btn, 0x00DC2626u, 0x00FCA5A5u, 1, 6);
+    apply_focus_style(g_popup_close_btn);
+    lv_obj_add_event_cb(g_popup_close_btn, popup_close_btn_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t *xlbl = lv_label_create(g_popup_close_btn);
+    lv_obj_set_style_text_font(xlbl, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_color(xlbl, lv_color_hex(0x00FFFFFFu), 0);
+    lv_label_set_text(xlbl, "X");
+    lv_obj_center(xlbl);
+
     rebuild_kbd_group();
     if (g_status_bar) lv_obj_move_to_index(g_status_bar, -1);
+    lv_obj_invalidate(lv_layer_top());
 }
 
 static void close_active_popup(void)
@@ -1078,9 +1129,11 @@ static void close_active_popup(void)
     if (g_active_popup_idx >= 0) {
         clear_screen_widget_ptrs(g_active_popup_idx);
     }
+    g_popup_close_btn = NULL;
     if (g_popup_layer) {
-        lv_obj_delete(g_popup_layer);
+        lv_obj_t *old = g_popup_layer;
         g_popup_layer = NULL;
+        lv_obj_delete_async(old);
     }
     g_active_popup_idx = -1;
     rebuild_kbd_group();
@@ -1583,7 +1636,7 @@ static void update_diag_overlay(void)
         "平台: %s | 運行: %lu s | 時間: %s (%s)\n"
         "LVGL 剩餘記憶體: %lu bytes | 專案: %s (v%lu)\n"
         "畫面: %u | 元件: %u | 變數: %u | 設備: %u\n"
-        "解析警告: %u 筆 | 最近 OTA: %s\n",
+        "解析警告: %u 筆 | 最近 OTA: %s | 動作: %s\n",
         soc_is_bcm2837 ? "Pi Zero 2 W" : "Pi Zero W",
         (unsigned long)up, dt_buf, sys_clock_is_synced() ? "NTP已同步" : "未校時",
         (unsigned long)gui_heap_free,
@@ -1592,7 +1645,8 @@ static void update_diag_overlay(void)
         (unsigned)g_proj.num_screens, (unsigned)g_proj.total_elements,
         (unsigned)g_proj.num_variables, (unsigned)g_proj.num_devices,
         (unsigned)g_parse_report.total_warnings,
-        g_last_ota_err[0] ? g_last_ota_err : "OK");
+        g_last_ota_err[0] ? g_last_ota_err : "OK",
+        g_last_action_info[0] ? g_last_action_info : "-");
 
     if (pos > 0 && (size_t)pos < sizeof(dtxt) && g_proj.num_devices > 0u) {
         pos += snprintf(dtxt + pos, sizeof(dtxt) - (size_t)pos, "\n[Modbus 設備狀態]\n");
