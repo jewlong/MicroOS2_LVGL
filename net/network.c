@@ -11,6 +11,7 @@
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
 #include "lwip/apps/sntp.h"
+#include "http_ops.h"
 #include "sys_clock.h"
 #include "bsp.h"
 #include "bootcfg.h"
@@ -142,6 +143,7 @@ static void add_interface(void *arg)
     if(!t || tcp_bind(t,IP_ADDR_ANY,5001)!=ERR_OK)bsp_panic("TCP bind");
     t=tcp_listen_with_backlog(t,2);if(!t)bsp_panic("TCP listen");
     tcp_accept(t,tcp_accept_client);
+    http_ops_init();
     netif_ready=true;OSSemPost(core_done);
 }
 static void link_up(void *arg)

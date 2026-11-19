@@ -8,6 +8,7 @@
 #include "framebuffer.h"
 #include "bootcfg.h"
 #include "vgp_runtime.h"
+#include "http_ops.h"
 #include "bsp.h"
 #include "uart.h"
 #include "port.h"
@@ -399,6 +400,16 @@ void gui_task(void *arg)
             ++gui_commands;
         }
         const uint32_t now = OSTimeGet();
+        const char *ota_json = NULL;
+        size_t ota_len = 0u;
+        if (http_ops_take_ota(&ota_json, &ota_len)) {
+            if (vgp_runtime_is_active()) {
+                (void)vgp_runtime_reload(ota_json, ota_len);
+            } else {
+                (void)vgp_runtime_init(ota_json, ota_len, fb->width, fb->height, keyboard_group);
+            }
+            http_ops_ota_done();
+        }
         if ((uint32_t)(now - last_status) >= 25u) {
             last_status = now;
             update_status();

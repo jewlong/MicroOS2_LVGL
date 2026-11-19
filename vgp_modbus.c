@@ -20,6 +20,7 @@ extern volatile uint32_t app_preempt_pass;
 
 static vgp_project_t * volatile g_proj = NULL;
 static volatile bool g_started = false;
+static volatile bool g_busy = false;
 
 static uint16_t g_dev_sorted_vars[VGP_MAX_DEVICES][VGP_MAX_VARIABLES];
 static vgp_mb_batch_t g_dev_batches[VGP_MAX_DEVICES][MODBUS_MAX_BATCHES];
@@ -264,6 +265,22 @@ void vgp_modbus_start(vgp_project_t *proj)
     OS_CPU_SR_Restore(sr);
 }
 
+void vgp_modbus_stop(void)
+{
+    OS_CPU_SR sr = OS_CPU_SR_Save();
+    g_started = false;
+    g_wq_head = 0u;
+    g_wq_tail = 0u;
+    OS_CPU_SR_Restore(sr);
+    for (uint32_t wait = 0u; wait < 50u && g_busy; ++wait) {
+        OSTimeDly(1u);
+    }
+    modbus_tcp_close_all();
+    OS_CPU_SR sr2 = OS_CPU_SR_Save();
+    g_proj = NULL;
+    OS_CPU_SR_Restore(sr2);
+}
+
 bool vgp_modbus_enqueue_write(uint16_t var_idx, double num_val, bool bool_val)
 {
     vgp_project_t *proj = g_proj;
@@ -339,15 +356,16 @@ void vgp_modbus_task(void *arg)
         }
         was_online = online;
 
+        g_busy = true;
         /* 1. Prioritize operator writes */
         vgp_mb_write_req_t req;
-        while (pop_write_req(&req)) {
+        while (g_started && pop_write_req(&req)) {
             process_write_req(proj, &req);
         }
 
         /* 2. Poll due devices */
         uint32_t now_ms = now_ms_tick();
-        for (uint16_t d = 0; d < proj->num_devices; ++d) {
+        for (uint16_t d = 0; g_started && d < proj->num_devices; ++d) {
             vgp_device_t *dev = &proj->devices[d];
             if (!dev->enabled || g_dev_num_batches[d] == 0u) continue;
             if (dev->transport == VGP_MB_TRANSPORT_TCP && !online) {
@@ -361,11 +379,12 @@ void vgp_modbus_task(void *arg)
                 poll_device(proj, d);
                 g_dev_last_poll_ms[d] = now_ms_tick();
                 /* Service any urgent write queued during poll */
-                while (pop_write_req(&req)) {
+                while (g_started && pop_write_req(&req)) {
                     process_write_req(proj, &req);
                 }
             }
         }
+        g_busy = false;
 
         OSTimeDly(2u); /* 20ms scheduler yield */
     }

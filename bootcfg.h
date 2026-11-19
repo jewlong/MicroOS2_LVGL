@@ -9,7 +9,7 @@
  * (config.txt: "initramfs project.json,wifi.txt 0x02000000"). The firmware reports
  * address and size in an ATAG_INITRD2 record at 0x100; no SD/FAT driver is needed. */
 #define BOOTCFG_LOAD_ADDRESS 0x02000000u
-#define BOOTCFG_MAX_BYTES    (2u * 1024u * 1024u)
+#define BOOTCFG_MAX_BYTES    (8u * 1024u * 1024u)
 
 typedef enum {
     BOOTCFG_NOT_TRIED = 0,

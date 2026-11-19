@@ -60,7 +60,7 @@ WHD_SOURCES := $(filter-out %/whd_msgbuf_txrx.c %/whd_commonring.c %/whd_flowrin
 OBJECTS += $(addprefix build/lwip_,$(notdir $(LWIP_SOURCES:.c=.o))) \
     $(addprefix build/radio_,$(notdir $(WHD_SOURCES:.c=.o))) \
     build/net_runtime.o build/sys_arch.o build/whd_rtos.o build/sdio.o \
-    build/whd_resources.o build/whd_buffers.o build/network.o build/resources.o
+    build/whd_resources.o build/whd_buffers.o build/network.o build/http_ops.o build/resources.o
 vpath %.c usb net $(sort $(dir $(LWIP_SOURCES) $(WHD_SOURCES)))
 build/lwip_%.o: %.c Makefile | build
 	"$(CC)" $(filter-out -Wmissing-prototypes,$(CFLAGS)) -c $< -o $@

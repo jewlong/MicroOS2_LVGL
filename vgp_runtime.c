@@ -18,6 +18,7 @@
 #include "platform.h"
 
 extern char gui_usb_text[64];
+extern volatile uint32_t gui_heap_free;
 
 static double parse_double(const char *s)
 {
@@ -1648,5 +1649,238 @@ bool vgp_runtime_is_active(void)
 const char *vgp_runtime_project_name(void)
 {
     return g_proj.name[0] ? g_proj.name : "ViewGP Project";
+}
+
+static void create_ticker_if_enabled(void)
+{
+    if (g_ticker_bar) {
+        lv_obj_delete(g_ticker_bar);
+        g_ticker_bar = NULL;
+        g_ticker_label = NULL;
+    }
+    if (!g_proj.alarm_ticker.enabled) return;
+
+    g_ticker_bar = lv_obj_create(lv_layer_top());
+    lv_obj_remove_style_all(g_ticker_bar);
+    int32_t ty = g_proj.alarm_ticker.position_bottom ? ((int32_t)g_screen_h - 56) : 0;
+    lv_obj_set_pos(g_ticker_bar, 0, ty);
+    lv_obj_set_size(g_ticker_bar, (int32_t)g_screen_w, 26);
+    lv_obj_set_style_bg_color(g_ticker_bar, lv_color_hex(0xDC2626u), 0);
+    lv_obj_set_style_bg_opa(g_ticker_bar, LV_OPA_COVER, 0);
+    lv_obj_remove_flag(g_ticker_bar, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_remove_flag(g_ticker_bar, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_flag(g_ticker_bar, LV_OBJ_FLAG_HIDDEN);
+
+    g_ticker_label = lv_label_create(g_ticker_bar);
+    lv_obj_set_pos(g_ticker_label, 12, 4);
+    lv_obj_set_style_text_font(g_ticker_label, &vgp_font_zh_16, 0);
+    lv_obj_set_style_text_color(g_ticker_label, lv_color_hex(0xFFFFFFu), 0);
+    lv_label_set_text(g_ticker_label, "");
+}
+
+bool vgp_runtime_reload(const char *json, size_t json_len)
+{
+    if (!json || json_len == 0u) return false;
+
+    vgp_modbus_stop();
+    release_momentary();
+    cancel_input_edit();
+    close_active_popup();
+    if (g_kbd_group) {
+        lv_group_remove_all_objs(g_kbd_group);
+    }
+
+    /* Switch to a temporary screen before deleting old screens */
+    lv_obj_t *tmp_scr = lv_obj_create(NULL);
+    apply_box_style(tmp_scr, 0x000F172Au, 0, 0, 0);
+    lv_screen_load(tmp_scr);
+
+    for (uint16_t i = 0; i < g_proj.num_screens; ++i) {
+        if (g_proj.screens[i].lv_screen) {
+            lv_obj_delete(g_proj.screens[i].lv_screen);
+            g_proj.screens[i].lv_screen = NULL;
+        }
+    }
+    g_history_depth = 0;
+    g_current_screen_idx = 0;
+    g_ticker_last_ms = 0u;
+    g_ticker_idx = 0u;
+
+    if (!vgp_parse_project(json, json_len, &g_proj) || g_proj.num_screens == 0u) {
+        g_active = false;
+        if (g_status_label) {
+            set_label_if_changed(g_status_label, "OTA reload failed: invalid project.json");
+        }
+        return false;
+    }
+
+    vgp_alarm_init(&g_proj);
+    vgp_image_init(&g_proj);
+    vgp_trend_init(&g_proj);
+    vgp_modbus_start(&g_proj);
+    g_last_alarm_gen = 0u;
+
+    int32_t start_idx = find_screen(g_proj.start_screen_id);
+    if (start_idx < 0) {
+        for (uint16_t i = 0; i < g_proj.num_screens; ++i) {
+            if (!g_proj.screens[i].is_popup) {
+                start_idx = (int32_t)i;
+                break;
+            }
+        }
+        if (start_idx < 0) start_idx = 0;
+    }
+
+    switch_screen_to(start_idx);
+    lv_obj_delete(tmp_scr);
+    create_ticker_if_enabled();
+    if (g_status_bar) lv_obj_move_to_index(g_status_bar, -1);
+
+    g_active = true;
+    vgp_runtime_update();
+    return true;
+}
+
+static void json_append_str(char *out, size_t max_out, size_t *pos, const char *s)
+{
+    if (*pos + 1u < max_out) out[(*pos)++] = '"';
+    if (s) {
+        while (*s && *pos + 2u < max_out) {
+            unsigned char c = (unsigned char)*s++;
+            if (c == '"' || c == '\\') {
+                if (*pos + 2u < max_out) {
+                    out[(*pos)++] = '\\';
+                    out[(*pos)++] = (char)c;
+                }
+            } else if (c == '\n') {
+                if (*pos + 2u < max_out) { out[(*pos)++] = '\\'; out[(*pos)++] = 'n'; }
+            } else if (c >= 0x20u) {
+                out[(*pos)++] = (char)c;
+            }
+        }
+    }
+    if (*pos + 1u < max_out) out[(*pos)++] = '"';
+    if (*pos < max_out) out[*pos] = '\0';
+}
+
+static void json_append_raw(char *out, size_t max_out, size_t *pos, const char *s)
+{
+    if (!s) return;
+    while (*s && *pos + 1u < max_out) {
+        out[(*pos)++] = *s++;
+    }
+    if (*pos < max_out) out[*pos] = '\0';
+}
+
+size_t vgp_runtime_format_status_json(char *out, size_t max_out)
+{
+    if (!out || max_out < 32u) return 0u;
+    size_t pos = 0u;
+    out[0] = '\0';
+
+    sys_datetime_t dt;
+    sys_clock_now_local_dt(&dt);
+    char dt_buf[32];
+    sys_clock_format("YYYY/MM/DD HH:mm:ss", &dt, dt_buf, sizeof(dt_buf));
+
+    uint16_t active_ids[VGP_MAX_ALARM_EVENTS];
+    uint16_t active_alarms = vgp_alarm_get_active_list(active_ids, VGP_MAX_ALARM_EVENTS);
+    uint32_t uptime = (uint32_t)OSTimeGet() / (uint32_t)OS_TICKS_PER_SEC;
+
+    char hdr[320];
+    snprintf(hdr, sizeof(hdr),
+             "{\"platform\":\"%s\",\"uptimeSec\":%lu,\"ntpSynced\":%s,\"localTime\":\"%s\","
+             "\"lvglHeapFree\":%lu,\"activeAlarms\":%u,"
+             "\"usb\":{\"state\":%lu,\"keys\":%lu,\"mouse\":%s},"
+             "\"project\":{\"id\":",
+             soc_is_bcm2837 ? "Zero2W" : "ZeroW",
+             (unsigned long)uptime,
+             sys_clock_is_synced() ? "true" : "false",
+             dt_buf,
+             (unsigned long)gui_heap_free,
+             (unsigned)active_alarms,
+             (unsigned long)usb_state,
+             (unsigned long)usb_key_presses,
+             usb_mouse_connected ? "true" : "false");
+    json_append_raw(out, max_out, &pos, hdr);
+    json_append_str(out, max_out, &pos, g_proj.id);
+    json_append_raw(out, max_out, &pos, ",\"name\":");
+    json_append_str(out, max_out, &pos, g_proj.name);
+
+    char counts[128];
+    snprintf(counts, sizeof(counts),
+             ",\"screens\":%u,\"elements\":%u,\"variables\":%u},\"devices\":[",
+             (unsigned)g_proj.num_screens,
+             (unsigned)g_proj.total_elements,
+             (unsigned)g_proj.num_variables);
+    json_append_raw(out, max_out, &pos, counts);
+
+    for (uint16_t d = 0; d < g_proj.num_devices; ++d) {
+        const vgp_device_t *dev = &g_proj.devices[d];
+        if (d > 0u) json_append_raw(out, max_out, &pos, ",");
+        const char *st = (dev->state == VGP_DEV_STATE_CONNECTED) ? "connected" :
+                         (dev->state == VGP_DEV_STATE_CONNECTING) ? "connecting" :
+                         (dev->state == VGP_DEV_STATE_ERROR) ? "error" :
+                         (dev->state == VGP_DEV_STATE_UNMAPPED) ? "unmapped" : "disabled";
+        json_append_raw(out, max_out, &pos, "{\"id\":");
+        json_append_str(out, max_out, &pos, dev->id);
+        json_append_raw(out, max_out, &pos, ",\"name\":");
+        json_append_str(out, max_out, &pos, dev->name);
+        char dtail[96];
+        snprintf(dtail, sizeof(dtail), ",\"state\":\"%s\",\"errorCount\":%lu,\"lastError\":",
+                 st, (unsigned long)dev->error_count);
+        json_append_raw(out, max_out, &pos, dtail);
+        json_append_str(out, max_out, &pos, dev->last_error);
+        json_append_raw(out, max_out, &pos, "}");
+    }
+    json_append_raw(out, max_out, &pos, "]}");
+    return pos;
+}
+
+size_t vgp_runtime_format_alarms_json(char *out, size_t max_out)
+{
+    if (!out || max_out < 32u) return 0u;
+    size_t pos = 0u;
+    out[0] = '\0';
+
+    uint16_t total = 0u, active = 0u;
+    for (uint16_t i = 0; i < VGP_MAX_ALARM_EVENTS; ++i) {
+        const vgp_alarm_event_t *ev = vgp_alarm_get_event(i);
+        if (!ev) continue;
+        total++;
+        if (ev->cleared_epoch == 0u) active++;
+    }
+
+    char hdr[64];
+    snprintf(hdr, sizeof(hdr), "{\"total\":%u,\"active\":%u,\"events\":[", (unsigned)total, (unsigned)active);
+    json_append_raw(out, max_out, &pos, hdr);
+
+    bool first = true;
+    for (uint16_t i = 0; i < VGP_MAX_ALARM_EVENTS; ++i) {
+        const vgp_alarm_event_t *ev = vgp_alarm_get_event(i);
+        if (!ev) continue;
+        if (pos + 200u >= max_out) break;
+        if (!first) json_append_raw(out, max_out, &pos, ",");
+        first = false;
+
+        sys_datetime_t rdt;
+        sys_clock_epoch_to_local(ev->raised_epoch, &rdt);
+        char rbuf[32];
+        sys_clock_format("YYYY/MM/DD HH:mm:ss", &rdt, rbuf, sizeof(rbuf));
+
+        const char *sev = (ev->severity == VGP_SEV_CRITICAL) ? "critical" :
+                          (ev->severity == VGP_SEV_WARNING) ? "warning" : "info";
+        char pre[128];
+        snprintf(pre, sizeof(pre), "{\"raisedAt\":\"%s\",\"active\":%s,\"ack\":%s,\"severity\":\"%s\",\"group\":",
+                 rbuf, ev->cleared_epoch == 0u ? "true" : "false",
+                 ev->acknowledged ? "true" : "false", sev);
+        json_append_raw(out, max_out, &pos, pre);
+        json_append_str(out, max_out, &pos, ev->group);
+        json_append_raw(out, max_out, &pos, ",\"message\":");
+        json_append_str(out, max_out, &pos, ev->message);
+        json_append_raw(out, max_out, &pos, "}");
+    }
+    json_append_raw(out, max_out, &pos, "]}");
+    return pos;
 }
 

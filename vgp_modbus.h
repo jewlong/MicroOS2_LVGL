@@ -5,6 +5,7 @@
 #include "vgp_model.h"
 
 void vgp_modbus_start(vgp_project_t *proj);
+void vgp_modbus_stop(void);
 void vgp_modbus_task(void *arg);
 
 /* Non-blocking write enqueue called from gui_task.

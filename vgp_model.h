@@ -7,25 +7,25 @@
 #include <stddef.h>
 #include "lvgl.h"
 
-#define VGP_MAX_SCREENS             16
-#define VGP_MAX_VARIABLES           128
-#define VGP_MAX_ELEMENTS_PER_SCREEN 48
-#define VGP_MAX_TOTAL_ELEMENTS      256
+#define VGP_MAX_SCREENS             32
+#define VGP_MAX_VARIABLES           256
+#define VGP_MAX_ELEMENTS_PER_SCREEN 96
+#define VGP_MAX_TOTAL_ELEMENTS      768
 #define VGP_MAX_ID_LEN              48
 #define VGP_MAX_NAME_LEN            48
 #define VGP_MAX_TEXT_LEN            128
 #define VGP_MAX_MULTISTATE_ITEMS    8
 
 /* P0 Monitoring Core Limits */
-#define VGP_MAX_DEVICES             8
-#define VGP_MAX_ALARM_AREAS         16
+#define VGP_MAX_DEVICES             16
+#define VGP_MAX_ALARM_AREAS         32
 #define VGP_MAX_WORD_RULES_PER_AREA 16
-#define VGP_MAX_LOCAL_ALARM_RULES   64
-#define VGP_MAX_ALARM_EVENTS        64
+#define VGP_MAX_LOCAL_ALARM_RULES   128
+#define VGP_MAX_ALARM_EVENTS        128
 
 /* P1 HMI Assets & Trends */
-#define VGP_MAX_ASSETS              16
-#define VGP_MAX_TRENDS              8
+#define VGP_MAX_ASSETS              32
+#define VGP_MAX_TRENDS              16
 #define VGP_TREND_MAX_POINTS        120
 
 typedef enum {
