@@ -44,6 +44,11 @@ static double parse_double(const char *s)
     return sign * val;
 }
 static vgp_project_t g_proj;
+static vgp_project_t g_proj_staging;
+static vgp_parse_report_t g_parse_report;
+static char g_last_ota_err[96];
+static lv_obj_t *g_diag_layer = NULL;
+static lv_obj_t *g_diag_label = NULL;
 static bool g_active = false;
 static uint32_t g_screen_w = 640, g_screen_h = 480;
 static int32_t g_current_screen_idx = 0;
@@ -1088,7 +1093,7 @@ bool vgp_runtime_init(const char *json, size_t json_len, uint32_t screen_w, uint
     g_kbd_group = kbd_group;
 
     if (!json || json_len == 0) return false;
-    if (!vgp_parse_project(json, json_len, &g_proj)) return false;
+    if (!vgp_parse_project_ex(json, json_len, &g_proj, &g_parse_report)) return false;
     if (g_proj.num_screens == 0) return false;
 
     vgp_alarm_init(&g_proj);
@@ -1236,6 +1241,8 @@ static void update_alarm_table(vgp_element_t *el, uint16_t el_idx)
 #endif
 }
 
+static void update_diag_overlay(void);
+
 void vgp_runtime_update(void)
 {
     if (!g_active) return;
@@ -1337,6 +1344,18 @@ void vgp_runtime_update(void)
             }
 
             vgp_variable_t *v = find_var(el->variable_id);
+            bool modbus_bad = (v && v->modbus.enabled && v->quality == VGP_QUAL_BAD);
+            bool modbus_wait = (v && v->modbus.enabled && v->quality == VGP_QUAL_WAITING);
+            bool modbus_unavail = (modbus_bad || modbus_wait);
+            if (v && v->modbus.enabled) {
+                lv_obj_set_style_opa(el->lv_obj, modbus_unavail ? LV_OPA_60 : LV_OPA_COVER, 0);
+                if (modbus_bad) {
+                    lv_obj_set_style_outline_color(el->lv_obj, lv_color_hex(0x00EF4444u), 0);
+                    lv_obj_set_style_outline_width(el->lv_obj, 2, 0);
+                } else {
+                    lv_obj_set_style_outline_width(el->lv_obj, 0, 0);
+                }
+            }
             bool modbus_locked = (v && v->modbus.enabled && (!v->modbus.writable || v->quality != VGP_QUAL_GOOD));
             if (modbus_locked &&
                 (el->kind == VGP_KIND_SWITCH || el->kind == VGP_KIND_INPUT ||
@@ -1364,7 +1383,9 @@ void vgp_runtime_update(void)
 
                 case VGP_KIND_INDICATOR:
                     if (v && v->type == VGP_VAR_BOOL) {
-                        uint32_t color = v->val_bool ? 0x0058D3ACu : 0x0042516Au;
+                        uint32_t color = modbus_bad ? 0x007F1D1Du :
+                                         modbus_wait ? 0x00475569u :
+                                         (v->val_bool ? 0x0058D3ACu : 0x0042516Au);
                         if (el->color != color) {
                             el->color = color;
                             lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(color), 0);
@@ -1395,7 +1416,9 @@ void vgp_runtime_update(void)
                         lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(fc), LV_PART_INDICATOR);
                         if (el->lv_aux) {
                             char buf[64];
-                            format_num_val(buf, sizeof(buf), v->val_num, el);
+                            if (modbus_bad) snprintf(buf, sizeof(buf), "---");
+                            else if (modbus_wait) snprintf(buf, sizeof(buf), "...");
+                            else format_num_val(buf, sizeof(buf), v->val_num, el);
                             set_label_if_changed(el->lv_aux, buf);
                         }
                     }
@@ -1414,7 +1437,9 @@ void vgp_runtime_update(void)
                         lv_obj_set_style_arc_color(el->lv_obj, lv_color_hex(fc), LV_PART_INDICATOR);
                         if (el->lv_aux) {
                             char buf[64];
-                            format_num_val(buf, sizeof(buf), v->val_num, el);
+                            if (modbus_bad) snprintf(buf, sizeof(buf), "---");
+                            else if (modbus_wait) snprintf(buf, sizeof(buf), "...");
+                            else format_num_val(buf, sizeof(buf), v->val_num, el);
                             set_label_if_changed(el->lv_aux, buf);
                         }
                     }
@@ -1430,7 +1455,9 @@ void vgp_runtime_update(void)
                         }
                         if (el->lv_aux) {
                             char buf[64];
-                            format_num_val(buf, sizeof(buf), v->val_num, el);
+                            if (modbus_bad) snprintf(buf, sizeof(buf), "---");
+                            else if (modbus_wait) snprintf(buf, sizeof(buf), "...");
+                            else format_num_val(buf, sizeof(buf), v->val_num, el);
                             set_label_if_changed(el->lv_aux, buf);
                         }
                     }
@@ -1469,6 +1496,11 @@ void vgp_runtime_update(void)
 
                 case VGP_KIND_MULTISTATE:
                     if (v && el->lv_extra) {
+                        if (modbus_bad || modbus_wait) {
+                            set_label_if_changed(el->lv_extra, modbus_bad ? "BAD" : "...");
+                            lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(modbus_bad ? 0x007F1D1Du : 0x00475569u), 0);
+                            break;
+                        }
                         double cur_val = (v->type == VGP_VAR_NUM) ? v->val_num : (v->val_bool ? 1.0 : 0.0);
                         const vgp_multistate_item_t *matched = NULL;
                         for (uint8_t m = 0; m < el->num_multistate_items; ++m) {
@@ -1531,13 +1563,98 @@ void vgp_runtime_update(void)
     if (alarm_dirty) {
         g_last_alarm_gen = alarm_gen;
     }
+    if (g_diag_layer) {
+        update_diag_overlay();
+    }
+}
+
+static void update_diag_overlay(void)
+{
+    if (!g_diag_layer || !g_diag_label) return;
+    static char dtxt[1536];
+    sys_datetime_t dt;
+    sys_clock_now_local_dt(&dt);
+    char dt_buf[32];
+    sys_clock_format("YYYY/MM/DD HH:mm:ss", &dt, dt_buf, sizeof(dt_buf));
+    uint32_t up = (uint32_t)OSTimeGet() / (uint32_t)OS_TICKS_PER_SEC;
+
+    int pos = snprintf(dtxt, sizeof(dtxt),
+        "=== Pi Zero 本機診斷頁 (按 F12 或 Esc 關閉) ===\n"
+        "平台: %s | 運行: %lu s | 時間: %s (%s)\n"
+        "LVGL 剩餘記憶體: %lu bytes | 專案: %s (v%lu)\n"
+        "畫面: %u | 元件: %u | 變數: %u | 設備: %u\n"
+        "解析警告: %u 筆 | 最近 OTA: %s\n",
+        soc_is_bcm2837 ? "Pi Zero 2 W" : "Pi Zero W",
+        (unsigned long)up, dt_buf, sys_clock_is_synced() ? "NTP已同步" : "未校時",
+        (unsigned long)gui_heap_free,
+        g_proj.name[0] ? g_proj.name : g_proj.id,
+        (unsigned long)(g_parse_report.has_schema_version ? g_parse_report.schema_version : 1u),
+        (unsigned)g_proj.num_screens, (unsigned)g_proj.total_elements,
+        (unsigned)g_proj.num_variables, (unsigned)g_proj.num_devices,
+        (unsigned)g_parse_report.total_warnings,
+        g_last_ota_err[0] ? g_last_ota_err : "OK");
+
+    if (pos > 0 && (size_t)pos < sizeof(dtxt) && g_proj.num_devices > 0u) {
+        pos += snprintf(dtxt + pos, sizeof(dtxt) - (size_t)pos, "\n[Modbus 設備狀態]\n");
+        for (uint16_t d = 0; d < g_proj.num_devices && (size_t)pos + 64u < sizeof(dtxt); ++d) {
+            const vgp_device_t *dev = &g_proj.devices[d];
+            const char *st = (dev->state == VGP_DEV_STATE_CONNECTED) ? "CONNECTED" :
+                             (dev->state == VGP_DEV_STATE_ERROR) ? "ERROR" :
+                             (dev->state == VGP_DEV_STATE_CONNECTING) ? "CONNECTING" : "OFF";
+            pos += snprintf(dtxt + pos, sizeof(dtxt) - (size_t)pos, " - %s: %s (err=%lu %s)\n",
+                            dev->name[0] ? dev->name : dev->id, st,
+                            (unsigned long)dev->error_count, dev->last_error);
+        }
+    }
+
+    if (pos > 0 && (size_t)pos < sizeof(dtxt) && g_parse_report.stored_warnings > 0u) {
+        pos += snprintf(dtxt + pos, sizeof(dtxt) - (size_t)pos, "\n[解析警告 (前 %u 筆)]\n",
+                        (unsigned)(g_parse_report.stored_warnings > 6u ? 6u : g_parse_report.stored_warnings));
+        for (uint16_t w = 0; w < g_parse_report.stored_warnings && w < 6u && (size_t)pos + 80u < sizeof(dtxt); ++w) {
+            pos += snprintf(dtxt + pos, sizeof(dtxt) - (size_t)pos, " ! %s\n", g_parse_report.warnings[w]);
+        }
+    }
+
+    set_label_if_changed(g_diag_label, dtxt);
+}
+
+static void toggle_diag_overlay(void)
+{
+    if (g_diag_layer) {
+        lv_obj_delete(g_diag_layer);
+        g_diag_layer = NULL;
+        g_diag_label = NULL;
+        return;
+    }
+    g_diag_layer = lv_obj_create(lv_layer_top());
+    lv_obj_set_pos(g_diag_layer, 24, 24);
+    lv_obj_set_size(g_diag_layer, (int32_t)g_screen_w - 48, (int32_t)g_screen_h - 68);
+    apply_box_style(g_diag_layer, 0x000F172Au, 0x0038BDF8u, 2, 10);
+    lv_obj_set_style_bg_opa(g_diag_layer, LV_OPA_90, 0);
+    lv_obj_set_style_pad_all(g_diag_layer, 14, 0);
+
+    g_diag_label = lv_label_create(g_diag_layer);
+    lv_obj_set_width(g_diag_label, (int32_t)g_screen_w - 80);
+    lv_obj_set_style_text_font(g_diag_label, &vgp_font_zh_16, 0);
+    lv_obj_set_style_text_color(g_diag_label, lv_color_hex(0x00E2E8F0u), 0);
+    lv_label_set_long_mode(g_diag_label, LV_LABEL_LONG_MODE_WRAP);
+    update_diag_overlay();
 }
 
 void vgp_runtime_handle_key(uint32_t key)
 {
     if (!g_active) return;
 
+    if (key == KEY_F12) {
+        toggle_diag_overlay();
+        return;
+    }
+
     if (key == KEY_ESC) {
+        if (g_diag_layer) {
+            toggle_diag_overlay();
+            return;
+        }
         if (g_edit_el) {
             cancel_input_edit();
             vgp_runtime_update();
@@ -1651,6 +1768,11 @@ const char *vgp_runtime_project_name(void)
     return g_proj.name[0] ? g_proj.name : "ViewGP Project";
 }
 
+const char *vgp_runtime_last_error(void)
+{
+    return g_parse_report.error;
+}
+
 static void create_ticker_if_enabled(void)
 {
     if (g_ticker_bar) {
@@ -1682,10 +1804,30 @@ bool vgp_runtime_reload(const char *json, size_t json_len)
 {
     if (!json || json_len == 0u) return false;
 
+    /* Atomic step 1: validate & parse into staging buffer BEFORE touching live project */
+    vgp_parse_report_t tmp_report;
+    if (!vgp_parse_project_ex(json, json_len, &g_proj_staging, &tmp_report) ||
+        g_proj_staging.num_screens == 0u) {
+        snprintf(g_last_ota_err, sizeof(g_last_ota_err), "%s",
+                 tmp_report.error[0] ? tmp_report.error : "invalid project.json");
+        if (g_status_label) {
+            char msg[128];
+            snprintf(msg, sizeof(msg), "OTA rejected (kept live project): %s", g_last_ota_err);
+            set_label_if_changed(g_status_label, msg);
+        }
+        return false;
+    }
+
+    /* Atomic step 2: staging validated -> safely stop live runtime and swap */
     vgp_modbus_stop();
     release_momentary();
     cancel_input_edit();
     close_active_popup();
+    if (g_diag_layer) {
+        lv_obj_delete(g_diag_layer);
+        g_diag_layer = NULL;
+        g_diag_label = NULL;
+    }
     if (g_kbd_group) {
         lv_group_remove_all_objs(g_kbd_group);
     }
@@ -1701,18 +1843,14 @@ bool vgp_runtime_reload(const char *json, size_t json_len)
             g_proj.screens[i].lv_screen = NULL;
         }
     }
+
+    g_proj = g_proj_staging;
+    g_parse_report = tmp_report;
+    g_last_ota_err[0] = '\0';
     g_history_depth = 0;
     g_current_screen_idx = 0;
     g_ticker_last_ms = 0u;
     g_ticker_idx = 0u;
-
-    if (!vgp_parse_project(json, json_len, &g_proj) || g_proj.num_screens == 0u) {
-        g_active = false;
-        if (g_status_label) {
-            set_label_if_changed(g_status_label, "OTA reload failed: invalid project.json");
-        }
-        return false;
-    }
 
     vgp_alarm_init(&g_proj);
     vgp_image_init(&g_proj);
@@ -1832,6 +1970,16 @@ size_t vgp_runtime_format_status_json(char *out, size_t max_out)
         json_append_raw(out, max_out, &pos, dtail);
         json_append_str(out, max_out, &pos, dev->last_error);
         json_append_raw(out, max_out, &pos, "}");
+    }
+    json_append_raw(out, max_out, &pos, "],\"lastOtaError\":");
+    json_append_str(out, max_out, &pos, g_last_ota_err);
+    char wpre[64];
+    snprintf(wpre, sizeof(wpre), ",\"parseWarningCount\":%u,\"parseWarnings\":[",
+             (unsigned)g_parse_report.total_warnings);
+    json_append_raw(out, max_out, &pos, wpre);
+    for (uint16_t w = 0; w < g_parse_report.stored_warnings; ++w) {
+        if (w > 0u) json_append_raw(out, max_out, &pos, ",");
+        json_append_str(out, max_out, &pos, g_parse_report.warnings[w]);
     }
     json_append_raw(out, max_out, &pos, "]}");
     return pos;

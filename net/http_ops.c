@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "http_ops.h"
 #include "vgp_runtime.h"
+#include "bootcfg.h"
 #include "net_platform.h"
 #include "lwip/tcp.h"
 #include <ucos_ii.h>
@@ -50,7 +51,9 @@ static const char g_index_html[] =
     "pre{background:#020617;padding:12px;border-radius:6px;overflow:auto;font-size:13px}</style></head><body>"
     "<h2>ViewGP Pi Zero Field Ops</h2>"
     "<div class=card><h3>Hot-Reload project.json</h3>"
-    "<input type=file id=f accept=.json> <button onclick=up()>Upload &amp; Reload</button>"
+    "<input type=file id=f accept=.json> "
+    "<input type=password id=tok placeholder='ops_token (optional)' style='padding:6px;margin:0 6px'> "
+    "<button onclick=up()>Upload &amp; Reload</button>"
     "<span id=msg style='margin-left:12px'></span></div>"
     "<div class=card><h3>System &amp; Modbus Status <button onclick=load()>Refresh</button></h3><pre id=st>Loading...</pre></div>"
     "<div class=card><h3>Alarm History</h3><pre id=al>Loading...</pre></div>"
@@ -58,8 +61,9 @@ static const char g_index_html[] =
     "let s=await fetch('/api/status').then(r=>r.json());document.getElementById('st').textContent=JSON.stringify(s,null,2);"
     "let a=await fetch('/api/alarms').then(r=>r.json());document.getElementById('al').textContent=JSON.stringify(a,null,2);}"
     "async function up(){let f=document.getElementById('f').files[0];if(!f)return;"
+    "let h={'Content-Type':'application/json'};let t=document.getElementById('tok').value.trim();if(t)h['X-Ops-Token']=t;"
     "let m=document.getElementById('msg');m.textContent='Uploading...';"
-    "let r=await fetch('/api/project',{method:'POST',headers:{'Content-Type':'application/json'},body:await f.text()});"
+    "let r=await fetch('/api/project',{method:'POST',headers:h,body:await f.text()});"
     "m.textContent=r.status+' '+await r.text();setTimeout(load,800);}load();</script></body></html>";
 
 static void close_conn(http_conn_t *c)
@@ -109,7 +113,9 @@ static void send_response(http_conn_t *c, int code, const char *status_txt,
 {
     int hlen = snprintf(c->tx_buf, sizeof(c->tx_buf),
                         "HTTP/1.1 %d %s\r\nContent-Type: %s\r\nContent-Length: %lu\r\n"
-                        "Connection: close\r\nAccess-Control-Allow-Origin: *\r\n\r\n",
+                        "Connection: close\r\nAccess-Control-Allow-Origin: *\r\n"
+                        "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
+                        "Access-Control-Allow-Headers: Content-Type, Authorization, X-Ops-Token\r\n\r\n",
                         code, status_txt, ctype, (unsigned long)body_len);
     if (hlen < 0) hlen = 0;
     size_t pos = (size_t)hlen;
@@ -190,8 +196,51 @@ static void finish_post_project(http_conn_t *c)
     send_response(c, 200, "OK", "application/json", resp, (size_t)(n > 0 ? n : 0));
 }
 
+static bool verify_ops_token(const char *hdr, size_t hdr_len)
+{
+    const wifi_settings_t *cfg = bootcfg_wifi();
+    if (!cfg || !cfg->ops_token_set || !cfg->ops_token[0]) {
+        return true; /* No token configured -> open on local LAN */
+    }
+    const char *expected = cfg->ops_token;
+    size_t exp_len = strlen(expected);
+
+    size_t i = 0u;
+    while (i < hdr_len) {
+        size_t ls = i;
+        while (i < hdr_len && hdr[i] != '\n') i++;
+        size_t le = i;
+        if (i < hdr_len) i++;
+        while (le > ls && (hdr[le - 1u] == '\r' || hdr[le - 1u] == ' ' || hdr[le - 1u] == '\t')) le--;
+
+        size_t vs = 0u;
+        if (le - ls > 12u && ascii_ieq_prefix(hdr + ls, "x-ops-token:")) {
+            vs = ls + 12u;
+        } else if (le - ls > 21u && ascii_ieq_prefix(hdr + ls, "authorization:")) {
+            vs = ls + 14u;
+            while (vs < le && (hdr[vs] == ' ' || hdr[vs] == '\t')) vs++;
+            if (le - vs >= 7u && ascii_ieq_prefix(hdr + vs, "bearer ")) {
+                vs += 7u;
+            } else {
+                continue;
+            }
+        } else {
+            continue;
+        }
+        while (vs < le && (hdr[vs] == ' ' || hdr[vs] == '\t')) vs++;
+        if (le - vs == exp_len && memcmp(hdr + vs, expected, exp_len) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void handle_headers_complete(http_conn_t *c, const char *body_part, size_t body_part_len)
 {
+    if (strncmp(c->hdr_buf, "OPTIONS ", 8u) == 0) {
+        send_response(c, 204, "No Content", "text/plain", "", 0u);
+        return;
+    }
     if (strncmp(c->hdr_buf, "GET / ", 6u) == 0 || strncmp(c->hdr_buf, "GET /index.html ", 16u) == 0) {
         send_response(c, 200, "OK", "text/html; charset=utf-8", g_index_html, sizeof(g_index_html) - 1u);
         return;
@@ -209,6 +258,11 @@ static void handle_headers_complete(http_conn_t *c, const char *body_part, size_
         return;
     }
     if (strncmp(c->hdr_buf, "POST /api/project ", 18u) == 0) {
+        if (!verify_ops_token(c->hdr_buf, c->hdr_len)) {
+            const char *msg = "{\"ok\":false,\"error\":\"unauthorized (check ops_token)\"}";
+            send_response(c, 401, "Unauthorized", "application/json", msg, strlen(msg));
+            return;
+        }
         size_t clen = parse_content_length(c->hdr_buf, c->hdr_len);
         if (clen == 0u) {
             const char *msg = "{\"ok\":false,\"error\":\"missing Content-Length\"}";
@@ -375,6 +429,10 @@ static err_t http_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
 void http_ops_init(void)
 {
     memset(g_conns, 0, sizeof(g_conns));
+    if (bootcfg_wifi()->ops_http_disabled) {
+        net_log("[HTTP] Field Ops server disabled by wifi.txt (ops_http=0)\n");
+        return;
+    }
     struct tcp_pcb *pcb = tcp_new();
     if (!pcb) return;
     if (tcp_bind(pcb, IP_ADDR_ANY, HTTP_OPS_PORT) != ERR_OK) {

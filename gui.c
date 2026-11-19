@@ -372,6 +372,15 @@ void gui_task(void *arg)
     }
     if (!vgp_loaded) {
         create_screen(fb->width, fb->height);
+        if (proj_json && proj_len > 0u) {
+            const char *perr = vgp_runtime_last_error();
+            lv_obj_t *err_bar = lv_label_create(lv_screen_active());
+            lv_obj_set_pos(err_bar, 24, (int32_t)fb->height - 62);
+            lv_obj_set_style_text_font(err_bar, &lv_font_montserrat_14, 0);
+            lv_obj_set_style_text_color(err_bar, lv_color_hex(0xf87171u), 0);
+            lv_label_set_text_fmt(err_bar, "project.json load error: %s",
+                                  (perr && perr[0]) ? perr : "invalid JSON / no screens");
+        }
     }
     gui_ready = 1u;
     bsp_log_lock();

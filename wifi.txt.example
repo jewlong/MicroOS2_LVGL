@@ -9,4 +9,7 @@ country=TW
 # Optional timezone offset in hours (-12..+14, default: 8) and custom NTP server.
 # tz_offset=8
 # ntp_server=pool.ntp.org
+# Optional HTTP Field Ops (port 8080) authentication token and enable switch (0=disable).
+# ops_token=change-me-secret
+# ops_http=1
 

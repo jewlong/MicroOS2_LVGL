@@ -1,6 +1,29 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "vgp_parser.h"
 #include <string.h>
+#include <stdio.h>
+
+static vgp_parse_report_t *g_cur_report = NULL;
+
+static void report_warn(const char *ctx, const char *detail)
+{
+    if (!g_cur_report) return;
+    g_cur_report->total_warnings++;
+    if (g_cur_report->stored_warnings < VGP_MAX_PARSE_WARNINGS) {
+        char *dst = g_cur_report->warnings[g_cur_report->stored_warnings++];
+        if (ctx && ctx[0]) {
+            snprintf(dst, 96u, "%s: %s", ctx, detail ? detail : "");
+        } else {
+            snprintf(dst, 96u, "%s", detail ? detail : "");
+        }
+    }
+}
+
+static void report_err(const char *msg)
+{
+    if (!g_cur_report || g_cur_report->error[0]) return;
+    snprintf(g_cur_report->error, sizeof(g_cur_report->error), "%s", msg ? msg : "parse error");
+}
 
 static double parse_double_str(const char *s)
 {
@@ -391,7 +414,14 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
         } else if (strcmp(key, "name") == 0) {
             parse_str(s, len, p, e->name, sizeof(e->name));
         } else if (strcmp(key, "kind") == 0) {
-            if (parse_str(s, len, p, sval, sizeof(sval))) e->kind = parse_kind_str(sval);
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                e->kind = parse_kind_str(sval);
+                if (e->kind == VGP_KIND_UNKNOWN) {
+                    char msg[64];
+                    snprintf(msg, sizeof(msg), "unsupported kind '%s'", sval);
+                    report_warn(e->id[0] ? e->id : "element", msg);
+                }
+            }
         } else if (strcmp(key, "x") == 0) {
             double v; if (parse_num(s, len, p, &v)) e->x = (int32_t)v;
         } else if (strcmp(key, "y") == 0) {
@@ -623,6 +653,12 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
                 match_char(s, len, p, ']');
             } else skip_val(s, len, p);
         } else {
+            /* Ignore benign editor-only metadata; warn on unsupported runtime properties */
+            if (strcmp(key, "locked") != 0 && strcmp(key, "groupId") != 0) {
+                char msg[64];
+                snprintf(msg, sizeof(msg), "ignored prop '%s'", key);
+                report_warn(e->id[0] ? e->id : "element", msg);
+            }
             skip_val(s, len, p);
         }
         match_char(s, len, p, ',');
@@ -666,10 +702,15 @@ static void parse_screens_array(const char *s, size_t len, size_t *p, vgp_projec
                 parse_str(s, len, p, sc->parent_screen_id, sizeof(sc->parent_screen_id));
             } else if (strcmp(key, "elements") == 0) {
                 if (match_char(s, len, p, '[')) {
-                    while (*p < len && s[*p] != ']' && proj->total_elements < VGP_MAX_TOTAL_ELEMENTS) {
-                        vgp_element_t *el = &proj->elements[proj->total_elements++];
-                        parse_element_obj(s, len, p, el, proj);
-                        sc->num_elements++;
+                    while (*p < len && s[*p] != ']') {
+                        if (proj->total_elements < VGP_MAX_TOTAL_ELEMENTS) {
+                            vgp_element_t *el = &proj->elements[proj->total_elements++];
+                            parse_element_obj(s, len, p, el, proj);
+                            sc->num_elements++;
+                        } else {
+                            report_warn(sc->id[0] ? sc->id : "screen", "elements limit reached (768)");
+                            skip_val(s, len, p);
+                        }
                         match_char(s, len, p, ',');
                     }
                     match_char(s, len, p, ']');
@@ -823,6 +864,7 @@ static void parse_devices_array(const char *s, size_t len, size_t *p, vgp_projec
             if (d->poll_interval_ms < 100u) d->poll_interval_ms = 100u;
             if (d->timeout_ms < 100u) d->timeout_ms = 100u;
         } else {
+            report_warn("devices", "limit reached (16)");
             skip_val(s, len, p);
         }
         match_char(s, len, p, ',');
@@ -886,6 +928,7 @@ static void parse_alarm_areas_array(const char *s, size_t len, size_t *p, vgp_pr
             match_char(s, len, p, '}');
             if (a->update_interval_ms < 100u) a->update_interval_ms = 100u;
         } else {
+            report_warn("alarmAreas", "limit reached (32)");
             skip_val(s, len, p);
         }
         match_char(s, len, p, ',');
@@ -939,6 +982,7 @@ static void parse_assets_array(const char *s, size_t len, size_t *p, vgp_project
                 proj->num_assets++;
             }
         } else {
+            report_warn("assets", "limit reached (32)");
             skip_val(s, len, p);
         }
         match_char(s, len, p, ',');
@@ -994,9 +1038,16 @@ static void vgp_link_project(vgp_project_t *proj)
     }
 }
 
-bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
+bool vgp_parse_project_ex(const char *json, size_t len, vgp_project_t *proj, vgp_parse_report_t *report)
 {
-    if (!json || len == 0 || !proj) return false;
+    if (report) memset(report, 0, sizeof(*report));
+    g_cur_report = report;
+
+    if (!json || len == 0 || !proj) {
+        report_err("empty json input");
+        g_cur_report = NULL;
+        return false;
+    }
     memset(proj, 0, sizeof(*proj));
     proj->alarm_ticker.interval_ms = 3000u;
 
@@ -1007,14 +1058,31 @@ bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
     }
     /* Skip leading whitespace or non-brace text */
     while (p < len && json[p] != '{') p++;
-    if (!match_char(json, len, &p, '{')) return false;
+    if (!match_char(json, len, &p, '{')) {
+        report_err("missing root '{'");
+        g_cur_report = NULL;
+        return false;
+    }
 
     char key[64];
     while (p < len && json[p] != '}') {
         if (!parse_str(json, len, &p, key, sizeof(key))) break;
         if (!match_char(json, len, &p, ':')) break;
 
-        if (strcmp(key, "id") == 0) {
+        if (strcmp(key, "schemaVersion") == 0) {
+            double v = 0.0;
+            if (parse_num(json, len, &p, &v) && report) {
+                report->schema_version = (uint32_t)v;
+                report->has_schema_version = true;
+            }
+            if ((uint32_t)v != 1u) {
+                char msg[64];
+                snprintf(msg, sizeof(msg), "unsupported schemaVersion %u (expected 1)", (unsigned)(uint32_t)v);
+                report_err(msg);
+                g_cur_report = NULL;
+                return false;
+            }
+        } else if (strcmp(key, "id") == 0) {
             parse_str(json, len, &p, proj->id, sizeof(proj->id));
         } else if (strcmp(key, "name") == 0) {
             parse_str(json, len, &p, proj->name, sizeof(proj->name));
@@ -1033,16 +1101,33 @@ bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
         } else if (strcmp(key, "assets") == 0) {
             parse_assets_array(json, len, &p, proj);
         } else {
+            if (strcmp(key, "description") != 0 && strcmp(key, "autoSave") != 0) {
+                char msg[64];
+                snprintf(msg, sizeof(msg), "unknown root key '%s'", key);
+                report_warn("project", msg);
+            }
             skip_val(json, len, &p);
         }
         match_char(json, len, &p, ',');
     }
     match_char(json, len, &p, '}');
 
+    if (report && !report->has_schema_version) {
+        report_warn("project", "missing schemaVersion (assuming v1)");
+    }
+
     if (proj->num_screens > 0) {
         vgp_link_project(proj);
+        g_cur_report = NULL;
         return true;
     }
+    report_err("no valid screens in project.json");
+    g_cur_report = NULL;
     return false;
+}
+
+bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
+{
+    return vgp_parse_project_ex(json, len, proj, NULL);
 }
 

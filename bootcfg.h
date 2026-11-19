@@ -33,6 +33,9 @@ typedef struct {
     bool tz_offset_set;
     char ntp_server[64];
     bool ntp_server_set;
+    char ops_token[64];
+    bool ops_token_set;
+    bool ops_http_disabled;
 } wifi_settings_t;
 
 /* Pure parser over a text buffer (host-testable). On failure *out is zeroed. */

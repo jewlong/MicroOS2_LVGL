@@ -115,6 +115,23 @@ bootcfg_status_t bootcfg_parse_wifi(const char *text, size_t length, wifi_settin
                     r.ntp_server_set = true;
                 }
             }
+        } else if (key_is(text + start, key_len, "ops_token")) {
+            if (value_len >= 1u && value_len < sizeof(r.ops_token)) {
+                bool ok = true;
+                for (size_t k = 0u; k < value_len; ++k) {
+                    const uint8_t c = (uint8_t)text[value + k];
+                    if (c <= 0x20u || c > 0x7eu) { ok = false; break; }
+                }
+                if (ok) {
+                    for (size_t k = 0u; k < value_len; ++k) { r.ops_token[k] = text[value + k]; }
+                    r.ops_token[value_len] = '\0';
+                    r.ops_token_set = true;
+                }
+            }
+        } else if (key_is(text + start, key_len, "ops_http")) {
+            if (value_len == 1u && text[value] == '0') {
+                r.ops_http_disabled = true;
+            }
         }
     }
     bootcfg_status_t result = BOOTCFG_OK;

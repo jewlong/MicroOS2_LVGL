@@ -19,6 +19,7 @@ static uint32_t translate(uint8_t u,uint8_t mods,const hid_keyboard_t *s)
     case 49:case 50:return shift?'|':'\\';case 51:return shift?':':';';
     case 52:return shift?'"':'\'';case 53:return shift?'~':'`';
     case 54:return shift?'<':',';case 55:return shift?'>':'.';case 56:return shift?'?':'/';
+    case 69:return KEY_F12;
     case 74:return KEY_HOME;case 76:return KEY_DELETE;case 77:return KEY_END;
     case 79:return KEY_RIGHT;case 80:return KEY_LEFT;case 81:return KEY_DOWN;case 82:return KEY_UP;
     case 84:return '/';case 85:return '*';case 86:return '-';case 87:return '+';case 103:return '=';

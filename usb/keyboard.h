@@ -6,7 +6,7 @@
 #include <stddef.h>
 typedef struct { uint32_t key; uint8_t usage,modifiers,pressed,reset; } key_event_t;
 enum { KEY_ENTER=10,KEY_TAB=9,KEY_BACKTAB=11,KEY_ESC=27,KEY_BACKSPACE=8,
-       KEY_UP=17,KEY_DOWN=18,KEY_RIGHT=19,KEY_LEFT=20,KEY_HOME=2,KEY_END=3,KEY_DELETE=127 };
+       KEY_UP=17,KEY_DOWN=18,KEY_RIGHT=19,KEY_LEFT=20,KEY_HOME=2,KEY_END=3,KEY_DELETE=127,KEY_F12=140 };
 typedef struct { uint8_t keys[6],modifiers; uint32_t mapped[6]; bool caps,num; } hid_keyboard_t;
 typedef void (*hid_emit_t)(const key_event_t *);
 void hid_keyboard_init(hid_keyboard_t *state);
