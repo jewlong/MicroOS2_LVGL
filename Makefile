@@ -20,10 +20,10 @@ ASFLAGS := $(CPU) -g3 -x assembler-with-cpp -Wa,--noexecstack -MMD -MP
 LDFLAGS := $(CPU) -nostdlib -nostartfiles -static \
     -Wl,-T,linker.ld,--gc-sections,--build-id=none,--fatal-warnings,-z,noexecstack,-Map,build/kernel.map
 OBJECTS := build/startup.o build/os_cpu_a.o build/os_cpu_c.o \
-    build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o build/bootcfg.o build/vgp_parser.o build/vgp_runtime.o build/vgp_font_cjk.o \
+    build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o build/bootcfg.o build/sys_clock.o build/vgp_parser.o build/vgp_alarm.o build/vgp_image.o build/vgp_trend.o build/modbus_codec.o build/modbus_tcp.o build/modbus_rtu.o build/vgp_modbus.o build/vgp_runtime.o build/vgp_font_cjk.o \
     build/os_core.o build/os_task.o build/os_time.o build/os_sem.o \
     build/os_mutex.o build/os_q.o build/dwc2.o build/descriptors.o \
-    build/hid_keyboard.o build/key_queue.o build/usb_keyboard.o
+    build/hid_keyboard.o build/key_queue.o build/mouse_queue.o build/usb_keyboard.o
 
 # Software renderer, built-in allocator/string/printf, selected widgets.
 LVROOT := vendor/lvgl/src
@@ -33,10 +33,10 @@ LVGL_SOURCES := $(wildcard $(LVROOT)/*.c $(LVROOT)/core/*.c $(LVROOT)/display/*.
     $(LVROOT)/font/*.c $(LVROOT)/indev/*.c $(LVROOT)/osal/lv_os.c \
     $(LVROOT)/stdlib/*.c $(LVROOT)/stdlib/builtin/*.c $(LVROOT)/tick/*.c \
     $(LVROOT)/themes/lv_theme.c $(LVROOT)/layouts/lv_layout.c \
-    $(LVROOT)/libs/bin_decoder/*.c \
+    $(LVROOT)/libs/bin_decoder/*.c $(LVROOT)/libs/tjpgd/*.c $(LVROOT)/libs/lodepng/*.c \
     $(LVROOT)/widgets/arc/*.c $(LVROOT)/widgets/bar/*.c $(LVROOT)/widgets/button/*.c \
-    $(LVROOT)/widgets/chart/*.c $(LVROOT)/widgets/image/*.c $(LVROOT)/widgets/label/*.c \
-    $(LVROOT)/widgets/line/*.c $(LVROOT)/widgets/scale/*.c $(LVROOT)/widgets/switch/*.c \
+    $(LVROOT)/widgets/chart/*.c $(LVROOT)/widgets/dropdown/*.c $(LVROOT)/widgets/image/*.c $(LVROOT)/widgets/label/*.c \
+    $(LVROOT)/widgets/line/*.c $(LVROOT)/widgets/scale/*.c $(LVROOT)/widgets/slider/*.c $(LVROOT)/widgets/switch/*.c \
     $(LVROOT)/widgets/table/*.c $(LVROOT)/widgets/textarea/*.c)
 LVGL_OBJECTS := $(addprefix build/lvgl_,$(notdir $(LVGL_SOURCES:.c=.o)))
 OBJECTS += $(LVGL_OBJECTS)
@@ -54,7 +54,7 @@ CFLAGS += -Inet -Ivendor/lwip/src/include -Ivendor/nanoprintf \
     -Ivendor/whd/External/rtos -Ivendor/whd/External/hal -Ivendor/whd/External/bsp \
     -DCYBSP_WIFI_INTERFACE_TYPE=CYBSP_SDIO_INTERFACE
 LWIP_SOURCES := $(wildcard vendor/lwip/src/core/*.c vendor/lwip/src/core/ipv4/*.c) \
-    vendor/lwip/src/api/tcpip.c vendor/lwip/src/netif/ethernet.c
+    vendor/lwip/src/api/tcpip.c vendor/lwip/src/netif/ethernet.c vendor/lwip/src/apps/sntp/sntp.c
 WHD_SOURCES := $(filter-out %/whd_msgbuf_txrx.c %/whd_commonring.c %/whd_flowring.c %/whd_ring.c,$(wildcard vendor/whd/src/*.c)) \
     vendor/whd/src/bus_protocols/whd_bus.c vendor/whd/src/bus_protocols/whd_bus_common.c vendor/whd/src/bus_protocols/whd_bus_sdio_protocol.c
 OBJECTS += $(addprefix build/lwip_,$(notdir $(LWIP_SOURCES:.c=.o))) \

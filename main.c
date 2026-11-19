@@ -8,6 +8,9 @@
 #include "gui.h"
 #include "keyboard.h"
 #include "bootcfg.h"
+#include "sys_clock.h"
+#include "vgp_modbus.h"
+_Alignas(8) static OS_STK modbus_stack[4096];
 _Alignas(8) static OS_STK usb_stack[4096];
 #include "net_platform.h"
 _Alignas(8) static OS_STK network_stack[8192];
@@ -150,6 +153,8 @@ int main(void)
 {
     soc_detect_init(); /* Auto-detect Pi Zero W (BCM2835) vs Pi Zero 2 W (BCM2837). */
     bootcfg_init(); /* Read wifi.txt handoff before any other code touches RAM. */
+    sys_clock_init((bootcfg_status() == BOOTCFG_OK && bootcfg_wifi()->tz_offset_set) ?
+                   bootcfg_wifi()->tz_offset_hours : 8);
     uart_init();
     bsp_interrupts_init();
     if ((data_cookie != 0x1234abcdu) || (bss_cookie != 0u)) {
@@ -189,6 +194,7 @@ int main(void)
     gui_queue_init();
     net_platform_init();
     create_task(usb_keyboard_task, usb_stack, 4096, 13);
+    create_task(vgp_modbus_task, modbus_stack, 4096, 14);
     create_task(network_task, network_stack, 8192, 12);
     create_task(high_task, high_stack, APP_STACK_WORDS, APP_HIGH_PRIO);
     create_task(uart_task, uart_stack, APP_STACK_WORDS, APP_UART_PRIO);

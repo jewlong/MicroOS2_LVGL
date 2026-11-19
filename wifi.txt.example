@@ -6,4 +6,7 @@ ssid=YourNetworkName
 password=YourPassword
 # Optional two-letter regulatory country code (default: value built into the kernel).
 country=TW
+# Optional timezone offset in hours (-12..+14, default: 8) and custom NTP server.
+# tz_offset=8
+# ntp_server=pool.ntp.org
 

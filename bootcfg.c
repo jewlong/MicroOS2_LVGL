@@ -84,6 +84,37 @@ bootcfg_status_t bootcfg_parse_wifi(const char *text, size_t length, wifi_settin
                 r.country[1] = (char)(b - 'a' + 'A');
                 r.country_set = true; bad_country = false;
             } else { r.country_set = false; bad_country = true; }
+        } else if (key_is(text + start, key_len, "tz_offset")) {
+            size_t k = 0u;
+            int sign = 1;
+            if (k < value_len && text[value + k] == '-') { sign = -1; ++k; }
+            else if (k < value_len && text[value + k] == '+') { ++k; }
+            int val = 0;
+            bool ok = (k < value_len);
+            while (k < value_len) {
+                char c = text[value + k];
+                if (c < '0' || c > '9') { ok = false; break; }
+                val = val * 10 + (c - '0');
+                ++k;
+            }
+            val *= sign;
+            if (ok && val >= -12 && val <= 14) {
+                r.tz_offset_hours = (int8_t)val;
+                r.tz_offset_set = true;
+            }
+        } else if (key_is(text + start, key_len, "ntp_server")) {
+            if (value_len >= 1u && value_len < sizeof(r.ntp_server)) {
+                bool ok = true;
+                for (size_t k = 0u; k < value_len; ++k) {
+                    const uint8_t c = (uint8_t)text[value + k];
+                    if (c <= 0x20u || c > 0x7eu) { ok = false; break; }
+                }
+                if (ok) {
+                    for (size_t k = 0u; k < value_len; ++k) { r.ntp_server[k] = text[value + k]; }
+                    r.ntp_server[value_len] = '\0';
+                    r.ntp_server_set = true;
+                }
+            }
         }
     }
     bootcfg_status_t result = BOOTCFG_OK;

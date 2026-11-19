@@ -15,6 +15,7 @@ void wifi_sdio_poll_irq(void);
 bool wifi_sdio_init(void);
 void network_task(void *arg);
 void network_snapshot(char *out, size_t size);
+bool network_is_online(void);
 extern volatile uint32_t net_stage, net_error, net_rx_frames, net_tx_frames;
 extern volatile uint32_t net_reconnects, net_udp_echoes, net_tcp_bytes;
 extern volatile uint32_t net_sdio_commands, net_sdio_errors;

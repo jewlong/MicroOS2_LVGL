@@ -22,7 +22,7 @@
 #define MEMP_NUM_PBUF 32
 #define PBUF_POOL_SIZE 24
 #define PBUF_POOL_BUFSIZE 1600
-#define MEMP_NUM_TCP_PCB 6
+#define MEMP_NUM_TCP_PCB 16
 #define MEMP_NUM_TCP_PCB_LISTEN 2
 #define MEMP_NUM_TCP_SEG 32
 #define TCP_MSS 1460
@@ -41,4 +41,10 @@
 #define LWIP_CHECKSUM_CTRL_PER_NETIF 0
 #define LWIP_DHCP_CHECK_LINK_UP 1
 #define LWIP_DHCP_DOES_ACD_CHECK 1
+#include "sys_clock.h"
+#define SNTP_SERVER_DNS 1
+#define SNTP_MAX_SERVERS 2
+#define SNTP_UPDATE_DELAY 3600000u
+#define SNTP_STARTUP_DELAY 0
+#define SNTP_SET_SYSTEM_TIME(sec) sys_clock_set_utc((uint32_t)(sec))
 #endif

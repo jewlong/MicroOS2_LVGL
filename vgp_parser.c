@@ -231,6 +231,10 @@ static vgp_kind_t parse_kind_str(const char *str)
     if (strcmp(str, "scale") == 0) return VGP_KIND_SCALE;
     if (strcmp(str, "table") == 0) return VGP_KIND_TABLE;
     if (strcmp(str, "image") == 0) return VGP_KIND_IMAGE;
+    if (strcmp(str, "slider") == 0) return VGP_KIND_SLIDER;
+    if (strcmp(str, "arc") == 0) return VGP_KIND_ARC;
+    if (strcmp(str, "spinbox") == 0) return VGP_KIND_SPINBOX;
+    if (strcmp(str, "dropdown") == 0) return VGP_KIND_DROPDOWN;
     return VGP_KIND_UNKNOWN;
 }
 
@@ -251,7 +255,105 @@ static vgp_action_t parse_action_str(const char *str)
     return VGP_ACT_NONE;
 }
 
-static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_t *e)
+static vgp_severity_t parse_severity_str(const char *str)
+{
+    if (!str) return VGP_SEV_INFO;
+    if (strcmp(str, "critical") == 0) return VGP_SEV_CRITICAL;
+    if (strcmp(str, "warning") == 0) return VGP_SEV_WARNING;
+    return VGP_SEV_INFO;
+}
+
+static vgp_alarm_op_t parse_alarm_op_str(const char *str)
+{
+    if (!str) return VGP_OP_GT;
+    if (strcmp(str, "gt") == 0) return VGP_OP_GT;
+    if (strcmp(str, "gte") == 0) return VGP_OP_GTE;
+    if (strcmp(str, "lt") == 0) return VGP_OP_LT;
+    if (strcmp(str, "lte") == 0) return VGP_OP_LTE;
+    if (strcmp(str, "eq") == 0) return VGP_OP_EQ;
+    if (strcmp(str, "ne") == 0) return VGP_OP_NE;
+    if (strcmp(str, "true") == 0) return VGP_OP_TRUE;
+    if (strcmp(str, "false") == 0) return VGP_OP_FALSE;
+    return VGP_OP_GT;
+}
+
+static vgp_alarm_src_t parse_alarm_src_str(const char *str)
+{
+    if (!str) return VGP_ALARM_SRC_LOCAL;
+    if (strcmp(str, "global") == 0) return VGP_ALARM_SRC_GLOBAL;
+    if (strcmp(str, "all") == 0) return VGP_ALARM_SRC_ALL;
+    return VGP_ALARM_SRC_LOCAL;
+}
+
+static vgp_mb_area_t parse_mb_area_str(const char *str)
+{
+    if (!str) return VGP_MB_AREA_HOLDING_REG;
+    if (strcmp(str, "coil") == 0) return VGP_MB_AREA_COIL;
+    if (strcmp(str, "discreteInput") == 0) return VGP_MB_AREA_DISCRETE_INPUT;
+    if (strcmp(str, "holdingRegister") == 0) return VGP_MB_AREA_HOLDING_REG;
+    if (strcmp(str, "inputRegister") == 0) return VGP_MB_AREA_INPUT_REG;
+    return VGP_MB_AREA_HOLDING_REG;
+}
+
+static vgp_mb_datatype_t parse_mb_datatype_str(const char *str)
+{
+    if (!str) return VGP_MB_TYPE_UINT16;
+    if (strcmp(str, "bool") == 0) return VGP_MB_TYPE_BOOL;
+    if (strcmp(str, "uint16") == 0) return VGP_MB_TYPE_UINT16;
+    if (strcmp(str, "int16") == 0) return VGP_MB_TYPE_INT16;
+    if (strcmp(str, "uint32") == 0) return VGP_MB_TYPE_UINT32;
+    if (strcmp(str, "int32") == 0) return VGP_MB_TYPE_INT32;
+    if (strcmp(str, "float32") == 0) return VGP_MB_TYPE_FLOAT32;
+    return VGP_MB_TYPE_UINT16;
+}
+
+static vgp_img_fit_t parse_img_fit_str(const char *str)
+{
+    if (!str) return VGP_IMG_FIT_CONTAIN;
+    if (strcmp(str, "cover") == 0) return VGP_IMG_FIT_COVER;
+    if (strcmp(str, "fill") == 0) return VGP_IMG_FIT_FILL;
+    if (strcmp(str, "none") == 0) return VGP_IMG_FIT_NONE;
+    return VGP_IMG_FIT_CONTAIN;
+}
+
+/* Locate a JSON string value representing a data:image/(png|jpeg);base64,... URI without copying it. */
+static bool parse_data_uri_ref(const char *s, size_t len, size_t *p,
+                               const char **out_b64, size_t *out_len, bool *out_is_png)
+{
+    skip_ws(s, len, p);
+    if (*p >= len || s[*p] != '"') return false;
+    (*p)++;
+    size_t start = *p;
+    while (*p < len && s[*p] != '"') {
+        if (s[*p] == '\\' && *p + 1 < len) (*p)++;
+        (*p)++;
+    }
+    size_t end = *p;
+    if (*p < len && s[*p] == '"') (*p)++;
+
+    size_t slen = end - start;
+    const char *ptr = s + start;
+    const char *png_hdr = "data:image/png;base64,";
+    const char *jpg_hdr = "data:image/jpeg;base64,";
+    const size_t png_hlen = 22u;
+    const size_t jpg_hlen = 23u;
+
+    if (slen > png_hlen && memcmp(ptr, png_hdr, png_hlen) == 0) {
+        if (out_b64) *out_b64 = ptr + png_hlen;
+        if (out_len) *out_len = slen - png_hlen;
+        if (out_is_png) *out_is_png = true;
+        return true;
+    }
+    if (slen > jpg_hlen && memcmp(ptr, jpg_hdr, jpg_hlen) == 0) {
+        if (out_b64) *out_b64 = ptr + jpg_hlen;
+        if (out_len) *out_len = slen - jpg_hlen;
+        if (out_is_png) *out_is_png = false;
+        return true;
+    }
+    return false;
+}
+
+static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_t *e, vgp_project_t *proj)
 {
     memset(e, 0, sizeof(*e));
     e->visible = true;
@@ -263,6 +365,19 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
     e->fill_color = 0x0038BDF8u;
     e->track_color = 0x00334155u;
     e->action = VGP_ACT_NONE;
+    e->alarm_max_rows = 20;
+    e->alarm_source = VGP_ALARM_SRC_LOCAL;
+    e->alarm_rule_start = proj ? proj->total_local_alarm_rules : 0u;
+    e->input_step = 1.0;
+    e->sample_interval_ms = 1000u;
+    e->history_points = 60u;
+    e->scale_show_axis = true;
+    e->scale_show_labels = true;
+    e->grid_color = 0x00334155u;
+    e->word_wrap = true;
+    e->shape_filled = true;
+    e->line_height_x100 = 120u;
+    e->border_style = VGP_BORDER_SOLID;
 
     if (!match_char(s, len, p, '{')) return;
 
@@ -337,6 +452,107 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
             double v; if (parse_num(s, len, p, &v)) e->scale_major_ticks = (uint8_t)v;
         } else if (strcmp(key, "scaleMinorTicks") == 0) {
             double v; if (parse_num(s, len, p, &v)) e->scale_minor_ticks = (uint8_t)v;
+        } else if (strcmp(key, "imageAssetId") == 0) {
+            parse_str(s, len, p, e->image_asset_id, sizeof(e->image_asset_id));
+        } else if (strcmp(key, "image") == 0) {
+            (void)parse_data_uri_ref(s, len, p, &e->inline_b64_ptr, &e->inline_b64_len, &e->inline_is_png);
+        } else if (strcmp(key, "imageFit") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) e->image_fit = parse_img_fit_str(sval);
+        } else if (strcmp(key, "inputMin") == 0) {
+            if (parse_num(s, len, p, &e->input_min)) e->has_input_min = true;
+        } else if (strcmp(key, "inputMax") == 0) {
+            if (parse_num(s, len, p, &e->input_max)) e->has_input_max = true;
+        } else if (strcmp(key, "inputStep") == 0) {
+            double v; if (parse_num(s, len, p, &v) && v > 0.0) e->input_step = v;
+        } else if (strcmp(key, "warningThreshold") == 0) {
+            if (parse_num(s, len, p, &e->warning_threshold)) e->has_warning_threshold = true;
+        } else if (strcmp(key, "criticalThreshold") == 0) {
+            if (parse_num(s, len, p, &e->critical_threshold)) e->has_critical_threshold = true;
+        } else if (strcmp(key, "showValue") == 0) {
+            parse_boolean(s, len, p, &e->show_value);
+        } else if (strcmp(key, "showScale") == 0) {
+            parse_boolean(s, len, p, &e->show_scale);
+        } else if (strcmp(key, "sampleInterval") == 0) {
+            double v; if (parse_num(s, len, p, &v) && v >= 100.0) e->sample_interval_ms = (uint32_t)v;
+        } else if (strcmp(key, "historyPoints") == 0) {
+            double v; if (parse_num(s, len, p, &v) && v >= 2.0) e->history_points = (uint16_t)v;
+        } else if (strcmp(key, "scaleOrientation") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) e->scale_vertical = (strcmp(sval, "vertical") == 0);
+        } else if (strcmp(key, "scaleShowAxis") == 0) {
+            parse_boolean(s, len, p, &e->scale_show_axis);
+        } else if (strcmp(key, "scaleShowLabels") == 0) {
+            parse_boolean(s, len, p, &e->scale_show_labels);
+        } else if (strcmp(key, "gridColor") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) e->grid_color = parse_color_hex(sval, e->grid_color);
+        } else if (strcmp(key, "numberFormat") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                if (strcmp(sval, "integer") == 0) e->number_format = VGP_NUMFMT_INTEGER;
+                else if (strcmp(sval, "percent") == 0) e->number_format = VGP_NUMFMT_PERCENT;
+                else if (strcmp(sval, "scientific") == 0) e->number_format = VGP_NUMFMT_SCIENTIFIC;
+                else e->number_format = VGP_NUMFMT_DECIMAL;
+            }
+        } else if (strcmp(key, "numberLocale") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                if (strcmp(sval, "de-DE") == 0) e->number_locale = VGP_LOCALE_DE_DE;
+                else if (strcmp(sval, "zh-TW") == 0) e->number_locale = VGP_LOCALE_ZH_TW;
+                else e->number_locale = VGP_LOCALE_EN_US;
+            }
+        } else if (strcmp(key, "useGrouping") == 0) {
+            parse_boolean(s, len, p, &e->use_grouping);
+        } else if (strcmp(key, "numberPrefix") == 0) {
+            parse_str(s, len, p, e->number_prefix, sizeof(e->number_prefix));
+        } else if (strcmp(key, "textAlign") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                if (strcmp(sval, "center") == 0) e->text_align = VGP_ALIGN_CENTER;
+                else if (strcmp(sval, "right") == 0) e->text_align = VGP_ALIGN_RIGHT;
+                else e->text_align = VGP_ALIGN_LEFT;
+            }
+        } else if (strcmp(key, "verticalAlign") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                if (strcmp(sval, "middle") == 0) e->vertical_align = VGP_VALIGN_MIDDLE;
+                else if (strcmp(sval, "bottom") == 0) e->vertical_align = VGP_VALIGN_BOTTOM;
+                else e->vertical_align = VGP_VALIGN_TOP;
+            }
+        } else if (strcmp(key, "wordWrap") == 0) {
+            parse_boolean(s, len, p, &e->word_wrap);
+        } else if (strcmp(key, "underline") == 0) {
+            parse_boolean(s, len, p, &e->underline);
+        } else if (strcmp(key, "textBackground") == 0) {
+            parse_boolean(s, len, p, &e->text_background);
+        } else if (strcmp(key, "shapeFilled") == 0) {
+            parse_boolean(s, len, p, &e->shape_filled);
+        } else if (strcmp(key, "lineHeight") == 0) {
+            double v;
+            if (parse_num(s, len, p, &v) && v >= 1.0 && v <= 3.0) {
+                e->line_height_x100 = (uint16_t)(v * 100.0 + 0.5);
+            }
+        } else if (strcmp(key, "borderStyle") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                if (strcmp(sval, "none") == 0) e->border_style = VGP_BORDER_NONE;
+                else if (strcmp(sval, "dashed") == 0) e->border_style = VGP_BORDER_DASHED;
+                else if (strcmp(sval, "dotted") == 0) e->border_style = VGP_BORDER_DOTTED;
+                else e->border_style = VGP_BORDER_SOLID;
+            }
+        } else if (strcmp(key, "buttonPressedBackground") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                e->btn_pressed_bg = parse_color_hex(sval, 0u);
+                e->has_btn_pressed_bg = true;
+            }
+        } else if (strcmp(key, "buttonPressedColor") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                e->btn_pressed_color = parse_color_hex(sval, 0x00FFFFFFu);
+                e->has_btn_pressed_color = true;
+            }
+        } else if (strcmp(key, "buttonDisabledBackground") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                e->btn_disabled_bg = parse_color_hex(sval, 0u);
+                e->has_btn_disabled_bg = true;
+            }
+        } else if (strcmp(key, "buttonDisabledColor") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                e->btn_disabled_color = parse_color_hex(sval, 0x0094A3B8u);
+                e->has_btn_disabled_color = true;
+            }
         } else if (strcmp(key, "multistateItems") == 0) {
             if (match_char(s, len, p, '[')) {
                 e->num_multistate_items = 0;
@@ -362,6 +578,46 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
                         } else skip_val(s, len, p);
                         match_char(s, len, p, '}');
                     }
+                    match_char(s, len, p, ',');
+                }
+                match_char(s, len, p, ']');
+            } else skip_val(s, len, p);
+        } else if (strcmp(key, "alarmMaxRows") == 0) {
+            double v; if (parse_num(s, len, p, &v)) e->alarm_max_rows = (uint8_t)v;
+        } else if (strcmp(key, "alarmSource") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) e->alarm_source = parse_alarm_src_str(sval);
+        } else if (strcmp(key, "alarmGroup") == 0) {
+            parse_str(s, len, p, e->alarm_group, sizeof(e->alarm_group));
+        } else if (strcmp(key, "alarmRules") == 0) {
+            if (match_char(s, len, p, '[')) {
+                e->alarm_rule_start = proj ? proj->total_local_alarm_rules : 0u;
+                e->num_alarm_rules = 0u;
+                while (*p < len && s[*p] != ']') {
+                    if (proj && proj->total_local_alarm_rules < VGP_MAX_LOCAL_ALARM_RULES) {
+                        if (match_char(s, len, p, '{')) {
+                            vgp_local_alarm_rule_t *r = &proj->local_alarm_rules[proj->total_local_alarm_rules++];
+                            memset(r, 0, sizeof(*r));
+                            r->enabled = true;
+                            char rkey[32], rsval[96];
+                            while (*p < len && s[*p] != '}') {
+                                if (!parse_str(s, len, p, rkey, sizeof(rkey))) break;
+                                if (!match_char(s, len, p, ':')) break;
+                                if (strcmp(rkey, "id") == 0) parse_str(s, len, p, r->id, sizeof(r->id));
+                                else if (strcmp(rkey, "message") == 0) parse_str(s, len, p, r->message, sizeof(r->message));
+                                else if (strcmp(rkey, "variableId") == 0) parse_str(s, len, p, r->variable_id, sizeof(r->variable_id));
+                                else if (strcmp(rkey, "operator") == 0) {
+                                    if (parse_str(s, len, p, rsval, sizeof(rsval))) r->op = parse_alarm_op_str(rsval);
+                                } else if (strcmp(rkey, "threshold") == 0) parse_num(s, len, p, &r->threshold);
+                                else if (strcmp(rkey, "severity") == 0) {
+                                    if (parse_str(s, len, p, rsval, sizeof(rsval))) r->severity = parse_severity_str(rsval);
+                                } else if (strcmp(rkey, "enabled") == 0) parse_boolean(s, len, p, &r->enabled);
+                                else skip_val(s, len, p);
+                                match_char(s, len, p, ',');
+                            }
+                            match_char(s, len, p, '}');
+                            e->num_alarm_rules++;
+                        } else skip_val(s, len, p);
+                    } else skip_val(s, len, p);
                     match_char(s, len, p, ',');
                 }
                 match_char(s, len, p, ']');
@@ -412,7 +668,7 @@ static void parse_screens_array(const char *s, size_t len, size_t *p, vgp_projec
                 if (match_char(s, len, p, '[')) {
                     while (*p < len && s[*p] != ']' && proj->total_elements < VGP_MAX_TOTAL_ELEMENTS) {
                         vgp_element_t *el = &proj->elements[proj->total_elements++];
-                        parse_element_obj(s, len, p, el);
+                        parse_element_obj(s, len, p, el, proj);
                         sc->num_elements++;
                         match_char(s, len, p, ',');
                     }
@@ -468,6 +724,38 @@ static void parse_variables_array(const char *s, size_t len, size_t *p, vgp_proj
                     var->val_num = var->initial_num;
                     var->type = VGP_VAR_NUM;
                 }
+            } else if (strcmp(key, "modbus") == 0) {
+                if (match_char(s, len, p, '{')) {
+                    vgp_modbus_map_t *m = &var->modbus;
+                    memset(m, 0, sizeof(*m));
+                    m->enabled = true;
+                    m->device_idx = -1;
+                    m->scale = 1.0;
+                    m->offset = 0.0;
+                    char mkey[32], msval[64];
+                    while (*p < len && s[*p] != '}') {
+                        if (!parse_str(s, len, p, mkey, sizeof(mkey))) break;
+                        if (!match_char(s, len, p, ':')) break;
+                        if (strcmp(mkey, "deviceId") == 0) parse_str(s, len, p, m->device_id, sizeof(m->device_id));
+                        else if (strcmp(mkey, "area") == 0) {
+                            if (parse_str(s, len, p, msval, sizeof(msval))) m->area = parse_mb_area_str(msval);
+                        } else if (strcmp(mkey, "address") == 0) {
+                            double v; if (parse_num(s, len, p, &v)) m->address = (uint16_t)v;
+                        } else if (strcmp(mkey, "dataType") == 0) {
+                            if (parse_str(s, len, p, msval, sizeof(msval))) m->data_type = parse_mb_datatype_str(msval);
+                        } else if (strcmp(mkey, "wordOrder") == 0) {
+                            if (parse_str(s, len, p, msval, sizeof(msval))) m->low_word_first = (strcmp(msval, "lowFirst") == 0);
+                        } else if (strcmp(mkey, "scale") == 0) {
+                            parse_num(s, len, p, &m->scale);
+                        } else if (strcmp(mkey, "offset") == 0) {
+                            parse_num(s, len, p, &m->offset);
+                        } else if (strcmp(mkey, "access") == 0) {
+                            if (parse_str(s, len, p, msval, sizeof(msval))) m->writable = (strcmp(msval, "readWrite") == 0);
+                        } else skip_val(s, len, p);
+                        match_char(s, len, p, ',');
+                    }
+                    match_char(s, len, p, '}');
+                } else skip_val(s, len, p);
             } else {
                 skip_val(s, len, p);
             }
@@ -479,10 +767,238 @@ static void parse_variables_array(const char *s, size_t len, size_t *p, vgp_proj
     match_char(s, len, p, ']');
 }
 
+static void parse_devices_array(const char *s, size_t len, size_t *p, vgp_project_t *proj)
+{
+    if (!match_char(s, len, p, '[')) return;
+    while (*p < len && s[*p] != ']') {
+        if (proj->num_devices < VGP_MAX_DEVICES && match_char(s, len, p, '{')) {
+            vgp_device_t *d = &proj->devices[proj->num_devices++];
+            memset(d, 0, sizeof(*d));
+            d->enabled = true;
+            d->unit_id = 1u;
+            d->poll_interval_ms = 500u;
+            d->timeout_ms = 2000u;
+            d->port = 502u;
+            d->baud_rate = 9600u;
+            d->parity = VGP_MB_PARITY_NONE;
+            d->stop_bits = 1u;
+
+            char key[32], sval[64];
+            while (*p < len && s[*p] != '}') {
+                if (!parse_str(s, len, p, key, sizeof(key))) break;
+                if (!match_char(s, len, p, ':')) break;
+                if (strcmp(key, "id") == 0) parse_str(s, len, p, d->id, sizeof(d->id));
+                else if (strcmp(key, "name") == 0) parse_str(s, len, p, d->name, sizeof(d->name));
+                else if (strcmp(key, "enabled") == 0) parse_boolean(s, len, p, &d->enabled);
+                else if (strcmp(key, "transport") == 0) {
+                    if (parse_str(s, len, p, sval, sizeof(sval))) {
+                        d->transport = (strcmp(sval, "rtu") == 0) ? VGP_MB_TRANSPORT_RTU : VGP_MB_TRANSPORT_TCP;
+                    }
+                } else if (strcmp(key, "unitId") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) d->unit_id = (uint8_t)v;
+                } else if (strcmp(key, "pollIntervalMs") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) d->poll_interval_ms = (uint32_t)v;
+                } else if (strcmp(key, "timeoutMs") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) d->timeout_ms = (uint32_t)v;
+                } else if (strcmp(key, "host") == 0) {
+                    parse_str(s, len, p, d->host, sizeof(d->host));
+                } else if (strcmp(key, "port") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) d->port = (uint16_t)v;
+                } else if (strcmp(key, "serialPort") == 0) {
+                    parse_str(s, len, p, d->serial_port, sizeof(d->serial_port));
+                } else if (strcmp(key, "baudRate") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) d->baud_rate = (uint32_t)v;
+                } else if (strcmp(key, "parity") == 0) {
+                    if (parse_str(s, len, p, sval, sizeof(sval))) {
+                        if (strcmp(sval, "even") == 0) d->parity = VGP_MB_PARITY_EVEN;
+                        else if (strcmp(sval, "odd") == 0) d->parity = VGP_MB_PARITY_ODD;
+                        else d->parity = VGP_MB_PARITY_NONE;
+                    }
+                } else if (strcmp(key, "stopBits") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) d->stop_bits = (v >= 2.0) ? 2u : 1u;
+                } else skip_val(s, len, p);
+                match_char(s, len, p, ',');
+            }
+            match_char(s, len, p, '}');
+            if (d->poll_interval_ms < 100u) d->poll_interval_ms = 100u;
+            if (d->timeout_ms < 100u) d->timeout_ms = 100u;
+        } else {
+            skip_val(s, len, p);
+        }
+        match_char(s, len, p, ',');
+    }
+    match_char(s, len, p, ']');
+}
+
+static void parse_alarm_areas_array(const char *s, size_t len, size_t *p, vgp_project_t *proj)
+{
+    if (!match_char(s, len, p, '[')) return;
+    while (*p < len && s[*p] != ']') {
+        if (proj->num_alarm_areas < VGP_MAX_ALARM_AREAS && match_char(s, len, p, '{')) {
+            vgp_alarm_area_t *a = &proj->alarm_areas[proj->num_alarm_areas++];
+            memset(a, 0, sizeof(*a));
+            a->enabled = true;
+            a->update_interval_ms = 500u;
+
+            char key[32], sval[96];
+            while (*p < len && s[*p] != '}') {
+                if (!parse_str(s, len, p, key, sizeof(key))) break;
+                if (!match_char(s, len, p, ':')) break;
+                if (strcmp(key, "id") == 0) parse_str(s, len, p, a->id, sizeof(a->id));
+                else if (strcmp(key, "name") == 0) parse_str(s, len, p, a->name, sizeof(a->name));
+                else if (strcmp(key, "variableId") == 0) parse_str(s, len, p, a->variable_id, sizeof(a->variable_id));
+                else if (strcmp(key, "maskVariableId") == 0) parse_str(s, len, p, a->mask_variable_id, sizeof(a->mask_variable_id));
+                else if (strcmp(key, "group") == 0) parse_str(s, len, p, a->group, sizeof(a->group));
+                else if (strcmp(key, "updateIntervalMs") == 0) {
+                    double v; if (parse_num(s, len, p, &v)) a->update_interval_ms = (uint32_t)v;
+                } else if (strcmp(key, "enabled") == 0) {
+                    parse_boolean(s, len, p, &a->enabled);
+                } else if (strcmp(key, "rules") == 0) {
+                    if (match_char(s, len, p, '[')) {
+                        while (*p < len && s[*p] != ']') {
+                            if (a->num_rules < VGP_MAX_WORD_RULES_PER_AREA && match_char(s, len, p, '{')) {
+                                vgp_word_alarm_rule_t *r = &a->rules[a->num_rules++];
+                                memset(r, 0, sizeof(*r));
+                                r->enabled = true;
+                                char rkey[32];
+                                while (*p < len && s[*p] != '}') {
+                                    if (!parse_str(s, len, p, rkey, sizeof(rkey))) break;
+                                    if (!match_char(s, len, p, ':')) break;
+                                    if (strcmp(rkey, "id") == 0) parse_str(s, len, p, r->id, sizeof(r->id));
+                                    else if (strcmp(rkey, "bit") == 0) {
+                                        double v; if (parse_num(s, len, p, &v)) r->bit = (uint8_t)v;
+                                    } else if (strcmp(rkey, "message") == 0) parse_str(s, len, p, r->message, sizeof(r->message));
+                                    else if (strcmp(rkey, "severity") == 0) {
+                                        if (parse_str(s, len, p, sval, sizeof(sval))) r->severity = parse_severity_str(sval);
+                                    } else if (strcmp(rkey, "enabled") == 0) parse_boolean(s, len, p, &r->enabled);
+                                    else skip_val(s, len, p);
+                                    match_char(s, len, p, ',');
+                                }
+                                match_char(s, len, p, '}');
+                            } else skip_val(s, len, p);
+                            match_char(s, len, p, ',');
+                        }
+                        match_char(s, len, p, ']');
+                    } else skip_val(s, len, p);
+                } else skip_val(s, len, p);
+                match_char(s, len, p, ',');
+            }
+            match_char(s, len, p, '}');
+            if (a->update_interval_ms < 100u) a->update_interval_ms = 100u;
+        } else {
+            skip_val(s, len, p);
+        }
+        match_char(s, len, p, ',');
+    }
+    match_char(s, len, p, ']');
+}
+
+static void parse_alarm_ticker(const char *s, size_t len, size_t *p, vgp_alarm_ticker_t *t)
+{
+    memset(t, 0, sizeof(*t));
+    t->interval_ms = 3000u;
+    if (!match_char(s, len, p, '{')) return;
+    char key[32], sval[32];
+    while (*p < len && s[*p] != '}') {
+        if (!parse_str(s, len, p, key, sizeof(key))) break;
+        if (!match_char(s, len, p, ':')) break;
+        if (strcmp(key, "enabled") == 0) parse_boolean(s, len, p, &t->enabled);
+        else if (strcmp(key, "position") == 0) {
+            if (parse_str(s, len, p, sval, sizeof(sval))) t->position_bottom = (strcmp(sval, "bottom") == 0);
+        } else if (strcmp(key, "intervalMs") == 0) {
+            double v; if (parse_num(s, len, p, &v)) t->interval_ms = (uint32_t)v;
+        } else skip_val(s, len, p);
+        match_char(s, len, p, ',');
+    }
+    match_char(s, len, p, '}');
+    if (t->interval_ms < 1000u) t->interval_ms = 1000u;
+}
+
+static void parse_assets_array(const char *s, size_t len, size_t *p, vgp_project_t *proj)
+{
+    if (!match_char(s, len, p, '[')) return;
+    while (*p < len && s[*p] != ']') {
+        if (proj->num_assets < VGP_MAX_ASSETS && match_char(s, len, p, '{')) {
+            vgp_asset_ref_t *a = &proj->assets[proj->num_assets];
+            memset(a, 0, sizeof(*a));
+            char key[32];
+            while (*p < len && s[*p] != '}') {
+                if (!parse_str(s, len, p, key, sizeof(key))) break;
+                if (!match_char(s, len, p, ':')) break;
+                if (strcmp(key, "id") == 0) {
+                    parse_str(s, len, p, a->id, sizeof(a->id));
+                } else if (strcmp(key, "data") == 0) {
+                    (void)parse_data_uri_ref(s, len, p, &a->b64_ptr, &a->b64_len, &a->is_png);
+                } else {
+                    skip_val(s, len, p);
+                }
+                match_char(s, len, p, ',');
+            }
+            match_char(s, len, p, '}');
+            if (a->id[0] && a->b64_ptr && a->b64_len > 0u) {
+                proj->num_assets++;
+            }
+        } else {
+            skip_val(s, len, p);
+        }
+        match_char(s, len, p, ',');
+    }
+    match_char(s, len, p, ']');
+}
+
+static void vgp_link_project(vgp_project_t *proj)
+{
+    uint16_t mapped_count[VGP_MAX_DEVICES];
+    memset(mapped_count, 0, sizeof(mapped_count));
+
+    for (uint16_t i = 0; i < proj->num_variables; ++i) {
+        vgp_variable_t *v = &proj->variables[i];
+        if (!v->modbus.enabled || !v->modbus.device_id[0]) {
+            v->modbus.enabled = false;
+            v->modbus.device_idx = -1;
+            v->quality = VGP_QUAL_INTERNAL;
+            continue;
+        }
+        /* Read-only areas cannot be written */
+        if (v->modbus.area == VGP_MB_AREA_DISCRETE_INPUT ||
+            v->modbus.area == VGP_MB_AREA_INPUT_REG) {
+            v->modbus.writable = false;
+        }
+        if (v->modbus.scale == 0.0) {
+            v->modbus.scale = 1.0;
+        }
+        int16_t found = -1;
+        for (uint16_t d = 0; d < proj->num_devices; ++d) {
+            if (strcmp(proj->devices[d].id, v->modbus.device_id) == 0) {
+                found = (int16_t)d;
+                break;
+            }
+        }
+        v->modbus.device_idx = found;
+        if (found < 0 || !proj->devices[found].enabled) {
+            v->quality = VGP_QUAL_BAD;
+        } else {
+            v->quality = VGP_QUAL_WAITING;
+            mapped_count[found]++;
+        }
+    }
+
+    for (uint16_t d = 0; d < proj->num_devices; ++d) {
+        if (!proj->devices[d].enabled) {
+            proj->devices[d].state = VGP_DEV_STATE_DISABLED;
+        } else if (mapped_count[d] == 0u) {
+            proj->devices[d].state = VGP_DEV_STATE_UNMAPPED;
+        } else {
+            proj->devices[d].state = VGP_DEV_STATE_CONNECTING;
+        }
+    }
+}
+
 bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
 {
     if (!json || len == 0 || !proj) return false;
     memset(proj, 0, sizeof(*proj));
+    proj->alarm_ticker.interval_ms = 3000u;
 
     size_t p = 0;
     /* Skip UTF-8 BOM if present */
@@ -504,10 +1020,18 @@ bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
             parse_str(json, len, &p, proj->name, sizeof(proj->name));
         } else if (strcmp(key, "startScreenId") == 0) {
             parse_str(json, len, &p, proj->start_screen_id, sizeof(proj->start_screen_id));
+        } else if (strcmp(key, "devices") == 0) {
+            parse_devices_array(json, len, &p, proj);
         } else if (strcmp(key, "screens") == 0) {
             parse_screens_array(json, len, &p, proj);
         } else if (strcmp(key, "variables") == 0) {
             parse_variables_array(json, len, &p, proj);
+        } else if (strcmp(key, "alarmAreas") == 0) {
+            parse_alarm_areas_array(json, len, &p, proj);
+        } else if (strcmp(key, "alarmTicker") == 0) {
+            parse_alarm_ticker(json, len, &p, &proj->alarm_ticker);
+        } else if (strcmp(key, "assets") == 0) {
+            parse_assets_array(json, len, &p, proj);
         } else {
             skip_val(json, len, &p);
         }
@@ -515,6 +1039,10 @@ bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
     }
     match_char(json, len, &p, '}');
 
-    return (proj->num_screens > 0);
+    if (proj->num_screens > 0) {
+        vgp_link_project(proj);
+        return true;
+    }
+    return false;
 }
 

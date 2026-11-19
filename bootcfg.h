@@ -29,6 +29,10 @@ typedef struct {
     uint8_t ssid_len, password_len;
     char country[2];
     bool country_set;
+    int8_t tz_offset_hours;
+    bool tz_offset_set;
+    char ntp_server[64];
+    bool ntp_server_set;
 } wifi_settings_t;
 
 /* Pure parser over a text buffer (host-testable). On failure *out is zeroed. */

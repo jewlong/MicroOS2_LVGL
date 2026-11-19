@@ -358,7 +358,13 @@ for ($lead = 0xA1; $lead -le 0xC6; $lead++) {
     }
 }
 
-Write-Output "Generating vgp_font_cjk.c: 16px ($($set16.Count) glyphs), 22px ($($set22.Count) glyphs)..."
+# 5. Build large numeric & industrial display glyph set (ASCII + units/symbols)
+$setNum = New-Object 'System.Collections.Generic.SortedSet[int]'
+for ($c = 32; $c -le 126; $c++) { [void]$setNum.Add($c) }
+$numSymbols = @(0x00B0, 0x00B1, 0x00B5, 0x00D7, 0x00F7, 0x03A9, 0x03BC, 0x2013, 0x2014, 0x2103, 0x2109, 0xFF0F)
+foreach ($cp in $numSymbols) { [void]$setNum.Add($cp) }
+
+Write-Output "Generating vgp_font_cjk.c: 16px ($($set16.Count)), 22px ($($set22.Count)), 36px/48px ($($setNum.Count))..."
 $sb = New-Object System.Text.StringBuilder(4 * 1024 * 1024)
 [void]$sb.AppendLine("/* Auto-generated Traditional Chinese LVGL 9 Font (Microsoft JhengHei) */")
 [void]$sb.AppendLine('#include "vgp_font_cjk.h"')
@@ -367,6 +373,8 @@ $sb = New-Object System.Text.StringBuilder(4 * 1024 * 1024)
 
 [LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_zh_16", "&lv_font_source_han_sans_sc_16_cjk", 16, 20, 4, 2, $set16)
 [LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_zh_22", "&vgp_font_zh_16", 22, 27, 5, 4, $set22)
+[LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_num_36", "&vgp_font_zh_22", 36, 42, 8, 4, $setNum)
+[LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_num_48", "&vgp_font_num_36", 48, 56, 10, 4, $setNum)
 
 [IO.File]::WriteAllText($outFile, $sb.ToString(), [Text.Encoding]::ASCII)
 Write-Output "Generated $outFile ($(([IO.FileInfo]$outFile).Length) bytes)."

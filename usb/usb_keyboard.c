@@ -1,18 +1,20 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "usb_host.h"
+#include "mouse_queue.h"
 #include "net_platform.h"
 #include <string.h>
 volatile uint32_t usb_state,usb_error,usb_reports,usb_connects,usb_disconnects,usb_rollovers,usb_modifiers;
 volatile uint32_t usb_step,usb_vid_pid;
 volatile uint32_t usb_init_err,usb_init_val;
-static usb_keyboard_device_t device;
+static usb_keyboard_device_t device,kbd_dev,mouse_dev;
+static bool has_kbd,has_mouse;
 static hid_keyboard_t keyboard;
 static uint8_t configuration[1024],report[64];
 extern volatile uint32_t app_preempt_pass;
 static usb_result_t request(uint8_t type,uint8_t code,uint16_t value,uint16_t index,void *buf,uint16_t length,uint16_t *got)
 {return usb_control(&device,type,code,value,index,buf,length,got);}
 
-static usb_result_t configure_keyboard_device(const uint8_t *descriptor,uint8_t m)
+static usb_result_t configure_hid_device(const uint8_t *descriptor,uint8_t m)
 {
     uint16_t n;
     usb_step=6;
@@ -24,19 +26,40 @@ static usb_result_t configure_keyboard_device(const uint8_t *descriptor,uint8_t 
     r=request(0x80,6,0x200,0,configuration,total,&n);if(r)return r;
     if(n!=total)return USB_BAD_DESCRIPTOR;
     usb_step=8;
-    r=usb_parse_config(configuration,total,device.low_speed,&device);if(r)return r;
+    usb_keyboard_device_t cand_kbd=device,cand_mouse=device;
+    bool fk=false,fm=false;
+    if(has_mouse && !has_kbd){
+        r=usb_parse_config(configuration,total,device.low_speed,&cand_kbd);
+        fk=(r==USB_OK);
+    }else{
+        r=usb_parse_hid_config(configuration,total,device.low_speed,&cand_kbd,&fk,&cand_mouse,&fm);
+    }
+    if(r)return r;
+    uint8_t cfg=fk?cand_kbd.configuration:cand_mouse.configuration;
     usb_step=9;
-    r=request(0,9,device.configuration,0,NULL,0,&n);if(r)return r;
+    r=request(0,9,cfg,0,NULL,0,&n);if(r)return r;
     usb_step=10;
-    r=request(0x21,11,0,device.interface_number,NULL,0,&n); /* SET_PROTOCOL(BOOT) */
-    if(r!=USB_OK && r!=USB_STALL)return r;
-    r=request(0x21,10,20u<<8,device.interface_number,NULL,0,&n); /* idle 80ms */
-    if(r!=USB_OK && r!=USB_STALL)return r;
+    if(fk && !has_kbd){
+        r=request(0x21,11,0,cand_kbd.interface_number,NULL,0,&n); /* SET_PROTOCOL(BOOT) */
+        if(r!=USB_OK && r!=USB_STALL)return r;
+        r=request(0x21,10,20u<<8,cand_kbd.interface_number,NULL,0,&n); /* idle 80ms */
+        if(r!=USB_OK && r!=USB_STALL)return r;
+        kbd_dev=cand_kbd;has_kbd=true;
+        net_log("[USB] HID boot keyboard VID=%04x PID=%04x %s EP=%u MPS=%u\n",
+            descriptor[8]|descriptor[9]<<8,descriptor[10]|descriptor[11]<<8,
+            kbd_dev.low_speed?"low-speed":"full-speed",kbd_dev.endpoint,kbd_dev.packet_size);
+    }
+    if(fm && !has_mouse){
+        r=request(0x21,11,0,cand_mouse.interface_number,NULL,0,&n); /* SET_PROTOCOL(BOOT) */
+        if(r!=USB_OK && r!=USB_STALL)return r;
+        (void)request(0x21,10,0,cand_mouse.interface_number,NULL,0,&n);
+        mouse_dev=cand_mouse;has_mouse=true;usb_mouse_connected=1u;
+        net_log("[USB] HID boot mouse VID=%04x PID=%04x %s EP=%u MPS=%u\n",
+            descriptor[8]|descriptor[9]<<8,descriptor[10]|descriptor[11]<<8,
+            mouse_dev.low_speed?"low-speed":"full-speed",mouse_dev.endpoint,mouse_dev.packet_size);
+    }
     (void)m;
-    net_log("[USB] HID boot keyboard VID=%04x PID=%04x %s EP=%u MPS=%u interval=%ums\n",
-        descriptor[8]|descriptor[9]<<8,descriptor[10]|descriptor[11]<<8,
-        device.low_speed?"low-speed":"full-speed",device.endpoint,device.packet_size,device.interval);
-    return USB_OK;
+    return (has_kbd || has_mouse)?USB_OK:USB_UNSUPPORTED;
 }
 
 static usb_result_t enumerate_via_hub(uint8_t hub_ep0,bool hub_low_speed)
@@ -100,14 +123,15 @@ static usb_result_t enumerate_via_hub(uint8_t hub_ep0,bool hub_low_speed)
         if(r!=USB_OK || n!=18 || desc[1]!=1 || !desc[17])continue;
         usb_vid_pid=((uint32_t)(desc[8]|(desc[9]<<8))<<16)|(uint32_t)(desc[10]|(desc[11]<<8));
         if(desc[4]==9)continue; /* Skip nested hub */
-        r=configure_keyboard_device(desc,m);
-        if(r==USB_OK)return USB_OK;
+        (void)configure_hid_device(desc,m);
+        if(has_kbd && has_mouse)return USB_OK;
     }
-    return USB_UNSUPPORTED;
+    return (has_kbd || has_mouse)?USB_OK:USB_UNSUPPORTED;
 }
 
 static usb_result_t enumerate(void)
 {
+    has_kbd=false;has_mouse=false;usb_mouse_connected=0u;
     memset(&device,0,sizeof(device));device.ep0=8;
     usb_step=1;
     usb_result_t r=usb_host_reset_port(&device.low_speed);if(r)return r;
@@ -134,7 +158,7 @@ static usb_result_t enumerate(void)
     if(n!=18 || descriptor[1]!=1 || descriptor[7]!=m || !descriptor[17])return USB_BAD_DESCRIPTOR;
     usb_vid_pid=((uint32_t)(descriptor[8]|(descriptor[9]<<8))<<16)|(uint32_t)(descriptor[10]|(descriptor[11]<<8));
     if(descriptor[4]==9)return enumerate_via_hub(m,device.low_speed);
-    return configure_keyboard_device(descriptor,m);
+    return configure_hid_device(descriptor,m);
 }
 static void emit_key(const key_event_t *e)
 {
@@ -178,26 +202,38 @@ void usb_keyboard_task(void *arg)
             continue;
         }
         ++usb_connects;usb_state=4;usb_error=0;hid_keyboard_init(&keyboard);keyboard_all_up();
-        uint8_t pid=0,last_led=255;unsigned errors=0;
+        uint8_t kbd_pid=0,mouse_pid=0,last_led=255;unsigned errors=0;
         while(usb_host_connected()){
-            uint16_t got=0;
-            r=usb_interrupt_in(&device,pid,report,&got);
-            if(r==USB_OK){
-                pid^=2;errors=0;++usb_reports;
-                if(!hid_keyboard_report(&keyboard,report,got,emit_key))++usb_rollovers;
-                usb_modifiers=keyboard.modifiers;
-            }else if(r==USB_NAK || r==USB_TIMEOUT){errors=0;}
-            else if(r==USB_REMOVED)break;
-            else {usb_error=r;if(++errors>=3)break;}
-            uint8_t leds=hid_keyboard_leds(&keyboard);
-            if(leds!=last_led){
-                r=request(0x21,9,0x200,device.interface_number,&leds,1,&got);
-                if(r!=USB_OK && r!=USB_STALL){usb_error=r;break;}
-                last_led=leds;
+            if(has_kbd){
+                uint16_t got=0;
+                r=usb_interrupt_in(&kbd_dev,kbd_pid,report,&got);
+                if(r==USB_OK){
+                    kbd_pid^=2;errors=0;++usb_reports;
+                    if(!hid_keyboard_report(&keyboard,report,got,emit_key))++usb_rollovers;
+                    usb_modifiers=keyboard.modifiers;
+                }else if(r==USB_NAK || r==USB_TIMEOUT){errors=0;}
+                else if(r==USB_REMOVED)break;
+                else {usb_error=r;if(++errors>=3)break;}
+                uint8_t leds=hid_keyboard_leds(&keyboard);
+                if(leds!=last_led){
+                    r=usb_control(&kbd_dev,0x21,9,0x200,kbd_dev.interface_number,&leds,1,&got);
+                    if(r!=USB_OK && r!=USB_STALL){usb_error=r;break;}
+                    last_led=leds;
+                }
+            }
+            if(has_mouse){
+                uint16_t got=0;
+                r=usb_interrupt_in(&mouse_dev,mouse_pid,report,&got);
+                if(r==USB_OK){
+                    mouse_pid^=2;errors=0;
+                    if(got>=3u)mouse_post((int8_t)report[1],(int8_t)report[2],report[0]);
+                }else if(r==USB_NAK || r==USB_TIMEOUT){errors=0;}
+                else if(r==USB_REMOVED)break;
+                else {usb_error=r;if(++errors>=3)break;}
             }
             OSTimeDly(1);
         }
-        hid_keyboard_release(&keyboard,keyboard_post);keyboard_all_up();usb_modifiers=0;
+        hid_keyboard_release(&keyboard,keyboard_post);keyboard_all_up();mouse_reset();usb_modifiers=0;
         ++usb_disconnects;usb_state=2;net_log("[USB] keyboard disconnected or transfer failed; keys released.\n");
         if(!usb_host_operational()){usb_state=255;for(;;)OSTimeDly(100);}
         /* Persistent fault requires physical reconnect, avoids endless bus resets. */

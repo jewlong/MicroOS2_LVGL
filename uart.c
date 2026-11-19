@@ -19,6 +19,8 @@
 #define FR_RXFE    (1u << 4)
 #define FR_TXFF    (1u << 5)
 
+static volatile bool g_uart_rtu_mode = false;
+
 void uart_init(void)
 {
     uint32_t select;
@@ -74,6 +76,9 @@ static void uart_write_raw(char ch)
 
 void uart_putc(char ch)
 {
+    if (g_uart_rtu_mode) {
+        return;
+    }
     if (ch == '\n') {
         uart_write_raw('\r');
     }
@@ -82,6 +87,9 @@ void uart_putc(char ch)
 
 void uart_puts(const char *text)
 {
+    if (g_uart_rtu_mode) {
+        return;
+    }
     while (*text != '\0') {
         uart_putc(*text++);
     }
@@ -100,6 +108,9 @@ void uart_puthex32(uint32_t value)
 bool uart_try_getc(char *ch)
 {
     uint32_t data;
+    if (g_uart_rtu_mode) {
+        return false;
+    }
     if ((mmio_read(UART_FR) & FR_RXFE) != 0u) {
         return false;
     }
@@ -116,4 +127,76 @@ void uart_flush(void)
 {
     while ((mmio_read(UART_FR) & FR_BUSY) != 0u) {
     }
+}
+
+void uart_configure_rtu(uint32_t baud_rate, uint8_t parity, uint8_t stop_bits)
+{
+    if (baud_rate < 1200u || baud_rate > 115200u) {
+        baud_rate = 9600u;
+    }
+    g_uart_rtu_mode = true;
+    mmio_write(UART_CR, 0u);
+    while ((mmio_read(UART_FR) & FR_BUSY) != 0u) {
+    }
+    mmio_write(UART_LCRH, 0u);
+    mmio_write(UART_ICR, 0x7ffu);
+    mmio_write(UART_ECR, 0u);
+
+    uint64_t div64 = (48000000ULL * 4ULL + (uint64_t)baud_rate / 2ULL) / (uint64_t)baud_rate;
+    uint32_t ibrd = (uint32_t)(div64 >> 6);
+    uint32_t fbrd = (uint32_t)(div64 & 0x3fu);
+    if (ibrd == 0u) ibrd = 1u;
+
+    uint32_t lcrh = (3u << 5) | (1u << 4); /* 8 data bits, FIFO on */
+    if (stop_bits >= 2u) {
+        lcrh |= (1u << 3); /* STP2 */
+    }
+    if (parity == 1u) {
+        lcrh |= (1u << 1) | (1u << 2); /* PEN + EPS (even) */
+    } else if (parity == 2u) {
+        lcrh |= (1u << 1); /* PEN (odd) */
+    }
+
+    mmio_write(UART_IBRD, ibrd);
+    mmio_write(UART_FBRD, fbrd);
+    mmio_write(UART_LCRH, lcrh);
+    mmio_write(UART_CR, (1u << 9) | (1u << 8) | 1u);
+}
+
+bool uart_rtu_active(void)
+{
+    return g_uart_rtu_mode;
+}
+
+void uart_tx_bytes(const uint8_t *buf, size_t len)
+{
+    if (!buf) return;
+    for (size_t i = 0; i < len; ++i) {
+        while ((mmio_read(UART_FR) & FR_TXFF) != 0u) {
+        }
+        mmio_write(UART_DR, (uint32_t)buf[i]);
+    }
+    uart_flush();
+}
+
+void uart_rx_drain(void)
+{
+    while ((mmio_read(UART_FR) & FR_RXFE) == 0u) {
+        (void)mmio_read(UART_DR);
+    }
+    mmio_write(UART_ECR, 0u);
+}
+
+bool uart_rx_byte_raw(uint8_t *out)
+{
+    if ((mmio_read(UART_FR) & FR_RXFE) != 0u) {
+        return false;
+    }
+    uint32_t data = mmio_read(UART_DR);
+    if ((data & 0x0f00u) != 0u) {
+        mmio_write(UART_ECR, 0u);
+        return false;
+    }
+    if (out) *out = (uint8_t)(data & 0xffu);
+    return true;
 }

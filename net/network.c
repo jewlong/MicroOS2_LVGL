@@ -10,6 +10,8 @@
 #include "lwip/dhcp.h"
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
+#include "lwip/apps/sntp.h"
+#include "sys_clock.h"
 #include "bsp.h"
 #include "bootcfg.h"
 #include <string.h>
@@ -33,6 +35,7 @@ _Static_assert(sizeof(default_password)-1<=63,"WPA2 passphrase too long");
 static char ssid_text[33],password[64];
 static size_t ssid_len,password_len;
 static char country_a=WIFI_COUNTRY_A,country_b=WIFI_COUNTRY_B;
+static char ntp_server_primary[64]="pool.ntp.org";
 extern volatile uint32_t app_preempt_pass;
 static void status(const char *s)
 {
@@ -57,6 +60,8 @@ static void load_credentials(void)
         memcpy(ssid_text,s->ssid,sizeof(ssid_text));ssid_len=s->ssid_len;
         memcpy(password,s->password,sizeof(password));password_len=s->password_len;
         if(s->country_set){country_a=s->country[0];country_b=s->country[1];}
+        if(s->tz_offset_set){sys_clock_set_tz_offset(s->tz_offset_hours);}
+        if(s->ntp_server_set){memcpy(ntp_server_primary,s->ntp_server,sizeof(ntp_server_primary));}
     }
 }
 static err_t transmit(struct netif *n,struct pbuf *p)
@@ -90,12 +95,19 @@ static err_t interface_init(struct netif *n)
     n->flags=NETIF_FLAG_BROADCAST|NETIF_FLAG_ETHARP|NETIF_FLAG_ETHERNET;
     n->output=etharp_output;n->linkoutput=transmit;return ERR_OK;
 }
+bool network_is_online(void) { return net_stage == 6u; }
 static void address_changed(struct netif *n)
 {
     if(!ip4_addr_isany_val(*netif_ip4_addr(n))) {
         char line[128];snprintf(line,sizeof(line),"Wi-Fi: %s | IP: %s",ssid_len?ssid_text:"LAN",ip4addr_ntoa(netif_ip4_addr(n)));
         status(line);net_stage=6;
         net_log("[IP] %s / UDP echo 5000 / TCP echo 5001\n",ip4addr_ntoa(netif_ip4_addr(n)));
+        if(!sntp_enabled()) {
+            sntp_setoperatingmode(SNTP_OPMODE_POLL);
+            sntp_setservername(0, ntp_server_primary);
+            sntp_setservername(1, "time.google.com");
+            sntp_init();
+        }
     }
 }
 static void udp_receive(void *arg,struct udp_pcb *pcb,struct pbuf *p,const ip_addr_t *ip,u16_t port)
@@ -140,7 +152,7 @@ static void link_up(void *arg)
 }
 static void link_down(void *arg)
 {
-    (void)arg;dhcp_stop(&wlan);netif_set_link_down(&wlan);
+    (void)arg;if(sntp_enabled())sntp_stop();dhcp_stop(&wlan);netif_set_link_down(&wlan);
     netif_set_addr(&wlan,IP4_ADDR_ANY4,IP4_ADDR_ANY4,IP4_ADDR_ANY4);OSSemPost(core_done);
 }
 static void core_call(tcpip_callback_fn fn)

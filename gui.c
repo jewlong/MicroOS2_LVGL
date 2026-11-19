@@ -3,6 +3,7 @@
 #include "lvgl.h"
 #include "gui.h"
 #include "keyboard.h"
+#include "mouse_queue.h"
 #include "net_platform.h"
 #include "framebuffer.h"
 #include "bootcfg.h"
@@ -211,6 +212,42 @@ static void keyboard_read(lv_indev_t *indev, lv_indev_data_t *data)
     }else if(event.usage==active_usage){down=false;active_usage=0;}
     data->key=last_key;data->state=down?LV_INDEV_STATE_PRESSED:LV_INDEV_STATE_RELEASED; gui_usb_down=down?1u:0u;
 }
+
+static lv_obj_t *mouse_cursor;
+static int32_t mouse_x = 160, mouse_y = 120;
+
+static void mouse_read(lv_indev_t *indev, lv_indev_data_t *data)
+{
+    owner_check();
+    int32_t dx = 0, dy = 0;
+    bool left = false;
+    bool moved = mouse_poll(&dx, &dy, &left);
+    if (moved) {
+        const framebuffer_t *fb = framebuffer_info();
+        mouse_x += dx;
+        mouse_y += dy;
+        if (mouse_x < 0) mouse_x = 0;
+        if (mouse_y < 0) mouse_y = 0;
+        if (mouse_x >= (int32_t)fb->width) mouse_x = (int32_t)fb->width - 1;
+        if (mouse_y >= (int32_t)fb->height) mouse_y = (int32_t)fb->height - 1;
+        if (!mouse_cursor) {
+            mouse_cursor = lv_obj_create(lv_layer_sys());
+            lv_obj_remove_style_all(mouse_cursor);
+            lv_obj_set_size(mouse_cursor, 12, 12);
+            lv_obj_set_style_bg_color(mouse_cursor, lv_color_hex(0x000000), 0);
+            lv_obj_set_style_bg_opa(mouse_cursor, LV_OPA_COVER, 0);
+            lv_obj_set_style_border_color(mouse_cursor, lv_color_hex(0xFFFFFF), 0);
+            lv_obj_set_style_border_width(mouse_cursor, 2, 0);
+            lv_obj_set_style_radius(mouse_cursor, LV_RADIUS_CIRCLE, 0);
+            lv_obj_remove_flag(mouse_cursor, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_remove_flag(mouse_cursor, LV_OBJ_FLAG_SCROLLABLE);
+            lv_indev_set_cursor(indev, mouse_cursor);
+        }
+    }
+    data->point.x = mouse_x;
+    data->point.y = mouse_y;
+    data->state = left ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+}
 static void create_screen(uint32_t screen_w, uint32_t screen_h)
 {
     lv_obj_t *root = lv_screen_active();
@@ -321,6 +358,10 @@ void gui_task(void *arg)
     lv_indev_set_type(input, LV_INDEV_TYPE_KEYPAD);
     lv_indev_set_read_cb(input, keyboard_read);
     lv_indev_set_group(input, keyboard_group);
+
+    lv_indev_t *mouse_in = lv_indev_create();
+    lv_indev_set_type(mouse_in, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(mouse_in, mouse_read);
 
     size_t proj_len = 0;
     const char *proj_json = bootcfg_project_json(&proj_len);
