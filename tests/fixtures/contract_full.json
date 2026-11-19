@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "id": "vgp-contract-full",
+  "name": "全功能契約測試",
+  "description": "Shared cross-project compatibility fixture covering all 22 widgets, actions, Modbus, alarms, and assets.",
+  "startScreenId": "main",
+  "devices": [
+    {
+      "id": "plc-tcp",
+      "name": "主控PLC",
+      "enabled": true,
+      "transport": "tcp",
+      "host": "192.168.1.10",
+      "port": 502,
+      "unitId": 1,
+      "pollIntervalMs": 500,
+      "timeoutMs": 1500
+    },
+    {
+      "id": "meter-rtu",
+      "name": "電表RTU",
+      "enabled": false,
+      "transport": "rtu",
+      "serialPort": "COM3",
+      "baudRate": 9600,
+      "parity": "none",
+      "dataBits": 8,
+      "stopBits": 1,
+      "unitId": 2,
+      "pollIntervalMs": 1000,
+      "timeoutMs": 1500
+    }
+  ],
+  "variables": [
+    {
+      "id": "run",
+      "name": "運轉",
+      "type": "boolean",
+      "initial": false,
+      "modbus": {
+        "deviceId": "plc-tcp",
+        "area": "coil",
+        "address": 0,
+        "dataType": "bool",
+        "wordOrder": "highFirst",
+        "scale": 1,
+        "offset": 0,
+        "access": "readWrite"
+      }
+    },
+    {
+      "id": "temp",
+      "name": "溫度",
+      "type": "number",
+      "initial": 26.5,
+      "modbus": {
+        "deviceId": "plc-tcp",
+        "area": "holdingRegister",
+        "address": 0,
+        "dataType": "uint16",
+        "wordOrder": "highFirst",
+        "scale": 0.1,
+        "offset": 0,
+        "access": "readWrite"
+      }
+    },
+    {
+      "id": "mode",
+      "name": "模式",
+      "type": "number",
+      "initial": 0
+    },
+    {
+      "id": "alarmWord",
+      "name": "警報Word",
+      "type": "number",
+      "initial": 0
+    },
+    {
+      "id": "alarmMask",
+      "name": "警報遮罩",
+      "type": "number",
+      "initial": 0
+    }
+  ],
+  "assets": [
+    {
+      "id": "dot-png",
+      "name": "測試PNG",
+      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    }
+  ],
+  "alarmAreas": [
+    {
+      "id": "area-1",
+      "name": "系統警報",
+      "variableId": "alarmWord",
+      "maskVariableId": "alarmMask",
+      "group": "系統",
+      "updateIntervalMs": 500,
+      "enabled": true,
+      "rules": [
+        { "id": "r0", "bit": 0, "message": "過載異常", "severity": "critical", "enabled": true },
+        { "id": "r1", "bit": 1, "message": "高溫警戒", "severity": "warning", "enabled": true }
+      ]
+    }
+  ],
+  "alarmTicker": {
+    "enabled": true,
+    "position": "top",
+    "intervalMs": 3000
+  },
+  "screens": [
+    {
+      "id": "master",
+      "name": "母畫面",
+      "width": 960,
+      "height": 600,
+      "background": "#0f172a",
+      "type": "popup",
+      "elements": [
+        {
+          "id": "hdr-dt",
+          "kind": "datetime",
+          "name": "系統時間",
+          "x": 640,
+          "y": 10,
+          "width": 300,
+          "height": 32,
+          "text": "YYYY/MM/DD HH:mm:ss",
+          "color": "#e2e8f0",
+          "background": "#18263b",
+          "fontSize": 16,
+          "action": "toggle",
+          "actionValue": "1",
+          "locked": false,
+          "visible": true,
+          "dateTimeFormat": "YYYY/MM/DD HH:mm:ss"
+        }
+      ]
+    },
+    {
+      "id": "main",
+      "name": "主畫面",
+      "width": 960,
+      "height": 600,
+      "background": "#101c2e",
+      "type": "normal",
+      "inheritsScreenId": "master",
+      "elements": [
+        { "id": "e-rect", "kind": "rectangle", "name": "矩形", "x": 10, "y": 50, "width": 200, "height": 100, "text": "", "color": "#e2e8f0", "background": "#1e293b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "shapeFilled": true, "borderWidth": 1, "borderColor": "#475569" },
+        { "id": "e-circ", "kind": "circle", "name": "圓形", "x": 220, "y": 50, "width": 40, "height": 40, "text": "", "color": "#e2e8f0", "background": "#38bdf8", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true },
+        { "id": "e-line", "kind": "line", "name": "直線", "x": 10, "y": 46, "width": 940, "height": 2, "text": "", "color": "#334155", "background": "#334155", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true },
+        { "id": "e-text", "kind": "text", "name": "標題", "x": 16, "y": 10, "width": 300, "height": 30, "text": "全元件契約畫面", "color": "#f8fafc", "background": "#18263b", "fontSize": 22, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "textAlign": "left" },
+        { "id": "e-img", "kind": "image", "name": "圖示", "x": 270, "y": 50, "width": 40, "height": 40, "text": "", "color": "#e2e8f0", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "imageAssetId": "dot-png", "imageFit": "contain" },
+        { "id": "e-num", "kind": "number", "name": "溫度值", "x": 20, "y": 60, "width": 180, "height": 54, "text": "", "color": "#38bdf8", "background": "#18263b", "fontSize": 42, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "decimals": 1, "unit": "°C", "numberFormat": "decimal", "useGrouping": true },
+        { "id": "e-ind", "kind": "indicator", "name": "指示燈", "x": 330, "y": 55, "width": 32, "height": 32, "text": "", "color": "#e2e8f0", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "run" },
+        { "id": "e-sw", "kind": "switch", "name": "開關", "x": 380, "y": 55, "width": 70, "height": 34, "text": "", "color": "#e2e8f0", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "run" },
+        { "id": "e-btn-mom", "kind": "button", "name": "點動", "x": 470, "y": 55, "width": 100, "height": 38, "text": "點動", "color": "#ffffff", "background": "#2563eb", "fontSize": 16, "action": "momentary", "actionValue": "1", "locked": false, "visible": true, "variableId": "run" },
+        { "id": "e-btn-pop", "kind": "button", "name": "開彈窗", "x": 580, "y": 55, "width": 100, "height": 38, "text": "設定", "color": "#ffffff", "background": "#475569", "fontSize": 16, "action": "popup", "actionValue": "1", "locked": false, "visible": true, "targetScreenId": "dlg" },
+        { "id": "e-input", "kind": "input", "name": "輸入", "x": 700, "y": 55, "width": 120, "height": 38, "text": "", "color": "#0f172a", "background": "#ffffff", "fontSize": 18, "action": "set", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "inputMin": 0, "inputMax": 100, "inputStep": 0.5 },
+        { "id": "e-bar", "kind": "bar", "name": "長條", "x": 10, "y": 170, "width": 260, "height": 36, "text": "", "color": "#ffffff", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "scaleMin": 0, "scaleMax": 100, "warningThreshold": 60, "criticalThreshold": 80, "showValue": true },
+        { "id": "e-gauge", "kind": "gauge", "name": "儀表", "x": 290, "y": 130, "width": 120, "height": 120, "text": "", "color": "#ffffff", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "scaleMin": 0, "scaleMax": 100, "showValue": true },
+        { "id": "e-arc", "kind": "arc", "name": "旋鈕", "x": 430, "y": 130, "width": 120, "height": 120, "text": "", "color": "#ffffff", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "scaleMin": 0, "scaleMax": 100, "showValue": true },
+        { "id": "e-slider", "kind": "slider", "name": "滑桿", "x": 570, "y": 140, "width": 180, "height": 30, "text": "", "color": "#ffffff", "background": "#18263b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "scaleMin": 0, "scaleMax": 100, "showValue": true },
+        { "id": "e-spin", "kind": "spinbox", "name": "微調", "x": 570, "y": 190, "width": 160, "height": 40, "text": "", "color": "#ffffff", "background": "#1e293b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "inputMin": 0, "inputMax": 100, "inputStep": 1, "decimals": 1 },
+        { "id": "e-dd", "kind": "dropdown", "name": "下拉", "x": 760, "y": 140, "width": 160, "height": 40, "text": "", "color": "#ffffff", "background": "#1e293b", "fontSize": 16, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "mode", "multistateItems": [{ "value": 0, "label": "自動", "color": "#38bdf8" }, { "value": 1, "label": "手動", "color": "#22c55e" }] },
+        { "id": "e-ms", "kind": "multistate", "name": "多狀態", "x": 760, "y": 190, "width": 120, "height": 40, "text": "自動", "color": "#ffffff", "background": "#38bdf8", "fontSize": 16, "action": "increment", "actionValue": "1", "locked": false, "visible": true, "variableId": "mode", "multistateItems": [{ "value": 0, "label": "自動", "color": "#38bdf8" }, { "value": 1, "label": "手動", "color": "#22c55e" }] },
+        { "id": "e-scale", "kind": "scale", "name": "刻度", "x": 10, "y": 220, "width": 260, "height": 36, "text": "", "color": "#94a3b8", "background": "#18263b", "fontSize": 14, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "scaleMin": 0, "scaleMax": 100, "scaleMajorTicks": 5, "scaleMinorTicks": 4, "scaleShowLabels": true },
+        { "id": "e-trend", "kind": "trend", "name": "趨勢", "x": 10, "y": 270, "width": 440, "height": 150, "text": "", "color": "#38bdf8", "background": "#1e293b", "fontSize": 14, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "variableId": "temp", "scaleMin": 0, "scaleMax": 100, "sampleInterval": 1000, "historyPoints": 60 },
+        { "id": "e-table", "kind": "table", "name": "表格", "x": 470, "y": 270, "width": 460, "height": 150, "text": "", "color": "#e2e8f0", "background": "#1e293b", "fontSize": 14, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "tableCols": 3, "tableRows": 3, "gridColor": "#334155" },
+        { "id": "e-alarm", "kind": "alarm", "name": "警報清單", "x": 10, "y": 430, "width": 920, "height": 130, "text": "", "color": "#e2e8f0", "background": "#1e293b", "fontSize": 14, "action": "toggle", "actionValue": "1", "locked": false, "visible": true, "alarmSource": "all", "alarmMaxRows": 10, "alarmRules": [{ "id": "loc1", "message": "溫度高於80", "variableId": "temp", "operator": "gt", "threshold": 80, "severity": "critical", "enabled": true }] }
+      ]
+    },
+    {
+      "id": "dlg",
+      "name": "設定視窗",
+      "width": 360,
+      "height": 200,
+      "background": "#1e293b",
+      "type": "popup",
+      "elements": [
+        { "id": "e-close", "kind": "button", "name": "關閉", "x": 220, "y": 140, "width": 110, "height": 40, "text": "關閉", "color": "#ffffff", "background": "#334155", "fontSize": 16, "action": "closePopup", "actionValue": "1", "locked": false, "visible": true }
+      ]
+    }
+  ]
+}
