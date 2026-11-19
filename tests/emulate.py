@@ -76,7 +76,7 @@ class Target:
         self.verified_svc_returns = 0
         self.pending_checks = {}
         self.mode_seen = set()
-        self.uc.hook_add(UC_HOOK_BLOCK, self.on_block)
+        self.block_hook = self.uc.hook_add(UC_HOOK_BLOCK, self.on_block)
         self.uc.hook_add(UC_HOOK_INTR, self.on_intr)
         self.uc.hook_add(UC_HOOK_MEM_READ, self.on_read,
                          begin=0x20000000, end=0x202FFFFF)

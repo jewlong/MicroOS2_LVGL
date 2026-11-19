@@ -3,8 +3,18 @@
 
 #include <stdint.h>
 
-/* BCM2835 ARM physical addresses, NOT 0x7e... GPU bus addresses. */
-#define PERIPHERAL_BASE UINT32_C(0x20000000)
+/* Auto-detected ARM physical peripheral base:
+ * - Pi Zero W   (BCM2835 / ARM1176):    0x20000000, DMA alias 0x40000000
+ * - Pi Zero 2 W (BCM2837 / Cortex-A53): 0x3F000000, DMA alias 0xC0000000
+ */
+extern uint32_t soc_peripheral_base;
+extern uint32_t soc_dma_bus_alias;
+extern uint8_t  soc_is_bcm2837;
+
+void soc_detect_init(void);
+
+#define PERIPHERAL_BASE ((uint32_t)soc_peripheral_base)
+#define DMA_BUS_ALIAS   ((uint32_t)soc_dma_bus_alias)
 #define GPIO_BASE       (PERIPHERAL_BASE + UINT32_C(0x00200000))
 #define UART0_BASE      (PERIPHERAL_BASE + UINT32_C(0x00201000))
 #define TIMER_CLO       (PERIPHERAL_BASE + UINT32_C(0x00003004))

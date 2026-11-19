@@ -6,6 +6,9 @@
 #include "port.h"
 #include "framebuffer.h"
 #include "gui.h"
+#include "keyboard.h"
+#include "bootcfg.h"
+_Alignas(8) static OS_STK usb_stack[4096];
 #include "net_platform.h"
 _Alignas(8) static OS_STK network_stack[8192];
 
@@ -22,6 +25,14 @@ volatile uint32_t app_low_completed;
 volatile uint32_t app_preempt_pass;
 volatile uint32_t app_high_runs;
 volatile uint32_t app_uart_commands;
+
+static void put_dec(uint32_t value)
+{
+    char digits[10];
+    unsigned count = 0u;
+    do { digits[count++] = (char)('0' + (value % 10u)); value /= 10u; } while (value != 0u);
+    while (count != 0u) { uart_putc(digits[--count]); }
+}
 
 static void report_status(void)
 {
@@ -52,6 +63,9 @@ static void report_status(void)
     uart_puts(" tx="); uart_puthex32(net_tx_frames);
     uart_puts(" retry="); uart_puthex32(net_reconnects);
     uart_puts(" sdio_err="); uart_puthex32(net_sdio_errors);
+    uart_puts(" usb="); uart_puthex32(usb_state);
+    uart_puts(" keys="); uart_puthex32(usb_key_presses);
+    uart_puts(" key_drop="); uart_puthex32(usb_queue_drops);
     uart_puts(" display="); uart_puthex32(app_display_frames);
     uart_puts("\n");
     bsp_log_unlock();
@@ -134,24 +148,30 @@ static void create_task(void (*entry)(void *), OS_STK *stack, INT32U words, INT8
 
 int main(void)
 {
+    soc_detect_init(); /* Auto-detect Pi Zero W (BCM2835) vs Pi Zero 2 W (BCM2837). */
+    bootcfg_init(); /* Read wifi.txt handoff before any other code touches RAM. */
     uart_init();
     bsp_interrupts_init();
     if ((data_cookie != 0x1234abcdu) || (bss_cookie != 0u)) {
         bsp_panic("data/BSS self-check");
     }
-    uart_puts("\nRaspberry Pi Zero W - uC/OS-II + HDMI + LVGL + Wi-Fi\n");
+    uart_puts(soc_is_bcm2837 ?
+        "\nRaspberry Pi Zero 2 W (BCM2837) - uC/OS-II + HDMI + LVGL + Wi-Fi\n" :
+        "\nRaspberry Pi Zero W (BCM2835) - uC/OS-II + HDMI + LVGL + Wi-Fi\n");
     uart_puts("ARM1176 / SYS tasks / 100 Hz IRQ tick / soft-float\n");
     uart_puts("Core header V2.93.01; OSVersion()=");
     uart_puthex32(OSVersion()); uart_puts("\n");
-    uart_puts("Tasks: HIGH=5, WHD=8, UART=10, TCPIP=11, NET=12, GUI=15, LOW=20\n");
+    uart_puts("Tasks: HIGH=5, WHD=8, UART=10, TCPIP=11, NET=12, USB=13, GUI=15, LOW=20\n");
     uart_puts("First test: HIGH must interrupt LOW's 150ms busy loop.\n");
     uart_puts("Type s for status; + / - / r control LVGL through a queue.\n");
+    uart_puts("[CFG] "); uart_puts(bootcfg_status_text(bootcfg_status())); uart_puts("\n");
     uart_flush();
 
     const fb_result_t video = framebuffer_init();
     if (video == FB_OK) {
         const framebuffer_t *info = framebuffer_info();
-        uart_puts("[HDMI] framebuffer ready: 640x480x32 pitch=");
+        uart_puts("[HDMI] framebuffer ready: "); put_dec(info->width);
+        uart_puts("x"); put_dec(info->height); uart_puts("x32 pitch=");
         uart_puthex32(info->pitch);
         uart_puts(" ARM address="); uart_puthex32((uint32_t)(uintptr_t)info->pixels);
         uart_puts(" order="); uart_puthex32(info->pixel_order);
@@ -163,10 +183,12 @@ int main(void)
     }
     uart_flush();
 
+    usb_power_init(); /* mailbox before tasks: no race with Wi-Fi property requests */
     OSInit();
     bsp_log_init();
     gui_queue_init();
     net_platform_init();
+    create_task(usb_keyboard_task, usb_stack, 4096, 13);
     create_task(network_task, network_stack, 8192, 12);
     create_task(high_task, high_stack, APP_STACK_WORDS, APP_HIGH_PRIO);
     create_task(uart_task, uart_stack, APP_STACK_WORDS, APP_UART_PRIO);

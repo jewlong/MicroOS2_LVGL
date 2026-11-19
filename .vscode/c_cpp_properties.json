@@ -23,7 +23,8 @@
         "${workspaceFolder}/vendor/whd/src",
         "${workspaceFolder}/vendor/whd/External/hal",
         "${workspaceFolder}/vendor/whd/External/rtos",
-        "${workspaceFolder}/vendor/whd/External/bsp"
+        "${workspaceFolder}/vendor/whd/External/bsp",
+        "${workspaceFolder}/usb"
       ],
       "cStandard": "c11",
       "cppStandard": "c++17",

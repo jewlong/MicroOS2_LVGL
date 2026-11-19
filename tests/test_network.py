@@ -72,6 +72,7 @@ class NetworkTarget(HDMITarget):
         if address==MBOX_WRITE and self.kind=='sdio':
             a=value&~15
             w=list(struct.unpack('<8I',uc.mem_read(a,32)))
+            if w[0]==32 and w[2]==0x28001:return  # USB power deliberately unavailable
             if w[0]==32:
                 assert w[7]==0 and w[3]==8
                 w[1]=0x80000000;w[4]=0x80000008

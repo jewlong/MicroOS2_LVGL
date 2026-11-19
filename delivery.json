@@ -1,19 +1,27 @@
 {
-  "date": "2026-11-03",
+  "date": "2026-11-04",
   "board": "Raspberry Pi Zero W / BCM2835 / ARM1176JZF-S",
-  "mode": "scan-only; no credentials",
-  "kernel_bytes": 928944,
-  "kernel_sha256": "e18edb39575ee8be08690b4e2018fd170b8ee6276e07f2eeb76cf7592f963ac4",
+  "mode": "USB direct FS/LS HID boot keyboard + uC/OS-II + LVGL/HDMI; Wi-Fi scan-only, no credentials",
+  "kernel_bytes": 954772,
+  "kernel_sha256": "d1c0948757e77694806161ddd868c47b409204f8975f3c8eb531413a93a35af6",
+  "production_elf_sha256": "ed49cb620e815be21348b7ccd7371056498e0158aa0a2fe9708142dd0711a4fe",
   "compiler": "Arm GNU 14.3.Rel1 / GCC 14.3.1",
   "tests": {
-    "gui-rgb.log": "67d02be8f3596a5d16f14c2d9fcd5b25c2c5cb3d367ee336c4f16ab32afb4790",
-    "ethernet.log": "f2180673685610b64d52f8b835f4edbc36c47d44355d3f83c9c3926b85324a24",
-    "sdio.log": "1f8edc05f6058617f2d31099d1b35b9d9cebfec39a6425644fcdd6baf57e3bd2"
+    "usb-unit.log": "ae7f4e64ae2137bf460c3c91ca6990c28962d5e1df98230d80899a9825f8a4fc",
+    "usb-low.log": "ebd2300fd1717fde63eaf4cffe79fdd28c638d49f1ab1d536ab972637b01fc79",
+    "usb-full.log": "72da0cd5396e3954002331a088a191bce822eebb625d3f4c88adba33d4b75e44",
+    "usb-absent.log": "3036b6eca5973c1763f8b0ae91a9337d56354e7ae056fb556277bf0840a575ef",
+    "usb-malformed.log": "7dea1f0159627f5d6c5f35eb1c9f810a7b394bbacfd29a8b37740dc7645329ea",
+    "usb-timeout.log": "8856e592ee97dd8e38240c396f1e192035c68e5451e38aa8d8e6d4c42a1a7cd7",
+    "network-ethernet.log": "f5ef36bb5974f52f07bad906d596fc979ad1490ac4e3f20fa1fc9b73dc4acb27",
+    "sources.log": "1e3fe1fcdf8908024c081ed5f925a9303e2c77bf2dd231ffebfc3c212544372f",
+    "build-and-stage.log": "ac81e0522164a6539881e6f8e3f9274b93d567c3239561ee00bfd2d4b3066f29",
+    "clean-rebuild.log": "30225a725d0da198df1c96076eaa50d634414d2b1425e434a4fa868b953582c4"
   },
   "clean_archive_rebuild": "PASS: byte-for-byte identical",
+  "clean_rebuild_kernel_sha256": "d1c0948757e77694806161ddd868c47b409204f8975f3c8eb531413a93a35af6",
+  "physical_usb_tested": false,
   "physical_wifi_tested": false,
   "physical_hdmi_tested": false,
-  "clean_rebuild_kernel_sha256": "e18edb39575ee8be08690b4e2018fd170b8ee6276e07f2eeb76cf7592f963ac4",
-  "windows_path_note": "Extract to a short path, e.g. C:/pizero-wifi; deeply nested LVGL include paths can exceed Windows toolchain path limits.",
-  "production_elf_sha256": "a3d9ac4d8ca8734525ff5de198ae9fb0761649623e745542652a818eaab3c1da"
+  "windows_path_note": "Extract to a short path, e.g. C:/pizero-usb. Deep LVGL relative includes can exceed Windows toolchain path limits."
 }

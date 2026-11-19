@@ -24,11 +24,12 @@ mailbox_result_t mailbox_property_call(volatile uint32_t *message,
     const uintptr_t address = (uintptr_t)message;
     const uint32_t start = timer_us();
     __asm__ volatile ("mrc p15, 0, %0, c1, c0, 0" : "=r" (control));
+    const uint32_t bad_ctrl_mask = (soc_is_bcm2837 != 0u) ? 4u : 5u;
     if ((message == (void *)0) || ((address & 15u) != 0u) ||
         (address >= 0x20000000u) || (bytes > 0x20000000u-address) || (bytes < 12u) ||
         (bytes > 4096u) || ((bytes & 3u) != 0u) ||
         (timeout_us == 0u) || (timeout_us > 1000000u) ||
-        ((control & 5u) != 0u)) {
+        ((control & bad_ctrl_mask) != 0u)) {
         return MAILBOX_BAD_ARGUMENT;
     }
     /* Property channel 8 takes the ARM PHYSICAL buffer address, not a VC alias. */

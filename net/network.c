@@ -11,6 +11,7 @@
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
 #include "bsp.h"
+#include "bootcfg.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,11 +24,15 @@ _Alignas(8) static OS_STK whd_stack[8192];
 static struct netif wlan;
 static volatile bool netif_ready;
 static OS_EVENT *core_done;
-static char status_text[80]="Wi-Fi: starting";
+static char status_text[128]="Wi-Fi: starting";
 static whd_sync_scan_result_t scan_results[16];
-static const char ssid_text[]=WIFI_SSID,password[]=WIFI_PASSWORD;
-_Static_assert(sizeof(ssid_text)-1<=32,"SSID too long");
-_Static_assert(sizeof(password)-1<=63,"WPA2 passphrase too long");
+/* Built-in defaults (net/wifi_local.h); wifi.txt from the SD card overrides them. */
+static const char default_ssid[]=WIFI_SSID,default_password[]=WIFI_PASSWORD;
+_Static_assert(sizeof(default_ssid)-1<=32,"SSID too long");
+_Static_assert(sizeof(default_password)-1<=63,"WPA2 passphrase too long");
+static char ssid_text[33],password[64];
+static size_t ssid_len,password_len;
+static char country_a=WIFI_COUNTRY_A,country_b=WIFI_COUNTRY_B;
 extern volatile uint32_t app_preempt_pass;
 static void status(const char *s)
 {
@@ -43,6 +48,17 @@ void network_snapshot(char *out,size_t size)
     memcpy(out,status_text,n);out[n]=0;OS_CPU_SR_Restore(sr);
 }
 void net_platform_init(void) {net_heap_init();}
+static void load_credentials(void)
+{
+    memcpy(ssid_text,default_ssid,sizeof(default_ssid));ssid_len=sizeof(default_ssid)-1;
+    memcpy(password,default_password,sizeof(default_password));password_len=sizeof(default_password)-1;
+    if(bootcfg_status()==BOOTCFG_OK) {
+        const wifi_settings_t *s=bootcfg_wifi();
+        memcpy(ssid_text,s->ssid,sizeof(ssid_text));ssid_len=s->ssid_len;
+        memcpy(password,s->password,sizeof(password));password_len=s->password_len;
+        if(s->country_set){country_a=s->country[0];country_b=s->country[1];}
+    }
+}
 static err_t transmit(struct netif *n,struct pbuf *p)
 {
     (void)n;whd_buffer_t b;
@@ -77,7 +93,7 @@ static err_t interface_init(struct netif *n)
 static void address_changed(struct netif *n)
 {
     if(!ip4_addr_isany_val(*netif_ip4_addr(n))) {
-        char line[80];snprintf(line,sizeof(line),"Wi-Fi: %s",ip4addr_ntoa(netif_ip4_addr(n)));
+        char line[128];snprintf(line,sizeof(line),"Wi-Fi: %s | IP: %s",ssid_len?ssid_text:"LAN",ip4addr_ntoa(netif_ip4_addr(n)));
         status(line);net_stage=6;
         net_log("[IP] %s / UDP echo 5000 / TCP echo 5001\n",ip4addr_ntoa(netif_ip4_addr(n)));
     }
@@ -151,10 +167,11 @@ void network_task(void *arg)
     #ifdef NET_TEST
     network_probe();
     #endif
+    load_credentials();
     if(!wifi_sdio_init())stop(0xe100,"Wi-Fi: SDIO initialization failed");
     if(!board_resources_init())stop(0xe101,"Wi-Fi: NVRAM invalid");
     whd_init_config_t config={whd_stack,sizeof(whd_stack),8,
-        (whd_country_code_t)MK_CNTRY(WIFI_COUNTRY_A,WIFI_COUNTRY_B,0)};
+        (whd_country_code_t)MK_CNTRY(country_a,country_b,0)};
     whd_result_t r=whd_init(&driver,&config,&board_resources,&board_buffers,&net_functions);
     if(r)stop(r,"Wi-Fi: WHD initialization failed");
     whd_sdio_config_t bus={0};bus.oob_config.host_oob_pin=CYHAL_NC_PIN_VALUE;
@@ -177,23 +194,50 @@ void network_task(void *arg)
         name[n]=0;
         net_log("[AP] ch=%u RSSI=%d SSID=%s\n",scan_results[i].channel,scan_results[i].signal_strength,name);
     }
-    if(sizeof(ssid_text)==1) {
-        status("Wi-Fi: scan done; configure SSID locally");
-        net_log("[Wi-Fi] scan-only image. Run configure-wifi.ps1, rebuild and copy kernel.img.\n");
+    {const bootcfg_status_t cfg=bootcfg_status();
+    if(cfg!=BOOTCFG_OK && cfg!=BOOTCFG_NO_ATAGS && cfg!=BOOTCFG_NO_FILE && cfg!=BOOTCFG_NO_SSID){stop(0xe103,"Wi-Fi: wifi.txt invalid");}}
+    bool ap_seen=false;uint8_t ap_ch=0;int16_t ap_rssi=0;whd_security_t ap_sec=WHD_SECURITY_WPA2_AES_PSK;
+    uint32_t ap_total=(!r)?count:0u;
+    if(!r && ssid_len>0) for(uint32_t i=0;i<count && i<16;i++) {
+        if(scan_results[i].SSID.length==ssid_len && memcmp(scan_results[i].SSID.value,ssid_text,ssid_len)==0) {
+            if(!ap_seen || scan_results[i].signal_strength>ap_rssi) {
+                ap_seen=true;ap_ch=scan_results[i].channel;ap_rssi=scan_results[i].signal_strength;
+                if(scan_results[i].security!=WHD_SECURITY_UNKNOWN && scan_results[i].security!=WHD_SECURITY_OPEN)
+                    ap_sec=scan_results[i].security;
+            }
+        }
+    }
+    if(ssid_len==0) {
+        status("Wi-Fi: scan done; add wifi.txt to SD");
+        net_log("[Wi-Fi] scan-only: no credentials. Put wifi.txt on the SD card (see WIFI.md).\n");
         for(;;)OSTimeDly(100);
     }
-    if(sizeof(password)<9)stop(0xe102,"Wi-Fi: WPA2 password must be 8-63 bytes");
-    whd_ssid_t ssid={0};ssid.length=sizeof(ssid_text)-1;memcpy(ssid.value,ssid_text,ssid.length);
+    if(password_len<8)stop(0xe102,"Wi-Fi: WPA2 password must be 8-63 bytes");
+    whd_ssid_t ssid={0};ssid.length=ssid_len;memcpy(ssid.value,ssid_text,ssid.length);
     uint32_t delay=5;
     for(;;) {
-        net_stage=4;status("Wi-Fi: joining WPA2 network");
-        r=whd_wifi_join(interface,&ssid,WHD_SECURITY_WPA2_AES_PSK,(const uint8_t *)password,sizeof(password)-1);
+        char line[128];
+        net_stage=4;
+        if(ap_seen) snprintf(line,sizeof(line),"Wi-Fi: joining %s (ch%u %ddBm)...",ssid_text,(unsigned)ap_ch,(int)ap_rssi);
+        else snprintf(line,sizeof(line),"Wi-Fi: joining %s (%lu APs scanned)...",ssid_text,(unsigned long)ap_total);
+        status(line);
+        r=whd_wifi_join(interface,&ssid,WHD_SECURITY_WPA2_AES_PSK,(const uint8_t *)password,password_len);
+        if(r && ap_seen && ap_sec!=WHD_SECURITY_WPA2_AES_PSK) {
+            whd_wifi_leave(interface);
+            r=whd_wifi_join(interface,&ssid,ap_sec,(const uint8_t *)password,password_len);
+        }
+        if(r && !ap_seen) {
+            whd_wifi_leave(interface);
+            r=whd_wifi_join(interface,&ssid,WHD_SECURITY_WPA2_MIXED_PSK,(const uint8_t *)password,password_len);
+        }
         if(r) {
             net_error=r;net_log("[JOIN] failed 0x%08lx; retry in %lus\n",(unsigned long)r,(unsigned long)delay);
-            status("Wi-Fi: join failed; retry pending");whd_wifi_leave(interface);
+            if(ap_seen) snprintf(line,sizeof(line),"Wi-Fi: %s join err 0x%lx (ch%u %ddBm); retry %lus",ssid_text,(unsigned long)r,(unsigned)ap_ch,(int)ap_rssi,(unsigned long)delay);
+            else snprintf(line,sizeof(line),"Wi-Fi: %s not seen on 2.4GHz (%lu APs); retry %lus",ssid_text,(unsigned long)ap_total,(unsigned long)delay);
+            status(line);whd_wifi_leave(interface);
             OSTimeDly(delay*100);if(delay<30)delay+=5;++net_reconnects;continue;
         }
-        delay=5;net_stage=5;status("Wi-Fi: associated; waiting for DHCP");core_call(link_up);
+        delay=5;net_stage=5;snprintf(line,sizeof(line),"Wi-Fi: %s associated; waiting for DHCP...",ssid_text);status(line);core_call(link_up);
         net_log("[JOIN] associated; DHCP started.\n");
         do {OSTimeDly(100);}while(whd_wifi_is_ready_to_transceive(interface)==WHD_SUCCESS);
         core_call(link_down);whd_wifi_leave(interface);++net_reconnects;

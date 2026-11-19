@@ -5,32 +5,73 @@
 
 enum { PHYSICAL=2, VIRTUAL=7, DEPTH=12, ORDER=16, OFFSET=20,
        ALPHA=25, ALLOCATE=29, PITCH=34, END_TAG=38, MESSAGE_WORDS=39 };
+/* Size query message: two get-size tags use the same PHYSICAL/VIRTUAL offsets. */
+enum { QUERY_END=12, QUERY_WORDS=13 };
 /* Static storage is intentional: a GPU may finish writing after a timeout. */
 _Alignas(16) static volatile uint32_t fb_message[MESSAGE_WORDS];
+_Alignas(16) static volatile uint32_t query_message[QUERY_WORDS];
 static framebuffer_t framebuffer;
+static uint32_t fb_w = FB_DEFAULT_WIDTH, fb_h = FB_DEFAULT_HEIGHT;
 static bool ready;
 static bool attempted;
 
-static bool tag_ok(uint32_t at, uint32_t id, uint32_t bytes)
+static bool tag_ok(const volatile uint32_t *m, uint32_t at, uint32_t id, uint32_t bytes)
 {
-    return fb_message[at] == id && fb_message[at+1u] == bytes &&
-           fb_message[at+2u] == (0x80000000u | bytes);
+    return m[at] == id && m[at+1u] == bytes &&
+           m[at+2u] == (0x80000000u | bytes);
+}
+
+bool framebuffer_size_valid(uint32_t width, uint32_t height)
+{
+    return width >= FB_MIN_WIDTH && width <= FB_MAX_WIDTH &&
+           height >= FB_MIN_HEIGHT && height <= FB_MAX_HEIGHT;
+}
+
+/* The GPU firmware has already applied config.txt (hdmi_group/hdmi_mode,
+ * framebuffer_width/height) before the kernel starts. Ask it what it chose.
+ * Any failure keeps the 640x480 default. */
+static void query_size(void)
+{
+    query_message[0] = sizeof(query_message);
+    query_message[1] = 0u;
+    query_message[PHYSICAL] = 0x40003u; /* Get physical (display) width/height. */
+    query_message[PHYSICAL+1] = 8u;
+    query_message[PHYSICAL+2] = 0u;
+    query_message[PHYSICAL+3] = 0u;
+    query_message[PHYSICAL+4] = 0u;
+    query_message[VIRTUAL] = 0x40004u;  /* Get virtual (framebuffer) width/height. */
+    query_message[VIRTUAL+1] = 8u;
+    query_message[VIRTUAL+2] = 0u;
+    query_message[VIRTUAL+3] = 0u;
+    query_message[VIRTUAL+4] = 0u;
+    query_message[QUERY_END] = 0u;
+    if (mailbox_property_call(query_message, sizeof(query_message), 200000u) != MAILBOX_OK ||
+        query_message[0] != sizeof(query_message) || query_message[1] != 0x80000000u ||
+        !tag_ok(query_message,PHYSICAL,0x40003u,8u) ||
+        !tag_ok(query_message,VIRTUAL,0x40004u,8u)) { return; }
+    /* Prefer the configured framebuffer size, else the display mode size. */
+    if (framebuffer_size_valid(query_message[VIRTUAL+3],query_message[VIRTUAL+4])) {
+        fb_w = query_message[VIRTUAL+3]; fb_h = query_message[VIRTUAL+4];
+    } else if (framebuffer_size_valid(query_message[PHYSICAL+3],query_message[PHYSICAL+4])) {
+        fb_w = query_message[PHYSICAL+3]; fb_h = query_message[PHYSICAL+4];
+    }
 }
 
 fb_result_t framebuffer_init(void)
 {
     if (attempted) { return FB_ALREADY_ATTEMPTED; }
     attempted = true;
+    query_size();
     fb_message[0] = sizeof(fb_message);
     fb_message[1] = 0u;
     fb_message[PHYSICAL] = 0x48003u;
     fb_message[PHYSICAL+1] = 8u;
-    fb_message[PHYSICAL+3] = FB_WIDTH;
-    fb_message[PHYSICAL+4] = FB_HEIGHT;
+    fb_message[PHYSICAL+3] = fb_w;
+    fb_message[PHYSICAL+4] = fb_h;
     fb_message[VIRTUAL] = 0x48004u;
     fb_message[VIRTUAL+1] = 8u;
-    fb_message[VIRTUAL+3] = FB_WIDTH;
-    fb_message[VIRTUAL+4] = FB_HEIGHT;
+    fb_message[VIRTUAL+3] = fb_w;
+    fb_message[VIRTUAL+4] = fb_h;
     fb_message[DEPTH] = 0x48005u;
     fb_message[DEPTH+1] = 4u;
     fb_message[DEPTH+3] = 32u;
@@ -54,15 +95,15 @@ fb_result_t framebuffer_init(void)
     if (transport == MAILBOX_WRITE_TIMEOUT) { return FB_MAILBOX_FULL; }
     if (transport != MAILBOX_OK) { return FB_MAILBOX_TIMEOUT; }
     if (fb_message[0] != sizeof(fb_message) || fb_message[1] != 0x80000000u ||
-        !tag_ok(PHYSICAL,0x48003u,8u) || !tag_ok(VIRTUAL,0x48004u,8u) ||
-        !tag_ok(DEPTH,0x48005u,4u) || !tag_ok(ORDER,0x48006u,4u) ||
-        !tag_ok(OFFSET,0x48009u,8u) || !tag_ok(ALPHA,0x48007u,4u) ||
-        !tag_ok(ALLOCATE,0x40001u,8u) || !tag_ok(PITCH,0x40008u,4u) ||
+        !tag_ok(fb_message,PHYSICAL,0x48003u,8u) || !tag_ok(fb_message,VIRTUAL,0x48004u,8u) ||
+        !tag_ok(fb_message,DEPTH,0x48005u,4u) || !tag_ok(fb_message,ORDER,0x48006u,4u) ||
+        !tag_ok(fb_message,OFFSET,0x48009u,8u) || !tag_ok(fb_message,ALPHA,0x48007u,4u) ||
+        !tag_ok(fb_message,ALLOCATE,0x40001u,8u) || !tag_ok(fb_message,PITCH,0x40008u,4u) ||
         fb_message[END_TAG] != 0u) {
         return FB_BAD_RESPONSE;
     }
-    if (fb_message[PHYSICAL+3] != FB_WIDTH || fb_message[PHYSICAL+4] != FB_HEIGHT ||
-        fb_message[VIRTUAL+3] != FB_WIDTH || fb_message[VIRTUAL+4] != FB_HEIGHT ||
+    if (fb_message[PHYSICAL+3] != fb_w || fb_message[PHYSICAL+4] != fb_h ||
+        fb_message[VIRTUAL+3] != fb_w || fb_message[VIRTUAL+4] != fb_h ||
         fb_message[OFFSET+3] != 0u || fb_message[OFFSET+4] != 0u) {
         return FB_BAD_GEOMETRY;
     }
@@ -74,15 +115,15 @@ fb_result_t framebuffer_init(void)
     const uint32_t address = fb_message[ALLOCATE+3] & 0x3fffffffu;
     const uint32_t size = fb_message[ALLOCATE+4];
     const uint32_t pitch = fb_message[PITCH+3];
-    if (pitch < FB_WIDTH*4u || pitch > 16384u || (pitch & 3u) != 0u ||
-        size < pitch*FB_HEIGHT || address < 0x01000000u ||
+    if (pitch < fb_w*4u || pitch > 16384u || (pitch & 3u) != 0u ||
+        size < pitch*fb_h || address < 0x01000000u ||
         (address & 4095u) != 0u || address >= 0x20000000u ||
         size > 0x20000000u-address) {
         return FB_BAD_ALLOCATION;
     }
     framebuffer.pixels = (volatile uint32_t *)(uintptr_t)address;
-    framebuffer.width = FB_WIDTH;
-    framebuffer.height = FB_HEIGHT;
+    framebuffer.width = fb_w;
+    framebuffer.height = fb_h;
     framebuffer.pitch = pitch;
     framebuffer.size = size;
     framebuffer.pixel_order = fb_message[ORDER+3];

@@ -42,3 +42,15 @@ Technical references:
 - ARM unaligned initialization guidance (U bit 22): https://documentation-service.arm.com/static/5eb946b50f1c1e0dae6ee21e
 
 Newlib provides only the linked C helpers; allocation and formatted logging are supplied by net/net_runtime.c. No semihosting/syscall stubs are used. The prebuilt radio image is opaque: its execution is not covered by the ARM host tests.
+
+## USB keyboard extension (2026-11-04)
+
+usb/ contains project-owned Apache-2.0 C code; no third-party USB stack is incorporated. Vendor sources remain unchanged. Register behavior and board integration were checked against the pinned Circle source checkout 7a81e1b480fe7d19fc1fc695b89bff0a0848f44b and USB-IF specifications; Circle implementation code was not copied into this project.
+
+References:
+- USB HID 1.11, Appendix B boot keyboard: https://www.usb.org/sites/default/files/documents/hid1_11.pdf
+- USB HID usage tables: https://usb.org/document-library/hid-usage-tables-15
+- DWC2 controller register/integration reference: https://github.com/rsta2/circle/tree/7a81e1b480fe7d19fc1fc695b89bff0a0848f44b/lib/usb
+- Raspberry Pi Zero USB OTG connections: https://www.raspberrypi.com/documentation/computers/zero.html
+
+The controller implementation is intentionally restricted to a directly attached FS/LS Boot Keyboard; it is not a general USB host stack. GPU L2 uses the firmware default and the DMA bus alias is 0x40000000; ARM MMU and D-cache remain off.

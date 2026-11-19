@@ -51,6 +51,18 @@ class HDMITarget(Target):
             # This GUI regression deliberately models their timeout.
             if int.from_bytes(uc.mem_read(value & ~15,4),'little') == 32:
                 return
+            # Size query (get physical + virtual size): 13 words, answered like firmware.
+            if int.from_bytes(uc.mem_read(value & ~15,4),'little') == 52:
+                qaddr = value & ~15
+                q = list(struct.unpack('<13I', uc.mem_read(qaddr, 52)))
+                assert q[2:5] == [0x40003, 8, 0] and q[7:10] == [0x40004, 8, 0] and q[12] == 0
+                q[1] = 0x80000000
+                q[4], q[9] = 0x80000008, 0x80000008
+                q[5], q[10] = FB_WIDTH, FB_WIDTH
+                q[6], q[11] = FB_HEIGHT, FB_HEIGHT
+                uc.mem_write(qaddr, struct.pack('<13I', *q))
+                self.responses.append(value)
+                return
             self.property_requests += 1
             assert value & 15 == 8, 'Expected property channel 8'
             address = value & ~15

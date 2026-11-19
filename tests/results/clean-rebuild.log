@@ -1,0 +1,3 @@
+PASS: candidate ZIP CRC; clean archive extraction and ARM GCC build.
+PASS: original, staged SD and rebuilt kernel.img are byte-for-byte identical.
+SHA256 d1c0948757e77694806161ddd868c47b409204f8975f3c8eb531413a93a35af6

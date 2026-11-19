@@ -3,8 +3,14 @@
 #define FRAMEBUFFER_H
 #include <stdint.h>
 #include <stdbool.h>
-#define FB_WIDTH  640u
-#define FB_HEIGHT 480u
+/* Resolution is queried from the GPU at boot (set by config.txt). These are the
+ * fallback and the accepted range; FB_MAX_WIDTH sizes the static GUI draw buffer. */
+#define FB_DEFAULT_WIDTH  640u
+#define FB_DEFAULT_HEIGHT 480u
+#define FB_MIN_WIDTH  640u
+#define FB_MIN_HEIGHT 480u
+#define FB_MAX_WIDTH  1920u
+#define FB_MAX_HEIGHT 1200u
 typedef enum {
     FB_OK = 0, FB_ALREADY_ATTEMPTED, FB_MAILBOX_ARGUMENT, FB_MAILBOX_FULL,
     FB_MAILBOX_TIMEOUT, FB_BAD_RESPONSE, FB_BAD_GEOMETRY, FB_BAD_FORMAT,
@@ -20,6 +26,7 @@ fb_result_t framebuffer_init(void);
 const framebuffer_t *framebuffer_info(void);
 bool framebuffer_ready(void);
 const char *framebuffer_error(fb_result_t result);
+bool framebuffer_size_valid(uint32_t width, uint32_t height);
 /* Single drawing owner; color arguments use canonical 0x00RRGGBB. */
 void fb_fill_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t rgb);
 void fb_draw_text(uint32_t x, uint32_t y, const char *text,

@@ -2,8 +2,11 @@
 #include <ucos_ii.h>
 #include "lvgl.h"
 #include "gui.h"
+#include "keyboard.h"
 #include "net_platform.h"
 #include "framebuffer.h"
+#include "bootcfg.h"
+#include "vgp_runtime.h"
 #include "bsp.h"
 #include "uart.h"
 #include "port.h"
@@ -21,13 +24,16 @@ _Static_assert(LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 4 && LVGL_VERSIO
 #define TEAL 0x50dfb6u
 #define ORANGE 0xffb86bu
 
-_Alignas(8) static uint32_t draw_pixels[FB_WIDTH * GUI_DRAW_ROWS];
+_Alignas(8) static uint32_t draw_pixels[FB_MAX_WIDTH * GUI_DRAW_ROWS];
 static void *queue_storage[GUI_QUEUE_LEN];
 static OS_EVENT *gui_queue;
 /* Immutable static messages: queue pointers remain valid until consumed,
  * even when the same command is posted repeatedly. No borrowed stack data. */
 static char command_plus = '+', command_minus = '-', command_reset = 'r';
-static lv_obj_t *wifi_label;
+static lv_obj_t *wifi_label, *keyboard_label;
+static lv_group_t *keyboard_group;
+volatile uint32_t gui_usb_events, gui_usb_resets, gui_usb_focus, gui_usb_down;
+char gui_usb_text[64];
 static lv_obj_t *count_label, *status_label, *tick_label, *work_label, *load_bar;
 static lv_obj_t *plus_button, *minus_button, *reset_button;
 volatile uint32_t app_display_frames, gui_ready, gui_commands, gui_dropped;
@@ -163,7 +169,49 @@ static lv_obj_t *button(lv_obj_t *parent, int32_t x, int32_t w,
     return obj;
 }
 
-static void create_screen(void)
+
+static void keyboard_read(lv_indev_t *indev, lv_indev_data_t *data)
+{
+    static uint32_t last_key=LV_KEY_ENTER;
+    static uint8_t active_usage;
+    static bool down;
+    key_event_t event;
+    owner_check();
+    data->key=last_key;data->state=down?LV_INDEV_STATE_PRESSED:LV_INDEV_STATE_RELEASED; gui_usb_down=down?1u:0u;
+    data->continue_reading=false;
+    if(!keyboard_pop(&event))return;
+    data->continue_reading=true;++gui_usb_events;
+    if(event.reset){
+        down=false;active_usage=0;++gui_usb_resets;
+        lv_indev_reset(indev,NULL);
+        lv_indev_wait_release(indev); /* cancel Enter: unplug is not a click */
+        lv_obj_t *focused=lv_group_get_focused(keyboard_group);
+        if(focused)lv_obj_remove_state(focused,LV_STATE_PRESSED);
+    }else if(event.pressed){
+        uint32_t key=event.key;
+        /* Text is a bounded demonstration line, not a terminal/IME. */
+        if(!(event.modifiers&0xddu)){
+            size_t n=lv_strlen(gui_usb_text);
+            if(key>=32 && key<127){
+                if(n==sizeof(gui_usb_text)-1){lv_memmove(gui_usb_text,gui_usb_text+1,n-1);--n;}
+                gui_usb_text[n++]=(char)key;gui_usb_text[n]=0;
+            }else if(key==KEY_BACKSPACE && n)gui_usb_text[n-1]=0;
+            if(keyboard_label)lv_label_set_text_fmt(keyboard_label,"USB text: %s",gui_usb_text);
+            lv_obj_t *target=key=='+'?plus_button:key=='-'?minus_button:
+                (key=='r' || key=='R')?reset_button:NULL;
+            if(target){lv_obj_send_event(target,LV_EVENT_CLICKED,NULL);++gui_commands;}
+            if(vgp_runtime_is_active())vgp_runtime_handle_key(key);
+        }
+        if(key==KEY_RIGHT || key==KEY_DOWN)key=LV_KEY_NEXT;
+        if(key==KEY_LEFT || key==KEY_UP)key=LV_KEY_PREV;
+        if(key==' ' && vgp_runtime_is_active())key=LV_KEY_ENTER;
+        if(!down && (key==LV_KEY_NEXT || key==LV_KEY_PREV || key==LV_KEY_ENTER || key==LV_KEY_ESC)){
+            last_key=key;active_usage=event.usage;down=true;
+        }
+    }else if(event.usage==active_usage){down=false;active_usage=0;}
+    data->key=last_key;data->state=down?LV_INDEV_STATE_PRESSED:LV_INDEV_STATE_RELEASED; gui_usb_down=down?1u:0u;
+}
+static void create_screen(uint32_t screen_w, uint32_t screen_h)
 {
     lv_obj_t *root = lv_screen_active();
     box_style(root, BG, 0);
@@ -171,44 +219,70 @@ static void create_screen(void)
     label(root, 24, 43, "LVGL + uC/OS-II", &lv_font_montserrat_28, WHITE);
     wifi_label = label(root, 24, 80, "Wi-Fi: starting", &lv_font_montserrat_14, MUTED);
 
-    lv_obj_t *p = panel(root, 24, 112, 186, 82);
+    /* Layout adapts to the queried resolution (minimum 640x480). */
+    const int32_t content_w = (int32_t)screen_w - 48;
+    const int32_t card_w = (content_w - 24) / 3;
+    lv_obj_t *p = panel(root, 24, 112, card_w, 82);
     label(p, 14, 12, "SCHEDULER", &lv_font_montserrat_14, MUTED);
     label(p, 14, 38, "PREEMPT: PASS", &lv_font_montserrat_16, TEAL);
-    p = panel(root, 222, 112, 186, 82);
+    p = panel(root, 24 + card_w + 12, 112, card_w, 82);
     label(p, 14, 12, "OS TICKS / 100 Hz", &lv_font_montserrat_14, MUTED);
     tick_label = label(p, 14, 36, "0", &lv_font_montserrat_28, WHITE);
-    p = panel(root, 420, 112, 196, 82);
+    p = panel(root, 24 + 2 * (card_w + 12), 112, content_w - 2 * (card_w + 12), 82);
     label(p, 14, 12, "WORKER CYCLES", &lv_font_montserrat_14, MUTED);
     work_label = label(p, 14, 36, "0", &lv_font_montserrat_28, WHITE);
 
-    p = panel(root, 24, 210, 592, 216);
+    p = panel(root, 24, 210, content_w, 216);
     label(p, 18, 14, "QUEUED BUTTON CONTROL", &lv_font_montserrat_14, MUTED);
-    label(p, 18, 42, "UART task > queue > GUI task", &lv_font_montserrat_16, WHITE);
-    count_label = label(p, 493, 35, "50", &lv_font_montserrat_28, ORANGE);
+    label(p, 18, 42, "USB / UART > queue > GUI task", &lv_font_montserrat_16, WHITE);
+    count_label = label(p, content_w - 99, 35, "50", &lv_font_montserrat_28, ORANGE);
     load_bar = lv_bar_create(p);
     box_style(load_bar, BG, 6);
     lv_obj_set_pos(load_bar, 18, 87);
-    lv_obj_set_size(load_bar, 556, 18);
+    lv_obj_set_size(load_bar, content_w - 36, 18);
     lv_obj_set_style_bg_color(load_bar, lv_color_hex(ORANGE), LV_PART_INDICATOR);
     lv_obj_set_style_bg_opa(load_bar, LV_OPA_COVER, LV_PART_INDICATOR);
     lv_obj_set_style_radius(load_bar, 6, LV_PART_INDICATOR);
     lv_bar_set_range(load_bar, 0, 100);
-    label(p, 18, 118, "Send a key in the serial terminal:", &lv_font_montserrat_14, MUTED);
+    keyboard_label = label(p, 18, 118, "USB text: (Tab / arrows / Enter)", &lv_font_montserrat_14, MUTED);
+    lv_obj_set_width(keyboard_label,content_w - 36);
+    lv_label_set_long_mode(keyboard_label,LV_LABEL_LONG_MODE_CLIP);
     minus_button = button(p, 18, 146, "[-]  Decrease", TEAL);
     plus_button = button(p, 176, 146, "[+]  Increase", ORANGE);
     reset_button = button(p, 334, 240, "[R]  Reset to 50", 0xb4c8e3u);
-    status_label = label(root, 24, 441, "Starting GUI...", &lv_font_montserrat_14, MUTED);
+    status_label = label(root, 24, (int32_t)screen_h - 39, "Starting GUI...", &lv_font_montserrat_14, MUTED);
+    if (keyboard_group) {
+        lv_group_add_obj(keyboard_group,minus_button);
+        lv_group_add_obj(keyboard_group,plus_button);
+        lv_group_add_obj(keyboard_group,reset_button);
+    }
+    lv_obj_t *buttons[]={minus_button,plus_button,reset_button};
+    for(unsigned i=0;i<3;i++){
+        lv_obj_set_style_border_width(buttons[i],2,LV_STATE_FOCUSED);
+        lv_obj_set_style_border_color(buttons[i],lv_color_hex(WHITE),LV_STATE_FOCUSED);
+    }
     update_value();
 }
 
 static void update_status(void)
 {
-    char wifi[80]; network_snapshot(wifi,sizeof(wifi)); lv_label_set_text(wifi_label,wifi);
     owner_check();
-    lv_label_set_text_fmt(tick_label, "%lu", (unsigned long)OSTimeGet());
-    lv_label_set_text_fmt(work_label, "%lu", (unsigned long)app_low_completed);
-    lv_label_set_text_fmt(status_label, "GUI frames %lu   |   Events %lu   |   Queue drops %lu",
-        (unsigned long)app_display_frames, (unsigned long)gui_commands, (unsigned long)gui_dropped);
+    if (!vgp_runtime_is_active()) {
+        char wifi[128]; network_snapshot(wifi,sizeof(wifi));
+        const bootcfg_status_t cfg = bootcfg_status();
+        const char *cfg_short = (cfg == BOOTCFG_OK) ? "wifi.txt OK" : bootcfg_status_text(cfg);
+        lv_label_set_text_fmt(wifi_label, "[CFG: %s]  %s  |  RX:%lu TX:%lu",
+            cfg_short, wifi, (unsigned long)net_rx_frames, (unsigned long)net_tx_frames);
+        lv_obj_t *focus=lv_group_get_focused(keyboard_group);
+        gui_usb_focus=focus==minus_button?0:focus==plus_button?1:2;
+        lv_label_set_text_fmt(tick_label, "%lu", (unsigned long)OSTimeGet());
+        lv_label_set_text_fmt(work_label, "%lu", (unsigned long)app_low_completed);
+        lv_label_set_text_fmt(status_label, "Frames %lu | USB st:%lu keys:%lu | Events %lu | Drops %lu",
+            (unsigned long)app_display_frames, (unsigned long)usb_state, (unsigned long)usb_key_presses,
+            (unsigned long)gui_commands, (unsigned long)gui_dropped);
+    } else {
+        vgp_runtime_update();
+    }
     if (lv_mem_test() != LV_RESULT_OK) { gui_fault(); }
     lv_mem_monitor_t mem;
     lv_mem_monitor(&mem);
@@ -235,15 +309,37 @@ void gui_task(void *arg)
     owner_check();
     lv_init();
     lv_tick_set_cb(gui_milliseconds); /* The only LVGL time source; no lv_tick_inc. */
-    lv_display_t *display = lv_display_create(FB_WIDTH, FB_HEIGHT);
+    const framebuffer_t *fb = framebuffer_info();
+    lv_display_t *display = lv_display_create((int32_t)fb->width, (int32_t)fb->height);
     if (display == NULL) { gui_fault(); }
     lv_display_set_color_format(display, LV_COLOR_FORMAT_XRGB8888);
-    lv_display_set_buffers(display, draw_pixels, NULL, sizeof(draw_pixels), LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_buffers(display, draw_pixels, NULL,
+                           fb->width * GUI_DRAW_ROWS * 4u, LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_flush_cb(display, flush_pixels);
-    create_screen();
+    keyboard_group = lv_group_create();
+    lv_indev_t *input = lv_indev_create();
+    lv_indev_set_type(input, LV_INDEV_TYPE_KEYPAD);
+    lv_indev_set_read_cb(input, keyboard_read);
+    lv_indev_set_group(input, keyboard_group);
+
+    size_t proj_len = 0;
+    const char *proj_json = bootcfg_project_json(&proj_len);
+    bool vgp_loaded = false;
+    if (proj_json && proj_len > 0) {
+        vgp_loaded = vgp_runtime_init(proj_json, proj_len, fb->width, fb->height, keyboard_group);
+    }
+    if (!vgp_loaded) {
+        create_screen(fb->width, fb->height);
+    }
     gui_ready = 1u;
     bsp_log_lock();
-    uart_puts("[GUI] LVGL 9.4.0 ready; dedicated GUI task, keys + - r.\n");
+    if (vgp_loaded) {
+        uart_puts("[GUI] ViewGP Project running: ");
+        uart_puts(vgp_runtime_project_name());
+        uart_puts("\n");
+    } else {
+        uart_puts("[GUI] LVGL 9.4.0 ready; dedicated GUI task, keys + - r.\n");
+    }
     bsp_log_unlock();
     uint32_t last_status = OSTimeGet() - 25u;
     for (;;) {
@@ -256,7 +352,9 @@ void gui_task(void *arg)
             if (err != OS_ERR_NONE || message == NULL) { gui_fault(); }
             lv_obj_t *target = (*message == '+') ? plus_button :
                                (*message == '-') ? minus_button : reset_button;
-            (void)lv_obj_send_event(target, LV_EVENT_CLICKED, NULL);
+            if (target != NULL) {
+                (void)lv_obj_send_event(target, LV_EVENT_CLICKED, NULL);
+            }
             ++gui_commands;
         }
         const uint32_t now = OSTimeGet();
@@ -267,7 +365,7 @@ void gui_task(void *arg)
         uint32_t wait_ms = lv_timer_handler();
         /* Yield at least one OS tick; cap latency for queued UART commands.
          * Frame rendering time is additional, not a guaranteed frame rate. */
-        if (wait_ms > 20u) { wait_ms = 20u; }
+        if (wait_ms > 10u) { wait_ms = 10u; }
         const INT32U delay = (wait_ms + 9u) / 10u;
         OSTimeDly(delay == 0u ? 1u : delay);
     }

@@ -12,7 +12,7 @@ ELF Header:
   Version:                           0x1
   Entry point address:               0x8000
   Start of program headers:          52 (bytes into file)
-  Start of section headers:          5284520 (bytes into file)
+  Start of section headers:          5409764 (bytes into file)
   Flags:                             0x5000200, Version5 EABI, soft-float ABI
   Size of this header:               52 (bytes)
   Size of program headers:           32 (bytes)
@@ -23,8 +23,8 @@ ELF Header:
 
 Program Headers:
   Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
-  LOAD           0x001000 0x00008000 0x00008000 0xe2c18 0xe2c18 R E 0x1000
-  LOAD           0x0e3c18 0x000eac18 0x000eac18 0x00098 0x165c18 RW  0x1000
+  LOAD           0x001000 0x00008000 0x00008000 0xe90f8 0xe90f8 R E 0x1000
+  LOAD           0x0ea0f8 0x000f10f8 0x000f10f8 0x0009c 0x16a418 RW  0x1000
 
  Section to Segment mapping:
   Segment Sections...
@@ -44,13 +44,13 @@ File Attributes
   Tag_ABI_enum_size: small
   Tag_CPU_unaligned_access: v6
   Tag_Virtualization_use: TrustZone
-PASS: ARM ELF32, entry 0x8000, flat image 928944 bytes.
+PASS: ARM ELF32, entry 0x8000, flat image 954772 bytes.
 PASS: no unresolved symbols; data/BSS, IRQ/SVC vectors and exception stacks checked.
 Hardware UART/SD boot has NOT been tested by this script.
 
 Algorithm       Hash                                                                   Path
 ---------       ----                                                                   ----
-SHA256          E18EDB39575EE8BE08690B4E2018FD170B8EE6276E07F2EEB76CF7592F963AC4       C:\Users\jewlo\Documents\Codex\2…
+SHA256          D1C0948757E77694806161DDD868C47B409204F8975F3C8EB531413A93A35AF6       C:\Users\jewlo\Documents\Codex\2…
 Updated sdcard/SHA256SUMS.txt from current staged files.
 PASS: bootcode.bin
 PASS: start.elf

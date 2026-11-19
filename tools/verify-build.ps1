@@ -71,6 +71,8 @@ try {
     foreach ($name in @('framebuffer_init', 'framebuffer', 'fb_message', 'gui_task', 'gui_stack', 'draw_pixels', 'lv_init', 'lv_timer_handler', 'lv_obj_send_event', 'lv_display_flush_ready', 'lv_mem_test')) {
         Assert-True ($symbols.ContainsKey($name)) ("Missing HDMI symbol: " + $name)
     }
+    foreach ($name in @('usb_keyboard_task','usb_control','usb_parse_config','hid_keyboard_report','keyboard_pop','keyboard_read','dma_buffer')) { Assert-True ($symbols.ContainsKey($name)) ('Missing USB symbol: '+$name) }
+    Assert-True (($symbols['dma_buffer'] % 64) -eq 0) 'USB DMA buffer alignment.'
     Assert-True (($symbols['fb_message'] % 16) -eq 0) 'Mailbox message alignment.'
     Assert-True ($symbols['fb_message'] -ge $symbols['__bss_start'] -and
         ($symbols['fb_message'] + 156) -le $symbols['__bss_end']) 'Mailbox message must remain in BSS.'

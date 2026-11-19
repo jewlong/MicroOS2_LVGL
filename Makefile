@@ -15,14 +15,15 @@ CFLAGS := $(CPU) -std=c11 -O2 -g3 -ffreestanding -fno-builtin \
     -fno-stack-protector -fno-pic -fno-pie -fno-unwind-tables \
     -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections \
     -Wall -Wextra -Werror -Wstrict-prototypes -Wmissing-prototypes \
-    -Wa,--noexecstack -MMD -MP -I. -Iport -Ivendor/ucos2/Source -Ivendor/lvgl -DLV_CONF_INCLUDE_SIMPLE -DLV_DISABLE_API_MAPPING
+    -Wa,--noexecstack -MMD -MP -I. -Iusb -Iport -Ivendor/ucos2/Source -Ivendor/lvgl -DLV_CONF_INCLUDE_SIMPLE -DLV_DISABLE_API_MAPPING
 ASFLAGS := $(CPU) -g3 -x assembler-with-cpp -Wa,--noexecstack -MMD -MP
 LDFLAGS := $(CPU) -nostdlib -nostartfiles -static \
     -Wl,-T,linker.ld,--gc-sections,--build-id=none,--fatal-warnings,-z,noexecstack,-Map,build/kernel.map
 OBJECTS := build/startup.o build/os_cpu_a.o build/os_cpu_c.o \
-    build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o \
+    build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o build/bootcfg.o build/vgp_parser.o build/vgp_runtime.o build/vgp_font_cjk.o \
     build/os_core.o build/os_task.o build/os_time.o build/os_sem.o \
-    build/os_mutex.o build/os_q.o
+    build/os_mutex.o build/os_q.o build/dwc2.o build/descriptors.o \
+    build/hid_keyboard.o build/key_queue.o build/usb_keyboard.o
 
 # Software renderer, built-in allocator/string/printf, selected widgets.
 LVROOT := vendor/lvgl/src
@@ -33,7 +34,10 @@ LVGL_SOURCES := $(wildcard $(LVROOT)/*.c $(LVROOT)/core/*.c $(LVROOT)/display/*.
     $(LVROOT)/stdlib/*.c $(LVROOT)/stdlib/builtin/*.c $(LVROOT)/tick/*.c \
     $(LVROOT)/themes/lv_theme.c $(LVROOT)/layouts/lv_layout.c \
     $(LVROOT)/libs/bin_decoder/*.c \
-    $(LVROOT)/widgets/bar/*.c $(LVROOT)/widgets/button/*.c $(LVROOT)/widgets/label/*.c)
+    $(LVROOT)/widgets/arc/*.c $(LVROOT)/widgets/bar/*.c $(LVROOT)/widgets/button/*.c \
+    $(LVROOT)/widgets/chart/*.c $(LVROOT)/widgets/image/*.c $(LVROOT)/widgets/label/*.c \
+    $(LVROOT)/widgets/line/*.c $(LVROOT)/widgets/scale/*.c $(LVROOT)/widgets/switch/*.c \
+    $(LVROOT)/widgets/table/*.c $(LVROOT)/widgets/textarea/*.c)
 LVGL_OBJECTS := $(addprefix build/lvgl_,$(notdir $(LVGL_SOURCES:.c=.o)))
 OBJECTS += $(LVGL_OBJECTS)
 vpath %.c $(sort $(dir $(LVGL_SOURCES)))
@@ -41,7 +45,7 @@ vpath %.c $(sort $(dir $(LVGL_SOURCES)))
 # TLSF logging is disabled; upstream default_walker has unused parameters.
 build/lvgl_lv_tlsf.o: CFLAGS += -Wno-unused-parameter
 build/lvgl_%.o: %.c Makefile lv_conf.h | build
-	"$(CC)" $(filter-out -Wstrict-prototypes -Wmissing-prototypes,$(CFLAGS)) -c $< -o $@
+	"$(CC)" $(filter-out -Werror -Wstrict-prototypes -Wmissing-prototypes,$(CFLAGS)) -c $< -o $@
 
 
 # Wi-Fi/lwIP port. Raw APIs run only in tcpip_thread.
@@ -57,7 +61,7 @@ OBJECTS += $(addprefix build/lwip_,$(notdir $(LWIP_SOURCES:.c=.o))) \
     $(addprefix build/radio_,$(notdir $(WHD_SOURCES:.c=.o))) \
     build/net_runtime.o build/sys_arch.o build/whd_rtos.o build/sdio.o \
     build/whd_resources.o build/whd_buffers.o build/network.o build/resources.o
-vpath %.c net $(sort $(dir $(LWIP_SOURCES) $(WHD_SOURCES)))
+vpath %.c usb net $(sort $(dir $(LWIP_SOURCES) $(WHD_SOURCES)))
 build/lwip_%.o: %.c Makefile | build
 	"$(CC)" $(filter-out -Wmissing-prototypes,$(CFLAGS)) -c $< -o $@
 build/radio_%.o: %.c Makefile | build
@@ -98,6 +102,8 @@ inspect: all
 stage: all
 	copy /Y "build\kernel.img" "sdcard\kernel.img" >NUL
 	copy /Y "config.txt" "sdcard\config.txt" >NUL
+	@if not exist "sdcard\wifi.txt" copy /Y "wifi.txt.example" "sdcard\wifi.txt" >NUL
+	@if not exist "sdcard\project.json" copy /Y "project.json.example" "sdcard\project.json" >NUL
 clean:
 	@if exist "build" rmdir /S /Q "build"
 -include $(OBJECTS:.o=.d)

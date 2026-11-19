@@ -1,0 +1,76 @@
+
+Raspberry Pi Zero W - uC/OS-II + HDMI + LVGL + Wi-Fi
+ARM1176 / SYS tasks / 100 Hz IRQ tick / soft-float
+Core header V2.93.01; OSVersion()=0x00007274
+Tasks: HIGH=5, WHD=8, UART=10, TCPIP=11, NET=12, USB=13, GUI=15, LOW=20
+First test: HIGH must interrupt LOW's 150ms busy loop.
+Type s for status; + / - / r control LVGL through a queue.
+[HDMI] framebuffer ready: 640x480x32 pitch=0x00000A40 ARM address=0x1C100000 order=0x00000001
+[USB] host power on.
+[PASS] HIGH woke by IRQ while LOW was busy (no yield).
+[status] tick=0x00000005 irq=0x00000005 svc_sw=0x00000015 irq_sw=0x00000005 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x00000000 err=0x00000000 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000000 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[NET] lwIP 2.2.1 core running in task 11.
+[Wi-Fi] stopped: Wi-Fi: SDIO initialization failed (0x0000e100); GUI and scheduler continue.
+[USB] waiting for directly attached boot keyboard.
+[status] tick=0x0000006A irq=0x0000006A svc_sw=0x00000089 irq_sw=0x00000069 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000000C8 irq=0x000000C8 svc_sw=0x000000FC irq_sw=0x000000C6 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+X
+[status] tick=0x000000CF irq=0x000000CF svc_sw=0x00000103 irq_sw=0x000000CC work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000134 irq=0x00000134 svc_sw=0x0000017F irq_sw=0x00000130 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000199 irq=0x00000199 svc_sw=0x000001FA irq_sw=0x00000194 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000001FE irq=0x000001FE svc_sw=0x00000275 irq_sw=0x000001F8 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000263 irq=0x00000263 svc_sw=0x000002F0 irq_sw=0x0000025C work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000002C8 irq=0x000002C8 svc_sw=0x0000036B irq_sw=0x000002C0 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[GUI] LVGL 9.4.0 ready; dedicated GUI task, keys + - r.
+[status] tick=0x0000032D irq=0x0000032D svc_sw=0x000003E6 irq_sw=0x00000324 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000392 irq=0x00000392 svc_sw=0x00000461 irq_sw=0x00000388 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000003F7 irq=0x000003F7 svc_sw=0x000004DC irq_sw=0x000003EC work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x0000045C irq=0x0000045C svc_sw=0x00000557 irq_sw=0x00000450 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000004C1 irq=0x000004C1 svc_sw=0x000005D2 irq_sw=0x000004B4 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000526 irq=0x00000526 svc_sw=0x0000064E irq_sw=0x00000518 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x0000058B irq=0x0000058B svc_sw=0x000006C9 irq_sw=0x0000057C work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000005F0 irq=0x000005F0 svc_sw=0x00000744 irq_sw=0x000005E0 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000655 irq=0x00000655 svc_sw=0x000007BF irq_sw=0x00000644 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000006BA irq=0x000006BA svc_sw=0x0000083A irq_sw=0x000006A8 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x0000071F irq=0x0000071F svc_sw=0x000008B5 irq_sw=0x0000070C work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x00000784 irq=0x00000784 svc_sw=0x00000930 irq_sw=0x00000770 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000007E9 irq=0x000007E9 svc_sw=0x000009AB irq_sw=0x000007D4 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x0000084E irq=0x0000084E svc_sw=0x00000A26 irq_sw=0x00000838 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000000
+[status] tick=0x000008B3 irq=0x000008B3 svc_sw=0x00000AA3 irq_sw=0x0000089C work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000001
+[status] tick=0x00000918 irq=0x00000918 svc_sw=0x00000B1F irq_sw=0x00000900 work=0x00000F3F late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000001
+[status] tick=0x0000097D irq=0x0000097D svc_sw=0x00000B9B irq_sw=0x00000964 work=0x00001100 late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000002
+[status] tick=0x000009E2 irq=0x000009E2 svc_sw=0x00000C16 irq_sw=0x000009C8 work=0x00001100 late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000002
+[status] tick=0x00000A47 irq=0x00000A47 svc_sw=0x00000C91 irq_sw=0x00000A2C work=0x00001100 late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000002
+[status] tick=0x00000AAC irq=0x00000AAC svc_sw=0x00000D0E irq_sw=0x00000A90 work=0x00001100 late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000003
+[status] tick=0x00000B11 irq=0x00000B11 svc_sw=0x00000D89 irq_sw=0x00000AF4 work=0x00001100 late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000003
+[status] tick=0x00000B76 irq=0x00000B76 svc_sw=0x00000E05 irq_sw=0x00000B58 work=0x00001332 late=0x00000000 gui_value=0x00000032 gui_events=0x00000000 gui_drops=0x00000000 net=0x000000FF err=0x0000E100 rx=0x00000000 tx=0x00000000 retry=0x00000000 sdio_err=0x00000000 usb=0x00000002 keys=0x00000000 key_drop=0x00000000 display=0x00000004
+
+PASS: production ARM USB/HID/LVGL with synthetic DWC2; NOT physical USB.
+{
+  "OSTime": 3000,
+  "app_high_runs": 30,
+  "app_low_completed": 2,
+  "app_uart_commands": 3,
+  "port_irq_switches": 2969,
+  "port_svc_switches": 3670,
+  "bsp_late_ticks": 0,
+  "verified_irq_returns": 2997,
+  "verified_svc_returns": 3665,
+  "synthetic_elapsed_us": 33924440,
+  "initial_us": 0,
+  "delay_once": false,
+  "mode": "absent",
+  "dma_writes": 0,
+  "led_reports": [],
+  "keyboard_steps": 0,
+  "usb_state": 2,
+  "usb_reports": 0,
+  "usb_connects": 0,
+  "usb_disconnects": 0,
+  "usb_rollovers": 0,
+  "usb_queue_drops": 0,
+  "gui_usb_events": 0,
+  "gui_usb_resets": 0,
+  "gui_value": 50,
+  "gui_usb_down": 0
+}

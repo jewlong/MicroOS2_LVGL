@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build uC/OS-II Wi-Fi HDMI LVGL",
+      "label": "Build USB keyboard + Wi-Fi + LVGL",
       "type": "process",
       "command": "mingw32-make.exe",
       "args": [

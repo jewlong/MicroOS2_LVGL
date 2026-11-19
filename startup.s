@@ -9,6 +9,32 @@
 .global _start
 .type _start,%function
 _start:
+    /* Support both Pi Zero W (ARM1176, starts in SVC 0x13) and
+     * Pi Zero 2 W (BCM2837 Cortex-A53, starts in HYP 0x1a, 4 cores). */
+    mrc p15, 0, r0, c0, c0, 0
+    ldr r1, =0x0000fff0
+    and r0, r0, r1
+    ldr r1, =0x0000b760         /* ARM1176JZF-S part number = 0xB76 */
+    cmp r0, r1
+    beq 0f
+    mrc p15, 0, r0, c0, c0, 5   /* Read MPIDR on Cortex-A7/A53 */
+    ands r0, r0, #3
+    bne .Lpark_core
+    mrs r0, cpsr
+    and r1, r0, #0x1f
+    cmp r1, #0x1a               /* In HYP mode (0x1a)? Drop to SVC (0x13). */
+    bne 0f
+    mov r1, #0xd3
+    orr r1, r1, #0x100          /* 0x1d3: SVC mode with I/F/A masked */
+    msr spsr_cxsf, r1
+    adr r2, 0f
+    .word 0xe12ef302            /* msr ELR_hyp, r2 */
+    .word 0xe160006e            /* eret */
+.Lpark_core:
+    cpsid aif
+    .word 0xe320f003            /* wfi */
+    b .Lpark_core
+0:
     cpsid aif
     cps #0x13
     setend le
@@ -20,6 +46,7 @@ _start:
     bic r0, r0, #(1 << 12)
     bic r0, r0, #(1 << 13)
     bic r0, r0, #(1 << 25)
+    orr r0, r0, #(1 << 5)  /* CP15BEN: enable CP15 barrier instructions on ARMv8/Cortex-A53. */
     orr r0, r0, #(1 << 22) /* ARMv6 U: packed network headers may be unaligned. */
     mcr p15, 0, r0, c1, c0, 0
     mov r0, #0
@@ -72,6 +99,14 @@ _start:
     cmp r0, r1
     strlo r2, [r0], #4
     blo 4b
+    mov r0, #0
+    mcr p15, 0, r0, c7, c10, 4
+    mcr p15, 0, r0, c7, c5, 0
+    mcr p15, 0, r0, c7, c5, 4
+    mrc p15, 0, r0, c1, c0, 0
+    orr r0, r0, #(1 << 11) /* Enable branch prediction (Z); MMU/D-cache stay off. */
+    orr r0, r0, #(1 << 12) /* Enable L1 instruction cache (I) for fast LVGL rendering. */
+    mcr p15, 0, r0, c1, c0, 0
     bl main
     b .
 .ltorg

@@ -1,6 +1,7 @@
 # Raspberry Pi Zero W (BCM2835 / ARM1176) cold boot only.
-# uC/OS-II ARM11 + HDMI + LVGL 9.4.0 dedicated GUI task + SDIO Wi-Fi. No Linux.
+# uC/OS-II ARM11 + HDMI + LVGL 9.4.0 dedicated GUI task + SDIO Wi-Fi + USB boot keyboard. No Linux.
 kernel=kernel.img
+arm_64bit=0
 kernel_address=0x8000
 kernel_old=0
 device_tree=
@@ -10,6 +11,9 @@ init_uart_clock=48000000
 init_uart_baud=115200
 
 # Legacy VideoCore HDMI output: DMT 640x480 @ 60 Hz.
+# The kernel queries the resolution at boot, so no rebuild is needed to change it.
+# Keep hdmi_group/hdmi_mode and framebuffer_width/height consistent. Supported: 640x480 up to 1920x1200.
+# Examples: 800x600 = hdmi_group=2 hdmi_mode=9; 1024x768 = hdmi_group=2 hdmi_mode=16.
 # Pi Zero W uses MINI-HDMI, not micro-HDMI.
 hdmi_force_hotplug=1
 hdmi_group=2
@@ -20,3 +24,7 @@ framebuffer_width=640
 framebuffer_height=480
 framebuffer_depth=32
 framebuffer_ignore_alpha=1
+
+# Wi-Fi credentials & ViewGP HMI project: put wifi.txt and project.json in the SD card root.
+# The GPU firmware loads them into RAM at 0x02000000; the kernel parses both at boot.
+initramfs wifi.txt,project.json 0x02000000

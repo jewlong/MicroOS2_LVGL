@@ -1,0 +1,9 @@
+# Copy to the SD card root as wifi.txt (FAT32, same folder as config.txt).
+# One setting per line; lines starting with # are ignored.
+# SSID: 1-32 bytes. Password: 8-63 printable ASCII characters (WPA2-AES, 2.4 GHz only).
+# Leading/trailing spaces around values are removed. Keep the real file private.
+ssid=YourNetworkName
+password=YourPassword
+# Optional two-letter regulatory country code (default: value built into the kernel).
+country=TW
+

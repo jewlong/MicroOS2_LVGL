@@ -1,59 +1,39 @@
-# 驗證紀錄
+# USB 鍵盤整合驗證
 
-日期：2026-11-03。Windows、Arm GNU Toolchain 14.3.Rel1 / GCC 14.3.1、GNU Make 4.4.1。
+日期：2026-11-04。Windows、GCC14.3.1（Arm GNU14.3.Rel1）、GNU Make4.4.1。所有host C程式使用ARM1176、ARM state、soft-float。
 
-**實體 Zero W、RF、WPA2 握手、microSD 開機與 HDMI 電氣訊號尚未測試。** ARM 模型執行真正的核心、CPU 移植、GUI、協定堆疊與 HAL 指令，使用合成硬體／封包邊界；不會執行 Wi-Fi 晶片內部 firmware。
+**實體USB／OTG／鍵盤、Wi-Fi RF與HDMI訊號尚未驗證。** 測試執行實際ARM核心、驅動、解析器與LVGL指令；DWC2暫存器、DMA完成與鍵盤回覆由模型提供。測試不代表實機相容性或效能。
 
-## 建置與來源
+## 測試項目
 
-- 預設掃描版完整編譯連結成功，-Wall -Wextra -Werror。廠商程式停用不適用的 prototype／unused parameter 警告，應用與適配程式保留嚴格檢查。
-- 使用虛構 SSID／密碼另外編譯過連線版本，確認 whd_wifi_join、DHCP 啟停、link up/down 與重連程式可連結。測試設定已移除，不在交付檔內。
-- ARM ELF32 little endian、entry 0x8000、ARM1176、soft-float，無未解析符號；向量表、BSS、例外堆疊與 flat image 長度檢查通過。
-- WHD 87、lwIP 310、nanoprintf 2 個檔案逐檔與鎖定的 upstream checkout 比對相同。
-- µC/OS-II 18、LVGL 1153 個既有來源檔與原鎖定雜湊相符。
-- SD 開機檔案六項 SHA256 驗證通過。
-- 最終映像大小與 SHA256 見 delivery.json 與 sdcard/SHA256SUMS.txt。
+- 嚴格ARM GCC建置、連結、ELF entry0x8000、向量／BSS／stack檢查、無未解析符號。
+- HID／描述符／佇列：156項檢查，涵蓋Shift/Caps、六鍵、重複usage／report、rollover、短報告、非法descriptor長度、端點大小、溢位復原與按值複製。
+- 正式kernel的Low Speed、Full Speed USB模型：GET_DESCRIPTOR分包、SET_ADDRESS時機、非零interface、SET_CONFIGURATION、SET_PROTOCOL、NAK重試、DATA0/1切換、Caps LED及SET_IDLE STALL容忍。
+- 真正LVGL group/keypad：Tab、Shift+Tab、方向鍵、Enter、文字與Backspace；確認文字ABd+-，按鈕結果51，按住Enter拔除不多點擊，重新插入成功。
+- 無裝置、錯誤描述符及通道逾時：GUI與排程持續運作，傳輸停止後才允許重用DMA buffer。
+- USB不可用時，既有UART+/-/R、framebuffer像素／padding／guard及GUI stack回歸。
+- lwIP回歸：合成Ethernet上的DHCP、ARP、UDP/TCP echo、錯誤IPv4 checksum丟棄。這不是無線握手測試。
+- 固定vendor來源、SD開機檔案SHA256，以及ZIP解壓至乾淨短路徑後重建逐位元組比對。
 
-## ARM 執行測試
-
-| 測試 | 條件與通過標準 |
-| --- | --- |
-| GUI + Wi-Fi 初始化故障 | 執行4000個 OS ticks；mailbox clock request 不回覆，使網路進入 error 0xe100；lwIP task 已啟動，GUI繼續，七次按鍵事件得到51→50→53，沒有佇列丟棄；檢查像素、row padding、framebuffer guard |
-| RTOS／buffer／resource | mailbox滿／空／NULL訊息、阻塞逾時、信號量逾時／通知、mutex生命週期、WHD二元通知飽和、封包前端移動及長度拒絕、NVRAM打包／資源block越界拒絕 |
-| SDIO 合成暫存器 | 實際HAL執行CMD0/5/3/7/52/53，R5錯誤處理，7-byte讀取、70-byte跨兩個64-byte block讀寫、TX補零、RX不越界、方向及byte-mode長度錯誤拒絕；共119項檢查 |
-| 合成 Ethernet + 真正 lwIP | DHCP Discover→Offer→Request→ACK、位址設定與ARP、UDP echo、TCP三向握手與echo、錯誤IPv4 checksum封包丟棄；TCPIP/NET/GUI任務底部stack guard保持不變 |
-
-測試對 IRQ／SVC 返回時的暫存器進行核對。合成時間不是板上效能，GUI刷新次數、吞吐量與毫秒延遲不能當作實機測量。
-
-network-test.elf 透過測試專用入口對封包邊界注入／擷取資料；正式 kernel.img 不含該入口、測試帳密或合成網路。SDIO測試只模擬主機暫存器與傳輸時序，**不包含**SDPCM事件、radio firmware執行或WPA2驗證。故障GUI測試使用正式kernel.elf。
-
-實際輸出保存在 [tests/results/](tests/results/)。若提供framebuffer截圖，來源是執行模型，不是實機照片。
+測試紀錄保存在 [tests/results/](tests/results/)，映像大小、SHA256和乾淨重建結果見 [delivery.json](delivery.json)。USB單元測試另編入usb-unit.elf；正式kernel.img不包含測試入口或假USB裝置。
 
 ## 重跑
-
-安裝 Python 3，於專案目錄使用隔離環境：
 
 ~~~powershell
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r tests\requirements.txt
 mingw32-make -j4 all
+mingw32-make -j4 -f Makefile -f tests/build-usb.mk usb-unit-image
 mingw32-make -j4 -f Makefile -f tests/build-network.mk test-image
-.\.venv\Scripts\python.exe tests\test_gui.py --case rgb --ticks 4000
-.\.venv\Scripts\python.exe tests\test_network.py --mode sdio
-.\.venv\Scripts\python.exe tests\test_network.py --mode ethernet
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\verify-build.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\verify-sources.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\verify-sdcard.ps1
+.\.venv\Scripts\python.exe tests/test_gui.py --elf build/usb-unit.elf
+.\.venv\Scripts\python.exe tests/test_usb.py --mode low
+.\.venv\Scripts\python.exe tests/test_usb.py --mode full
+.\.venv\Scripts\python.exe tests/test_usb.py --mode absent --ticks 3000
+.\.venv\Scripts\python.exe tests/test_usb.py --mode malformed --ticks 3000
+.\.venv\Scripts\python.exe tests/test_usb.py --mode timeout --ticks 3000
+.\.venv\Scripts\python.exe tests/test_network.py --mode ethernet
 ~~~
 
-請勿分享含私人帳密的設定檔或ELF。封裝後另由ZIP解壓至乾淨目錄建置，與預編譯kernel.img逐位元組比對；結果記於delivery.json。
+測試時間是合成時間，不能用log裡的frame數或tick間距推算板上效能。模型未涵蓋Hub、split transaction、高速USB、訊號品質、供電、真實鍵盤韌體差異或Wi-Fi與USB同時的實體壓力測試。
 
-## 尚需實機驗收
-
-1. 板級clock/GPIO、SDIO電氣時序、43438A1 firmware與Zero W NVRAM配對。
-2. 正確／錯誤WPA2密碼、掃描、DHCP、ping、區網TCP/UDP。
-3. AP重啟、訊號消失恢復、DHCP更新、不同AP相容性。
-4. GUI與Wi-Fi同時高流量、長時間heap／stack餘裕、供電穩定。
-5. radio故障／SDIO錯誤後自動重新初始化尚未實作；目前初始化失敗保留錯誤，網路管理任務休眠，GUI與UART繼續。
-
-不能因模型測試通過就宣稱已完成實體無線驗收。
+下一步板測：直接接一把標準Boot鍵盤，核對UART中的VID/PID、按鍵、Caps LED、Tab/Enter、拔除重插，再與Wi-Fi傳輸共同測試。若發生controller halt失敗，保持原始紀錄後重新上電。
