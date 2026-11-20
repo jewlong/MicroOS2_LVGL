@@ -357,7 +357,9 @@ static void add_screen_to_kbd_group(int32_t s_idx)
             el->kind == VGP_KIND_ARC ||
             el->kind == VGP_KIND_SPINBOX ||
             el->kind == VGP_KIND_DROPDOWN) {
-            lv_group_add_obj(g_kbd_group, el->lv_obj);
+            lv_obj_t *focus_obj = ((el->kind == VGP_KIND_SLIDER || el->kind == VGP_KIND_ARC) && el->lv_extra)
+                                  ? el->lv_extra : el->lv_obj;
+            lv_group_add_obj(g_kbd_group, focus_obj);
         }
     }
 }
@@ -536,10 +538,11 @@ static void input_defocus_cb(lv_event_t *event)
 static void slider_release_cb(lv_event_t *event)
 {
     vgp_element_t *el = (vgp_element_t *)lv_event_get_user_data(event);
-    if (!el || !el->lv_obj) return;
+    lv_obj_t *ctrl = (el && el->lv_extra) ? el->lv_extra : (el ? el->lv_obj : NULL);
+    if (!el || !ctrl) return;
     int32_t vi = find_var_idx(el->variable_id);
     if (vi >= 0 && g_proj.variables[vi].type == VGP_VAR_NUM) {
-        write_var_num(vi, (double)lv_slider_get_value(el->lv_obj));
+        write_var_num(vi, (double)lv_slider_get_value(ctrl));
         vgp_runtime_update();
     }
 }
@@ -549,10 +552,11 @@ static void slider_release_cb(lv_event_t *event)
 static void arc_release_cb(lv_event_t *event)
 {
     vgp_element_t *el = (vgp_element_t *)lv_event_get_user_data(event);
-    if (!el || !el->lv_obj) return;
+    lv_obj_t *ctrl = (el && el->lv_extra) ? el->lv_extra : (el ? el->lv_obj : NULL);
+    if (!el || !ctrl) return;
     int32_t vi = find_var_idx(el->variable_id);
     if (vi >= 0 && g_proj.variables[vi].type == VGP_VAR_NUM) {
-        write_var_num(vi, (double)lv_arc_get_value(el->lv_obj));
+        write_var_num(vi, (double)lv_arc_get_value(ctrl));
         vgp_runtime_update();
     }
 }
@@ -635,12 +639,30 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 apply_box_style_ex(el->lv_obj, el, LV_RADIUS_CIRCLE);
                 break;
 
-            case VGP_KIND_LINE:
+            case VGP_KIND_LINE: {
+                bool use_border = (el->has_border_color || el->has_border_width || el->border_style != VGP_BORDER_SOLID);
+                uint32_t line_col = use_border
+                    ? (el->has_border_color ? el->border_color : el->background)
+                    : el->background;
+                int32_t lw = eh > 1 ? eh : 2;
+                int32_t ly = ey;
+                if (use_border && el->has_border_width) {
+                    lw = ((int32_t)el->border_width * scale) / 1000;
+                    if (lw < 1) lw = 1;
+                    if (lw > eh) lw = eh;
+                    ly = ey + (eh - lw) / 2;
+                }
                 el->lv_obj = lv_obj_create(parent_obj);
-                lv_obj_set_pos(el->lv_obj, ex, ey);
-                lv_obj_set_size(el->lv_obj, ew, eh > 4 ? eh : 2);
-                apply_box_style(el->lv_obj, el->color ? el->color : el->background, 0, 0, 0);
+                lv_obj_set_pos(el->lv_obj, ex, ly);
+                lv_obj_set_size(el->lv_obj, ew, lw);
+                apply_box_style(el->lv_obj, line_col, 0, 0, 0);
+                if (el->border_style == VGP_BORDER_NONE) {
+                    lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_TRANSP, 0);
+                } else if (el->border_style == VGP_BORDER_DASHED || el->border_style == VGP_BORDER_DOTTED) {
+                    lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_60, 0);
+                }
                 break;
+            }
 
             case VGP_KIND_TEXT:
                 el->lv_obj = lv_label_create(parent_obj);
@@ -715,82 +737,255 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
 
             case VGP_KIND_BAR:
 #if LV_USE_BAR
-                el->lv_obj = lv_bar_create(parent_obj);
+            {
+                el->lv_obj = lv_obj_create(parent_obj);
                 lv_obj_set_pos(el->lv_obj, ex, ey);
                 lv_obj_set_size(el->lv_obj, ew, eh);
-                lv_bar_set_range(el->lv_obj, (int32_t)el->scale_min, (int32_t)el->scale_max);
-                apply_box_style(el->lv_obj, el->track_color ? el->track_color : 0x00334155u, 0, 0, 6);
-                lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
-                lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_COVER, LV_PART_INDICATOR);
+                apply_box_style(el->lv_obj, el->background, el->border_color,
+                                (el->border_style == VGP_BORDER_NONE) ? 0u : (el->border_width ? el->border_width : 1u),
+                                el->border_radius ? el->border_radius : 8u);
+                lv_obj_set_style_pad_all(el->lv_obj, 0, 0);
+
+                int32_t top_pad = 6;
+                int32_t bot_pad = 6;
+                if (el->text[0] && eh >= 36) {
+                    lv_obj_t *tlbl = lv_label_create(el->lv_obj);
+                    lv_obj_set_pos(tlbl, 8, 4);
+                    lv_obj_set_style_text_font(tlbl, &vgp_font_zh_16, 0);
+                    lv_obj_set_style_text_color(tlbl, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), 0);
+                    lv_label_set_text(tlbl, el->text);
+                    top_pad = 22;
+                }
+                if (el->show_scale && eh >= 52) {
+                    bot_pad = 20;
+                    char smin[16], smax[16];
+                    snprintf(smin, sizeof(smin), "%ld", (long)el->scale_min);
+                    snprintf(smax, sizeof(smax), "%ld", (long)el->scale_max);
+                    lv_obj_t *lmin = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(lmin, &lv_font_montserrat_14, 0);
+                    lv_obj_set_style_text_color(lmin, lv_color_hex(0x0094A3B8u), 0);
+                    lv_label_set_text(lmin, smin);
+                    lv_obj_align(lmin, LV_ALIGN_BOTTOM_LEFT, 8, -3);
+                    lv_obj_t *lmax = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(lmax, &lv_font_montserrat_14, 0);
+                    lv_obj_set_style_text_color(lmax, lv_color_hex(0x0094A3B8u), 0);
+                    lv_label_set_text(lmax, smax);
+                    lv_obj_align(lmax, LV_ALIGN_BOTTOM_RIGHT, -8, -3);
+                }
+
+                lv_obj_t *bar = lv_bar_create(el->lv_obj);
+                el->lv_extra = bar;
+                int32_t avail_h = eh - top_pad - bot_pad;
+                if (avail_h < 6) avail_h = 6;
+                if (el->orientation_vertical) {
+                    int32_t bw = ew / 3;
+                    if (bw < 10) bw = 10;
+                    if (bw > 24) bw = 24;
+                    lv_obj_set_size(bar, bw, avail_h);
+                    lv_obj_set_pos(bar, (ew - bw) / 2, top_pad);
+                } else {
+                    int32_t bh = avail_h;
+                    if (bh > 22) bh = 22;
+                    if (bh < 8) bh = 8;
+                    int32_t bw = ew - 16;
+                    if (bw < 8) bw = 8;
+                    lv_obj_set_size(bar, bw, bh);
+                    lv_obj_set_pos(bar, 8, top_pad + (avail_h - bh) / 2);
+                }
+                lv_bar_set_range(bar, (int32_t)el->scale_min, (int32_t)el->scale_max);
+                apply_box_style(bar, el->track_color ? el->track_color : 0x00334155u, 0, 0, 6);
+                lv_obj_set_style_bg_color(bar, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+                lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_INDICATOR);
+
                 if (el->show_value) {
                     el->lv_aux = lv_label_create(el->lv_obj);
                     lv_obj_set_style_text_font(el->lv_aux, &vgp_font_zh_16, 0);
-                    lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(0x00FFFFFFu), 0);
+                    lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(el->color ? el->color : 0x00FFFFFFu), 0);
                     lv_label_set_text(el->lv_aux, "0");
-                    lv_obj_center(el->lv_aux);
+                    if (!el->orientation_vertical && eh >= 36) {
+                        lv_obj_align(el->lv_aux, LV_ALIGN_TOP_RIGHT, -8, 4);
+                    } else {
+                        lv_obj_align(el->lv_aux, LV_ALIGN_BOTTOM_MID, 0, -2);
+                    }
                 }
+            }
 #endif
                 break;
 
             case VGP_KIND_GAUGE:
 #if LV_USE_ARC
-                el->lv_obj = lv_arc_create(parent_obj);
+            {
+                el->lv_obj = lv_obj_create(parent_obj);
                 lv_obj_set_pos(el->lv_obj, ex, ey);
                 lv_obj_set_size(el->lv_obj, ew, eh);
-                lv_arc_set_range(el->lv_obj, (int32_t)el->scale_min, (int32_t)el->scale_max);
-                lv_arc_set_angles(el->lv_obj, 135, 45);
-                lv_obj_remove_flag(el->lv_obj, LV_OBJ_FLAG_CLICKABLE);
-                lv_obj_set_style_opa(el->lv_obj, LV_OPA_TRANSP, LV_PART_KNOB);
-                lv_obj_set_style_arc_color(el->lv_obj, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
-                lv_obj_set_style_arc_color(el->lv_obj, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+                apply_box_style(el->lv_obj, el->background, el->border_color,
+                                (el->border_style == VGP_BORDER_NONE) ? 0u : (el->border_width ? el->border_width : 1u),
+                                el->border_radius ? el->border_radius : 10u);
+                lv_obj_set_style_pad_all(el->lv_obj, 0, 0);
+
+                int32_t title_h = 6;
+                if (el->text[0] && eh >= 44) {
+                    lv_obj_t *tlbl = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(tlbl, &vgp_font_zh_16, 0);
+                    lv_obj_set_style_text_color(tlbl, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), 0);
+                    lv_label_set_text(tlbl, el->text);
+                    lv_obj_align(tlbl, LV_ALIGN_TOP_MID, 0, 4);
+                    title_h = 22;
+                }
+
+                lv_obj_t *arc = lv_arc_create(el->lv_obj);
+                el->lv_extra = arc;
+                int32_t max_w = ew - 16;
+                int32_t max_h = (eh - title_h - 10) * 16 / 10;
+                int32_t arc_sz = (max_w < max_h) ? max_w : max_h;
+                if (arc_sz < 24) arc_sz = 24;
+                lv_obj_set_size(arc, arc_sz, arc_sz);
+                lv_obj_set_pos(arc, (ew - arc_sz) / 2, title_h + 2);
+                lv_arc_set_range(arc, (int32_t)el->scale_min, (int32_t)el->scale_max);
+                lv_arc_set_bg_angles(arc, 180, 360);
+                lv_arc_set_angles(arc, 180, 360);
+                lv_obj_remove_flag(arc, LV_OBJ_FLAG_CLICKABLE);
+                lv_obj_set_style_opa(arc, LV_OPA_TRANSP, LV_PART_KNOB);
+                lv_obj_set_style_arc_width(arc, arc_sz > 80 ? 10 : 7, LV_PART_MAIN);
+                lv_obj_set_style_arc_width(arc, arc_sz > 80 ? 10 : 7, LV_PART_INDICATOR);
+                lv_obj_set_style_arc_color(arc, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
+                lv_obj_set_style_arc_color(arc, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+
+                if (el->show_scale && eh >= 60) {
+                    char smin[16], smax[16];
+                    snprintf(smin, sizeof(smin), "%ld", (long)el->scale_min);
+                    snprintf(smax, sizeof(smax), "%ld", (long)el->scale_max);
+                    lv_obj_t *lmin = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(lmin, &lv_font_montserrat_14, 0);
+                    lv_obj_set_style_text_color(lmin, lv_color_hex(0x0094A3B8u), 0);
+                    lv_label_set_text(lmin, smin);
+                    lv_obj_align(lmin, LV_ALIGN_BOTTOM_LEFT, 8, -4);
+                    lv_obj_t *lmax = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(lmax, &lv_font_montserrat_14, 0);
+                    lv_obj_set_style_text_color(lmax, lv_color_hex(0x0094A3B8u), 0);
+                    lv_label_set_text(lmax, smax);
+                    lv_obj_align(lmax, LV_ALIGN_BOTTOM_RIGHT, -8, -4);
+                }
+
                 if (el->show_value) {
                     el->lv_aux = lv_label_create(el->lv_obj);
                     lv_obj_set_style_text_font(el->lv_aux, font, 0);
-                    lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(el->color ? el->color : 0x00FFFFFFu), 0);
+                    lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(el->fill_color ? el->fill_color : 0x00FFFFFFu), 0);
                     lv_label_set_text(el->lv_aux, "0");
-                    lv_obj_center(el->lv_aux);
+                    lv_obj_align(el->lv_aux, LV_ALIGN_BOTTOM_MID, 0, -6);
                 }
+            }
 #endif
                 break;
 
             case VGP_KIND_ARC:
 #if LV_USE_ARC
-                el->lv_obj = lv_arc_create(parent_obj);
+            {
+                el->lv_obj = lv_obj_create(parent_obj);
                 lv_obj_set_pos(el->lv_obj, ex, ey);
                 lv_obj_set_size(el->lv_obj, ew, eh);
-                lv_arc_set_range(el->lv_obj, (int32_t)el->scale_min, (int32_t)el->scale_max);
-                lv_arc_set_angles(el->lv_obj, 135, 45);
-                lv_obj_set_style_arc_color(el->lv_obj, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
-                lv_obj_set_style_arc_color(el->lv_obj, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
-                apply_focus_style(el->lv_obj);
-                lv_obj_add_event_cb(el->lv_obj, arc_release_cb, LV_EVENT_RELEASED, el);
+                apply_box_style(el->lv_obj, el->background, el->border_color,
+                                (el->border_style == VGP_BORDER_NONE) ? 0u : (el->border_width ? el->border_width : 1u),
+                                el->border_radius ? el->border_radius : 10u);
+                lv_obj_set_style_pad_all(el->lv_obj, 0, 0);
+
+                int32_t title_h = 4;
+                if (el->text[0] && eh >= 44) {
+                    lv_obj_t *tlbl = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(tlbl, &vgp_font_zh_16, 0);
+                    lv_obj_set_style_text_color(tlbl, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), 0);
+                    lv_label_set_text(tlbl, el->text);
+                    lv_obj_align(tlbl, LV_ALIGN_TOP_MID, 0, 4);
+                    title_h = 22;
+                }
+
+                lv_obj_t *arc = lv_arc_create(el->lv_obj);
+                el->lv_extra = arc;
+                int32_t max_w = ew - 14;
+                int32_t max_h = eh - title_h - 6;
+                int32_t arc_sz = (max_w < max_h) ? max_w : max_h;
+                if (arc_sz < 24) arc_sz = 24;
+                lv_obj_set_size(arc, arc_sz, arc_sz);
+                lv_obj_set_pos(arc, (ew - arc_sz) / 2, title_h + (max_h - arc_sz) / 2);
+                lv_arc_set_range(arc, (int32_t)el->scale_min, (int32_t)el->scale_max);
+                lv_arc_set_bg_angles(arc, 135, 45);
+                lv_arc_set_angles(arc, 135, 45);
+                lv_obj_set_style_arc_color(arc, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
+                lv_obj_set_style_arc_color(arc, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+                apply_focus_style(arc);
+                lv_obj_add_event_cb(arc, arc_release_cb, LV_EVENT_RELEASED, el);
                 if (el->show_value) {
-                    el->lv_aux = lv_label_create(el->lv_obj);
+                    el->lv_aux = lv_label_create(arc);
                     lv_obj_set_style_text_font(el->lv_aux, font, 0);
                     lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(el->color ? el->color : 0x00FFFFFFu), 0);
                     lv_label_set_text(el->lv_aux, "0");
                     lv_obj_center(el->lv_aux);
                 }
+            }
 #endif
                 break;
 
             case VGP_KIND_SLIDER:
 #if LV_USE_SLIDER
-                el->lv_obj = lv_slider_create(parent_obj);
+            {
+                el->lv_obj = lv_obj_create(parent_obj);
                 lv_obj_set_pos(el->lv_obj, ex, ey);
                 lv_obj_set_size(el->lv_obj, ew, eh);
-                lv_slider_set_range(el->lv_obj, (int32_t)el->scale_min, (int32_t)el->scale_max);
-                lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
-                lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
-                apply_focus_style(el->lv_obj);
-                lv_obj_add_event_cb(el->lv_obj, slider_release_cb, LV_EVENT_RELEASED, el);
-                if (el->show_value) {
-                    el->lv_aux = lv_label_create(parent_obj);
-                    lv_obj_set_pos(el->lv_aux, ex + ew + 6, ey);
-                    lv_obj_set_style_text_font(el->lv_aux, &vgp_font_zh_16, 0);
-                    lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(el->color ? el->color : 0x00FFFFFFu), 0);
-                    lv_label_set_text(el->lv_aux, "0");
+                apply_box_style(el->lv_obj, el->background, el->border_color,
+                                (el->border_style == VGP_BORDER_NONE) ? 0u : (el->border_width ? el->border_width : 1u),
+                                el->border_radius ? el->border_radius : 8u);
+                lv_obj_set_style_pad_all(el->lv_obj, 0, 0);
+
+                int32_t top_pad = 6;
+                if (eh >= 34) {
+                    if (el->text[0]) {
+                        lv_obj_t *tlbl = lv_label_create(el->lv_obj);
+                        lv_obj_set_pos(tlbl, 8, 4);
+                        lv_obj_set_style_text_font(tlbl, &vgp_font_zh_16, 0);
+                        lv_obj_set_style_text_color(tlbl, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), 0);
+                        lv_label_set_text(tlbl, el->text);
+                    }
+                    top_pad = 22;
                 }
+
+                lv_obj_t *sld = lv_slider_create(el->lv_obj);
+                el->lv_extra = sld;
+                if (el->orientation_vertical) {
+                    int32_t sw = ew / 5;
+                    if (sw < 8) sw = 8;
+                    if (sw > 14) sw = 14;
+                    int32_t sh = eh - top_pad - 14;
+                    if (sh < 12) sh = 12;
+                    lv_obj_set_size(sld, sw, sh);
+                    lv_obj_set_pos(sld, (ew - sw) / 2, top_pad + 4);
+                } else {
+                    int32_t sh = eh / 5;
+                    if (sh < 8) sh = 8;
+                    if (sh > 14) sh = 14;
+                    int32_t sw = ew - 24;
+                    if (sw < 16) sw = 16;
+                    int32_t sy = (eh >= 34) ? (top_pad + (eh - top_pad - sh) / 2) : ((eh - sh) / 2);
+                    lv_obj_set_size(sld, sw, sh);
+                    lv_obj_set_pos(sld, 12, sy);
+                }
+                lv_slider_set_range(sld, (int32_t)el->scale_min, (int32_t)el->scale_max);
+                lv_obj_set_style_bg_color(sld, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
+                lv_obj_set_style_bg_color(sld, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+                apply_focus_style(sld);
+                lv_obj_add_event_cb(sld, slider_release_cb, LV_EVENT_RELEASED, el);
+
+                if (el->show_value) {
+                    el->lv_aux = lv_label_create(el->lv_obj);
+                    lv_obj_set_style_text_font(el->lv_aux, &vgp_font_zh_16, 0);
+                    lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(el->fill_color ? el->fill_color : 0x00FFFFFFu), 0);
+                    lv_label_set_text(el->lv_aux, "0");
+                    if (eh >= 34 && !el->orientation_vertical) {
+                        lv_obj_align(el->lv_aux, LV_ALIGN_TOP_RIGHT, -8, 4);
+                    } else {
+                        lv_obj_align(el->lv_aux, LV_ALIGN_BOTTOM_MID, 0, -2);
+                    }
+                }
+            }
 #endif
                 break;
 
@@ -816,13 +1011,13 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 lv_obj_set_size(el->lv_obj, ew, eh);
                 lv_obj_set_style_text_font(el->lv_obj, &vgp_font_zh_16, 0);
                 lv_obj_set_style_text_font(el->lv_obj, &vgp_font_zh_16, LV_PART_ITEMS);
-                lv_table_set_column_count(el->lv_obj, el->table_cols ? el->table_cols : 4);
-                lv_table_set_row_count(el->lv_obj, el->kind == VGP_KIND_ALARM ? 2 : (el->table_rows ? el->table_rows : 4));
-                lv_table_set_cell_value(el->lv_obj, 0, 0, el->kind == VGP_KIND_ALARM ? "時間" : "A");
-                lv_table_set_cell_value(el->lv_obj, 0, 1, el->kind == VGP_KIND_ALARM ? "警報訊息" : "B");
-                lv_table_set_cell_value(el->lv_obj, 0, 2, el->kind == VGP_KIND_ALARM ? "等級" : "C");
-                lv_table_set_cell_value(el->lv_obj, 0, 3, el->kind == VGP_KIND_ALARM ? "狀態" : "D");
                 if (el->kind == VGP_KIND_ALARM) {
+                    lv_table_set_column_count(el->lv_obj, 4u);
+                    lv_table_set_row_count(el->lv_obj, 2u);
+                    lv_table_set_cell_value(el->lv_obj, 0, 0, "時間");
+                    lv_table_set_cell_value(el->lv_obj, 0, 1, "警報訊息");
+                    lv_table_set_cell_value(el->lv_obj, 0, 2, "等級");
+                    lv_table_set_cell_value(el->lv_obj, 0, 3, "狀態");
                     apply_focus_style(el->lv_obj);
                     lv_obj_add_event_cb(el->lv_obj, alarm_ack_cb, LV_EVENT_CLICKED, el);
                     lv_table_set_column_width(el->lv_obj, 0, (ew * 20) / 100);
@@ -834,9 +1029,28 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                     lv_table_set_cell_value(el->lv_obj, 1, 2, "-");
                     lv_table_set_cell_value(el->lv_obj, 1, 3, "正常");
                 } else {
-                    apply_box_style(el->lv_obj, el->background, el->border_color, el->border_width ? el->border_width : 1, 0);
+                    uint32_t cols = el->table_cols ? el->table_cols : 3u;
+                    uint32_t rows = el->table_rows ? el->table_rows : 4u;
+                    lv_table_set_column_count(el->lv_obj, cols);
+                    lv_table_set_row_count(el->lv_obj, rows);
+                    apply_box_style(el->lv_obj, el->background, el->border_color,
+                                    (el->border_style == VGP_BORDER_NONE) ? 0u : (el->border_width ? el->border_width : 1u),
+                                    el->border_radius);
+                    lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->background), LV_PART_ITEMS);
+                    lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_COVER, LV_PART_ITEMS);
+                    lv_obj_set_style_text_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), LV_PART_ITEMS);
                     lv_obj_set_style_border_color(el->lv_obj, lv_color_hex(el->grid_color ? el->grid_color : 0x00334155u), LV_PART_ITEMS);
                     lv_obj_set_style_border_width(el->lv_obj, 1, LV_PART_ITEMS);
+                    int32_t col_w = (ew - 2) / (int32_t)cols;
+                    if (col_w < 8) col_w = 8;
+                    for (uint32_t c = 0u; c < cols; ++c) {
+                        lv_table_set_column_width(el->lv_obj, c, col_w);
+                    }
+                    for (uint32_t r = 0u; r < rows; ++r) {
+                        for (uint32_t c = 0u; c < cols; ++c) {
+                            lv_table_set_cell_value(el->lv_obj, r, c, "");
+                        }
+                    }
                 }
 #endif
                 break;
@@ -925,8 +1139,35 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 el->lv_obj = lv_dropdown_create(parent_obj);
                 lv_obj_set_pos(el->lv_obj, ex, ey);
                 lv_obj_set_size(el->lv_obj, ew, eh);
+                apply_box_style(el->lv_obj, el->background, el->border_color,
+                                (el->border_style == VGP_BORDER_NONE) ? 0u : (el->border_width ? el->border_width : 1u),
+                                el->border_radius ? el->border_radius : 6u);
                 lv_obj_set_style_text_font(el->lv_obj, &vgp_font_zh_16, 0);
+                lv_obj_set_style_text_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), 0);
+                {
+                    lv_obj_t *list = lv_dropdown_get_list(el->lv_obj);
+                    if (list) {
+                        lv_obj_set_style_text_font(list, &vgp_font_zh_16, 0);
+                        lv_obj_set_style_bg_color(list, lv_color_hex(0x001E293Bu), 0);
+                        lv_obj_set_style_text_color(list, lv_color_hex(0x00E2E8F0u), 0);
+                    }
+                }
                 apply_focus_style(el->lv_obj);
+                if (el->num_multistate_items == 0u) {
+                    el->num_multistate_items = 3u;
+                    el->multistate_items[0].value = 0.0;
+                    snprintf(el->multistate_items[0].label, sizeof(el->multistate_items[0].label), "自動模式");
+                    el->multistate_items[0].color = 0x0038BDF8u;
+                    el->multistate_items[0].text_color = 0x00FFFFFFu;
+                    el->multistate_items[1].value = 1.0;
+                    snprintf(el->multistate_items[1].label, sizeof(el->multistate_items[1].label), "手動模式");
+                    el->multistate_items[1].color = 0x0022C55Eu;
+                    el->multistate_items[1].text_color = 0x00FFFFFFu;
+                    el->multistate_items[2].value = 2.0;
+                    snprintf(el->multistate_items[2].label, sizeof(el->multistate_items[2].label), "維護模式");
+                    el->multistate_items[2].color = 0x00F59E0Bu;
+                    el->multistate_items[2].text_color = 0x00FFFFFFu;
+                }
                 {
                     char opts[256];
                     opts[0] = '\0';
@@ -954,9 +1195,9 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 lv_scale_set_mode(el->lv_obj, el->scale_vertical ? LV_SCALE_MODE_VERTICAL_LEFT : LV_SCALE_MODE_HORIZONTAL_BOTTOM);
                 lv_scale_set_range(el->lv_obj, (int32_t)el->scale_min, (int32_t)el->scale_max);
                 {
-                    uint32_t maj = el->scale_major_ticks ? el->scale_major_ticks : 5u;
+                    uint32_t maj = el->scale_major_ticks >= 2u ? el->scale_major_ticks : 5u;
                     uint32_t min_t = el->scale_minor_ticks ? el->scale_minor_ticks : 4u;
-                    uint32_t total = maj * (min_t + 1u) + 1u;
+                    uint32_t total = (maj - 1u) * (min_t + 1u) + 1u;
                     if (total > 101u) total = 101u;
                     lv_scale_set_total_tick_count(el->lv_obj, total);
                     lv_scale_set_major_tick_every(el->lv_obj, min_t + 1u);
@@ -965,7 +1206,15 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 lv_obj_set_style_line_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x0094A3B8u), LV_PART_MAIN);
                 lv_obj_set_style_line_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x0094A3B8u), LV_PART_ITEMS);
                 lv_obj_set_style_line_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x0094A3B8u), LV_PART_INDICATOR);
-                lv_obj_set_style_text_font(el->lv_obj, &lv_font_montserrat_14, 0);
+                if (!el->scale_show_axis) {
+                    lv_obj_set_style_line_width(el->lv_obj, 0, LV_PART_MAIN);
+                }
+                {
+                    int32_t lbl_sz = el->font_size > 4u ? (int32_t)(el->font_size - 4u) : 12;
+                    int32_t scaled_lbl = (lbl_sz * scale) / 1000;
+                    const lv_font_t *sfont = (scaled_lbl < 15) ? &lv_font_montserrat_14 : select_font(NULL, lbl_sz, scale);
+                    lv_obj_set_style_text_font(el->lv_obj, sfont, 0);
+                }
                 lv_obj_set_style_text_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x0094A3B8u), 0);
 #endif
                 break;
@@ -1392,12 +1641,21 @@ void vgp_runtime_update(void)
                 }
             }
 
+            lv_obj_t *ctrl_obj = ((el->kind == VGP_KIND_BAR || el->kind == VGP_KIND_GAUGE ||
+                                   el->kind == VGP_KIND_ARC || el->kind == VGP_KIND_SLIDER) && el->lv_extra)
+                                 ? el->lv_extra : el->lv_obj;
+
             /* Check enabledId */
             if (el->enabled_id[0]) {
                 vgp_variable_t *ev = find_var(el->enabled_id);
                 if (ev && ev->type == VGP_VAR_BOOL) {
-                    if (ev->val_bool) lv_obj_remove_state(el->lv_obj, LV_STATE_DISABLED);
-                    else lv_obj_add_state(el->lv_obj, LV_STATE_DISABLED);
+                    if (ev->val_bool) {
+                        lv_obj_remove_state(el->lv_obj, LV_STATE_DISABLED);
+                        if (ctrl_obj != el->lv_obj) lv_obj_remove_state(ctrl_obj, LV_STATE_DISABLED);
+                    } else {
+                        lv_obj_add_state(el->lv_obj, LV_STATE_DISABLED);
+                        if (ctrl_obj != el->lv_obj) lv_obj_add_state(ctrl_obj, LV_STATE_DISABLED);
+                    }
                 }
             }
 
@@ -1424,8 +1682,10 @@ void vgp_runtime_update(void)
                    el->action == VGP_ACT_INCREMENT || el->action == VGP_ACT_RESET ||
                    el->action == VGP_ACT_MOMENTARY)))) {
                 lv_obj_add_state(el->lv_obj, LV_STATE_DISABLED);
+                if (ctrl_obj != el->lv_obj) lv_obj_add_state(ctrl_obj, LV_STATE_DISABLED);
             } else if (!el->enabled_id[0] && v && v->modbus.enabled) {
                 lv_obj_remove_state(el->lv_obj, LV_STATE_DISABLED);
+                if (ctrl_obj != el->lv_obj) lv_obj_remove_state(ctrl_obj, LV_STATE_DISABLED);
             }
 
             switch (el->kind) {
@@ -1467,11 +1727,11 @@ void vgp_runtime_update(void)
 #if LV_USE_BAR
                     if (v && v->type == VGP_VAR_NUM) {
                         int32_t iv = (int32_t)v->val_num;
-                        if (lv_bar_get_value(el->lv_obj) != iv) {
-                            lv_bar_set_value(el->lv_obj, iv, LV_ANIM_OFF);
+                        if (lv_bar_get_value(ctrl_obj) != iv) {
+                            lv_bar_set_value(ctrl_obj, iv, LV_ANIM_OFF);
                         }
                         uint32_t fc = threshold_fill_color(el, v->val_num);
-                        lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(fc), LV_PART_INDICATOR);
+                        lv_obj_set_style_bg_color(ctrl_obj, lv_color_hex(fc), LV_PART_INDICATOR);
                         if (el->lv_aux) {
                             char buf[64];
                             if (modbus_bad) snprintf(buf, sizeof(buf), "---");
@@ -1488,17 +1748,20 @@ void vgp_runtime_update(void)
 #if LV_USE_ARC
                     if (v && v->type == VGP_VAR_NUM) {
                         int32_t iv = (int32_t)v->val_num;
-                        if (!lv_obj_has_state(el->lv_obj, LV_STATE_PRESSED) && lv_arc_get_value(el->lv_obj) != iv) {
-                            lv_arc_set_value(el->lv_obj, iv);
+                        if (!lv_obj_has_state(ctrl_obj, LV_STATE_PRESSED) && lv_arc_get_value(ctrl_obj) != iv) {
+                            lv_arc_set_value(ctrl_obj, iv);
                         }
                         uint32_t fc = threshold_fill_color(el, v->val_num);
-                        lv_obj_set_style_arc_color(el->lv_obj, lv_color_hex(fc), LV_PART_INDICATOR);
+                        lv_obj_set_style_arc_color(ctrl_obj, lv_color_hex(fc), LV_PART_INDICATOR);
                         if (el->lv_aux) {
                             char buf[64];
                             if (modbus_bad) snprintf(buf, sizeof(buf), "---");
                             else if (modbus_wait) snprintf(buf, sizeof(buf), "...");
                             else format_num_val(buf, sizeof(buf), v->val_num, el);
                             set_label_if_changed(el->lv_aux, buf);
+                            if (el->kind == VGP_KIND_GAUGE) {
+                                lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(fc), 0);
+                            }
                         }
                     }
 #endif
@@ -1508,15 +1771,18 @@ void vgp_runtime_update(void)
 #if LV_USE_SLIDER
                     if (v && v->type == VGP_VAR_NUM) {
                         int32_t iv = (int32_t)v->val_num;
-                        if (!lv_obj_has_state(el->lv_obj, LV_STATE_PRESSED) && lv_slider_get_value(el->lv_obj) != iv) {
-                            lv_slider_set_value(el->lv_obj, iv, LV_ANIM_OFF);
+                        if (!lv_obj_has_state(ctrl_obj, LV_STATE_PRESSED) && lv_slider_get_value(ctrl_obj) != iv) {
+                            lv_slider_set_value(ctrl_obj, iv, LV_ANIM_OFF);
                         }
+                        uint32_t fc = threshold_fill_color(el, v->val_num);
+                        lv_obj_set_style_bg_color(ctrl_obj, lv_color_hex(fc), LV_PART_INDICATOR);
                         if (el->lv_aux) {
                             char buf[64];
                             if (modbus_bad) snprintf(buf, sizeof(buf), "---");
                             else if (modbus_wait) snprintf(buf, sizeof(buf), "...");
                             else format_num_val(buf, sizeof(buf), v->val_num, el);
                             set_label_if_changed(el->lv_aux, buf);
+                            lv_obj_set_style_text_color(el->lv_aux, lv_color_hex(fc), 0);
                         }
                     }
 #endif
@@ -1736,7 +2002,7 @@ void vgp_runtime_handle_key(uint32_t key)
 
     for (uint16_t i = 0; i < sc->num_elements; ++i) {
         vgp_element_t *el = &g_proj.elements[sc->element_start + i];
-        if (el->lv_obj != focused) continue;
+        if (el->lv_obj != focused && el->lv_extra != focused) continue;
 
         if (el->kind == VGP_KIND_SPINBOX || el->kind == VGP_KIND_SLIDER || el->kind == VGP_KIND_ARC) {
             if (key == '+') {

@@ -39,7 +39,7 @@
 |---|---|---|---|---|---|
 | 繪圖 | `rectangle` | `x,y,width,height,background,borderColor,borderWidth,borderRadius,shapeFilled` | LVGL `lv_obj` | 不適用（靜態圖形） | ✅ 實機/編譯 |
 | 繪圖 | `circle` | 同上（強制 `LV_RADIUS_CIRCLE`） | LVGL `lv_obj` | 不適用 | ✅ 實機/編譯 |
-| 繪圖 | `line` | `width,height,borderColor,borderWidth` | LVGL `lv_obj` 線段 | 不適用 | ✅ 實機/編譯 |
+| 繪圖 | `line` | `width,height,background,borderColor,borderWidth,borderStyle` | LVGL `lv_obj` 線段（支援垂直置中與粗細） | 不適用 | ✅ 實機/編譯 |
 | 媒體 | `image` | `imageAssetId`, `image`(Base64 PNG/JPEG), `imageFit`(`contain/cover/fill/none`) | `tjpgd` / `lodepng` 預解碼快取 | 不適用 | 🧪 編譯/契約 |
 | 文字 | `text` | `text,color,fontSize,textAlign,verticalAlign,wordWrap,lineHeight,underline,textBackground` | LVGL `lv_label` | 綁定變數時顯示紅框警示 | ✅ 實機/編譯 |
 | 數值 | `number` | `variableId,decimals,unit,numberFormat,useGrouping,numberLocale,numberPrefix` | 獨立格式化器 + 大字體 | 顯示 `---`（斷線）或 `...`（等待）+ 紅框 | ✅ 實機/編譯 |
@@ -47,17 +47,17 @@
 | 按鈕 | `button` | `action,actionValue,targetScreenId,buttonPressed*,buttonDisabled*` | `lv_button` + 鍵盤/滑鼠事件 | 寫入失敗時外框閃紅警示 | ✅ 實機/編譯 |
 | 開關 | `switch` | `variableId,fillColor,trackColor` | `lv_switch` 雙向寫入 | 斷線時顯示紅框 + 降透明度 | ✅ 實機/編譯 |
 | 輸入 | `input` | `variableId,inputMin,inputMax,inputStep` | `lv_textarea` 編輯提交緩衝 | 斷線顯示 `---` + 紅框 | 🧪 編譯/契約 |
-| 滑桿 | `slider` | `variableId,scaleMin,scaleMax,orientation,fillColor,trackColor` | `lv_slider` 放開提交寫入 | 斷線顯示紅框 + 降透明度 | 🧪 編譯/契約 |
-| 旋鈕弧 | `arc` | `variableId,scaleMin,scaleMax,fillColor,trackColor,showValue` | `lv_arc` + 中央數值標籤 | 斷線顯示 `---` + 紅框 | 🧪 編譯/契約 |
-| 微調框 | `spinbox` | `variableId,inputMin,inputMax,inputStep,decimals` | `lv_spinbox` + `+/-` 鍵盤/滑鼠操作 | 斷線顯示紅框 + 降透明度 | 🧪 編譯/契約 |
-| 下拉選單 | `dropdown` | `variableId,multistateItems` | `lv_dropdown` 選項值寫入 | 斷線顯示紅框 + 降透明度 | 🧪 編譯/契約 |
+| 滑桿 | `slider` | `variableId,scaleMin,scaleMax,orientation,fillColor,trackColor,showValue` | 卡片框 + 標題 + `lv_slider` + 數值（預設顯示） | 斷線顯示紅框 + 降透明度 | 🧪 編譯/模擬器 |
+| 旋鈕弧 | `arc` | `variableId,scaleMin,scaleMax,fillColor,trackColor,showValue` | 卡片框 + 標題 + `lv_arc` + 中央數值（預設顯示） | 斷線顯示 `---` + 紅框 | 🧪 編譯/模擬器 |
+| 微調框 | `spinbox` | `variableId,inputMin,inputMax,inputStep,decimals` | 複合微調框（`-/+` 按鈕 + 數值標籤） | 斷線顯示紅框 + 降透明度 | 🧪 編譯/模擬器 |
+| 下拉選單 | `dropdown` | `variableId,multistateItems` | `lv_dropdown`（預設自動/手動/維護模式 + 中文清單字型） | 斷線顯示紅框 + 降透明度 | 🧪 編譯/模擬器 |
 | 指示燈 | `indicator` | `variableId,fillColor,trackColor` | 圓形狀態燈（亮/暗） | 斷線變灰 + 紅框警示 | ✅ 實機/編譯 |
 | 多狀態 | `multistate` | `variableId,multistateItems` | 依數值切換背景、文字與字色 | 斷線顯示 `斷線` + 紅框 | ✅ 實機/編譯 |
-| 長條圖 | `bar` | `variableId,scaleMin,scaleMax,orientation,warningThreshold,criticalThreshold,showValue` | `lv_bar` + 門檻變色 | 斷線顯示紅框 + 降透明度 | ✅ 實機/編譯 |
-| 儀表 | `gauge` | `variableId,scaleMin,scaleMax,warningThreshold,criticalThreshold,showValue,unit` | `lv_arc` 唯讀儀表 + 數值 | 斷線顯示 `---` + 紅框 | ✅ 實機/編譯 |
-| 刻度尺 | `scale` | `scaleMin,scaleMax,scaleMajorTicks,scaleMinorTicks,scaleVertical,scaleShowLabels` | `lv_scale` | 不適用 | 🧪 編譯/契約 |
-| 趨勢圖 | `trend` | `variableId,scaleMin,scaleMax,sampleIntervalMs,historyPoints` | `lv_chart` + 背景環形取樣緩衝（換頁不中斷） | 斷線顯示紅框 | 🧪 編譯/契約 |
-| 表格 | `table` | `tableCols,tableRows,gridColor,text` | `lv_table` | 不適用 | 🧪 編譯/契約 |
+| 長條圖 | `bar` | `variableId,scaleMin,scaleMax,orientation,warningThreshold,criticalThreshold,showValue,showScale` | 卡片框 + 標題 + `lv_bar` + 刻度 + 門檻變色 | 斷線顯示紅框 + 降透明度 | ✅ 實機/模擬器 |
+| 儀表 | `gauge` | `variableId,scaleMin,scaleMax,warningThreshold,criticalThreshold,showValue,showScale,unit` | 卡片框 + 標題 + 180° 半圓 `lv_arc` + 刻度 + 數值 | 斷線顯示 `---` + 紅框 | ✅ 實機/模擬器 |
+| 刻度尺 | `scale` | `scaleMin,scaleMax,scaleMajorTicks,scaleMinorTicks,scaleVertical,scaleShowAxis,scaleShowLabels` | `lv_scale`（支援隱藏主軸線與字級縮放） | 不適用 | 🧪 編譯/模擬器 |
+| 趨勢圖 | `trend` | `variableId,scaleMin,scaleMax,sampleIntervalMs,historyPoints` | `lv_chart` + 背景環形取樣緩衝（換頁不中斷） | 斷線顯示紅框 | 🧪 編譯/模擬器 |
+| 表格 | `table` | `tableCols,tableRows,gridColor,background,borderColor` | `lv_table`（空白格線、均分欄寬，預設 3×4） | 不適用 | 🧪 編譯/模擬器 |
 | 警報清單 | `alarm` | `alarmSource(global/local/all),alarmGroup,alarmMaxRows,alarmRules` | 即時警報清單 + 單鍵確認 (ACK) | 變數斷線時凍結既有警報狀態（不誤觸發/不誤復歸） | 🧪 編譯/契約 |
 
 ---

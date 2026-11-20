@@ -401,6 +401,10 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
     e->shape_filled = true;
     e->line_height_x100 = 120u;
     e->border_style = VGP_BORDER_SOLID;
+    e->show_value = true;
+    e->show_scale = true;
+    e->table_cols = 3u;
+    e->table_rows = 4u;
 
     if (!match_char(s, len, p, '{')) return;
 
@@ -437,11 +441,14 @@ static void parse_element_obj(const char *s, size_t len, size_t *p, vgp_element_
         } else if (strcmp(key, "background") == 0) {
             if (parse_str(s, len, p, sval, sizeof(sval))) e->background = parse_color_hex(sval, e->background);
         } else if (strcmp(key, "borderColor") == 0) {
-            if (parse_str(s, len, p, sval, sizeof(sval))) e->border_color = parse_color_hex(sval, e->border_color);
+            if (parse_str(s, len, p, sval, sizeof(sval))) {
+                e->border_color = parse_color_hex(sval, e->border_color);
+                e->has_border_color = true;
+            }
         } else if (strcmp(key, "fontSize") == 0) {
             double v; if (parse_num(s, len, p, &v)) e->font_size = (uint16_t)v;
         } else if (strcmp(key, "borderWidth") == 0) {
-            double v; if (parse_num(s, len, p, &v)) e->border_width = (uint16_t)v;
+            double v; if (parse_num(s, len, p, &v)) { e->border_width = (uint16_t)v; e->has_border_width = true; }
         } else if (strcmp(key, "borderRadius") == 0) {
             double v; if (parse_num(s, len, p, &v)) e->border_radius = (uint16_t)v;
         } else if (strcmp(key, "variableId") == 0) {

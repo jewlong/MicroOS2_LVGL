@@ -339,6 +339,8 @@ typedef struct {
     bool shape_filled;
     uint16_t line_height_x100;
     vgp_border_style_t border_style;
+    bool has_border_color;
+    bool has_border_width;
 
     /* P2 Button state colors */
     uint32_t btn_pressed_bg, btn_pressed_color;
