@@ -66,6 +66,7 @@ static void port_bits(uint32_t set,uint32_t clear)
 bool usb_host_connected(void)
 {return operational && (read_reg(HPRT)&0x11u)==1u;}
 bool usb_host_operational(void){return operational;}
+bool usb_host_high_speed(void){return operational && (((read_reg(HPRT)>>17)&3u)==0u);}
 uint32_t usb_diag_hprt(void){return operational?read_reg(HPRT):0u;}
 static bool stop_channel(void)
 {
@@ -118,9 +119,92 @@ usb_result_t usb_host_reset_port(bool *low)
     if(speed>2)return USB_UNSUPPORTED;
     *low=speed==2;return USB_OK;
 }
+static usb_result_t packet_split(usb_keyboard_device_t *d,uint8_t ep,uint8_t type,bool in,
+                                 uint8_t pid,void *data,uint16_t length,uint16_t *actual)
+{
+    uint16_t mps=ep?d->packet_size:d->ep0;
+    if(!mps || mps>64 || length>mps || !operational){usb_init_val=0xA1000000u|mps;return USB_IO;}
+    if(!usb_host_connected())return USB_REMOVED;
+    if(!stop_channel()){usb_init_val=0xA2000000u|read_reg(HCCHAR);return USB_IO;}
+    uint32_t bytes=in?mps:length;
+    memset(dma_buffer,0,sizeof(dma_buffer));
+    if(!in && length)memcpy(dma_buffer,data,length);
+    uint32_t splt_base=(1u<<31)|(3u<<14)|((uint32_t)d->hub_addr<<7)|(uint32_t)d->hub_port;
+    uint32_t ch_base=mps|((uint32_t)ep<<11)|(in?1u<<15:0)|
+        (d->low_speed?1u<<17:0)|((uint32_t)type<<18)|(1u<<20)|((uint32_t)d->address<<22);
+
+    /* Stage 1: Start-Split (SSPLIT): IN sends 0 bytes, OUT/SETUP sends payload */
+    uint32_t s_bytes=in?0u:bytes;
+    uint32_t c_bytes=in?bytes:0u;
+    arm_dmb();write_reg(HCINT,0x7ff);write_reg(0x504,splt_base);
+    write_reg(HCTSIZ,s_bytes|(1u<<19)|((uint32_t)pid<<29));
+    write_reg(HCDMA,(uint32_t)(uintptr_t)dma_buffer|DMA_BUS_ALIAS);
+    uint32_t ch=ch_base;
+    if(type==3 && !(read_reg(HFNUM)&1u))ch|=1u<<29;
+    write_reg(HCCHAR,ch|ENABLE);
+    uint32_t status=0;
+    uint32_t s_mask=2u|1u|(1u<<5)|(1u<<4)|(1u<<3)|(1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10);
+    for(unsigned fast=0;fast<40;++fast){
+        status=read_reg(HCINT);
+        if(status&s_mask)break;
+        delay_us(50);
+    }
+    if(!stop_channel()){usb_init_val=0xA7000000u|status;return USB_IO;}
+    status|=read_reg(HCINT);
+    write_reg(HCINT,0x7ff);
+    if(!(status&((1u<<5)|1u))){
+        if(status&(1u<<4))return USB_NAK;
+        if(status&(1u<<3))return USB_STALL;
+        usb_init_val=0xA8000000u|status;
+        return (status&((1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10)))?USB_IO:USB_TIMEOUT;
+    }
+
+    /* Stage 2: Complete-Split (CSPLIT) with NYET retries */
+    for(unsigned attempt=0;attempt<20;++attempt){
+        if(!usb_host_connected())return USB_REMOVED;
+        delay_us(125);
+        arm_dmb();write_reg(HCINT,0x7ff);write_reg(0x504,splt_base|(1u<<16));
+        write_reg(HCTSIZ,c_bytes|(1u<<19)|((uint32_t)pid<<29));
+        write_reg(HCDMA,(uint32_t)(uintptr_t)dma_buffer|DMA_BUS_ALIAS);
+        ch=ch_base;
+        if(type==3 && !(read_reg(HFNUM)&1u))ch|=1u<<29;
+        write_reg(HCCHAR,ch|ENABLE);
+        status=0;
+        uint32_t c_mask=2u|1u|(1u<<6)|(1u<<4)|(1u<<3)|(1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10);
+        for(unsigned fast=0;fast<40;++fast){
+            status=read_reg(HCINT);
+            if(status&c_mask)break;
+            delay_us(50);
+        }
+        if(!stop_channel()){usb_init_val=0xA9000000u|status;return USB_IO;}
+        status|=read_reg(HCINT);
+        write_reg(HCINT,0x7ff);
+        if(status&1u){
+            arm_dmb();
+            if(in){
+                uint32_t remaining=read_reg(HCTSIZ)&0x7ffffu;
+                if(remaining>bytes || bytes-remaining>length){usb_init_val=0xA4000000u|remaining;return USB_IO;}
+                *actual=(uint16_t)(bytes-remaining);
+                if(*actual)memcpy(data,dma_buffer,*actual);
+            }else{
+                *actual=length;
+            }
+            return USB_OK;
+        }
+        if(status&(1u<<6))continue; /* NYET: retry CSPLIT */
+        if(status&(1u<<4))return USB_NAK;
+        if(status&(1u<<3))return USB_STALL;
+        if(status&((1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10))){usb_init_val=status;return USB_IO;}
+    }
+    return USB_NAK;
+}
+
 static usb_result_t packet(usb_keyboard_device_t *d,uint8_t ep,uint8_t type,bool in,
                            uint8_t pid,void *data,uint16_t length,uint16_t *actual)
 {
+    if(d->hub_addr && d->hub_hs){
+        return packet_split(d,ep,type,in,pid,data,length,actual);
+    }
     uint16_t mps=ep?d->packet_size:d->ep0;
     if(!mps || mps>64 || length>mps || !operational){usb_init_val=0xA1000000u|mps;return USB_IO;}
     if(!usb_host_connected())return USB_REMOVED;

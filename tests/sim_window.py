@@ -21,7 +21,7 @@ from emulate import TIMER_CLO
 
 USB_BASE = 0x20980000
 INITRD_ADDR = 0x02000000
-INITRD_MAX = 0x00100000
+INITRD_MAX = 0x00800000
 
 # Map Tkinter keysym to (modifier_mask, hid_usage_code)
 KEYSYM_TO_HID = {
@@ -45,6 +45,7 @@ KEYSYM_TO_HID = {
     'Delete': (0, 76),
     'period': (0, 55),
     'KP_Decimal': (0, 99),
+    'F12': (0, 69),
 }
 for i, ch in enumerate('abcdefghijklmnopqrstuvwxyz'):
     KEYSYM_TO_HID[ch] = (0, 4 + i)
@@ -93,13 +94,23 @@ class InteractiveSimTarget(HDMITarget):
             18, 1, 0x10, 1, 0, 0, 0, 8,
             0x6D, 0x04, 0x1C, 0xC3, 0, 1, 0, 0, 0, 1
         ])
+        # Composite HID Boot Keyboard (IF0, EP 0x81) + HID Boot Mouse (IF1, EP 0x82)
         self.usb_config_desc = bytes([
-            9, 2, 34, 0, 1, 1, 0, 0x80, 50,
+            9, 2, 59, 0, 2, 1, 0, 0x80, 50,
+            # Interface 0: Boot Keyboard
             9, 4, 0, 0, 1, 3, 1, 1, 0,
             9, 0x21, 0x11, 1, 0, 1, 0x22, 63, 0,
-            7, 5, 0x81, 3, 8, 0, 10
+            7, 5, 0x81, 3, 8, 0, 10,
+            # Interface 1: Boot Mouse
+            9, 4, 1, 0, 1, 3, 1, 2, 0,
+            9, 0x21, 0x11, 1, 0, 1, 0x22, 52, 0,
+            7, 5, 0x82, 3, 4, 0, 10,
         ])
         self.hid_reports = deque()
+        self.mouse_reports = deque()
+        self.sim_mouse_x = 160
+        self.sim_mouse_y = 120
+        self.sim_mouse_btn = 0
 
         # Load sdcard/project.json + sdcard/wifi.txt into INITRD_ADDR (0x02000000)
         self.uc.mem_map(INITRD_ADDR, INITRD_MAX)
@@ -125,6 +136,27 @@ class InteractiveSimTarget(HDMITarget):
     def push_key_press_release(self, mod, usage):
         self.hid_reports.append(bytes([mod, 0, usage, 0, 0, 0, 0, 0]))
         self.hid_reports.append(bytes([0, 0, 0, 0, 0, 0, 0, 0]))
+
+    def push_mouse_state(self, x, y, buttons=None):
+        x = max(0, min(self.sim_w - 1, int(x)))
+        y = max(0, min(self.sim_h - 1, int(y)))
+        if buttons is None:
+            buttons = self.sim_mouse_btn
+        else:
+            self.sim_mouse_btn = buttons
+        dx = x - self.sim_mouse_x
+        dy = y - self.sim_mouse_y
+        if dx == 0 and dy == 0:
+            self.mouse_reports.append(bytes([buttons & 0x07, 0, 0]))
+            return
+        while dx != 0 or dy != 0:
+            sx = max(-127, min(127, dx))
+            sy = max(-127, min(127, dy))
+            self.mouse_reports.append(bytes([buttons & 0x07, sx & 0xFF, sy & 0xFF]))
+            self.sim_mouse_x += sx
+            self.sim_mouse_y += sy
+            dx -= sx
+            dy -= sy
 
     def usb_port_reg(self):
         speed = 2  # Low-speed boot keyboard
@@ -194,7 +226,16 @@ class InteractiveSimTarget(HDMITarget):
                 self.usb_boot = True
             self.usb_finish(1, 0)
             return
-        # Endpoint 1 Interrupt IN
+        # Endpoint 2 Interrupt IN (Boot Mouse)
+        if ep == 2:
+            if self.mouse_reports:
+                raw = self.mouse_reports.popleft()
+                self.usb_dma_write(raw)
+                self.usb_finish(1, len(raw))
+            else:
+                self.usb_finish(16, 0)  # NAK
+            return
+        # Endpoint 1 Interrupt IN (Boot Keyboard)
         if self.hid_reports:
             raw = self.hid_reports.popleft()
             self.usb_dma_write(raw)
@@ -278,7 +319,7 @@ class InteractiveSimTarget(HDMITarget):
         if (
             not self.fast_jit
             and self.value('app_preempt_pass') == 1
-            and self.value('app_low_completed') >= 1
+            and (self.value('app_low_completed') >= 1 or self.value('gui_ready') == 1)
             and (uc.reg_read(UC_ARM_REG_CPSR) & 31) == 31
         ):
             self.fast_jit = True
@@ -398,7 +439,7 @@ def main():
 
     help_lbl = tk.Label(
         root,
-        text='操作說明: [Tab / 方向鍵] 切換焦點   [Enter / 空白鍵] 按下按鈕或開關   [0-9 / + / - / Backspace] 修改數值輸入框   [Esc] 關閉彈窗',
+        text='操作說明: [滑鼠移動/左鍵點擊] 直接操作按鈕與開關   [Tab / 方向鍵] 切換焦點   [Enter / 空白鍵] 確認   [Esc] 關閉彈窗   [F12] 診斷頁',
         fg='#94a3b8', bg='#0f172a', font=('Microsoft JhengHei', 10), pady=4
     )
     help_lbl.pack(fill='x')
@@ -415,11 +456,12 @@ def main():
         os_ticks = sim.value('OSTime') if sim.value('OSRunning', 1) == 1 else 0
         usb_st = sim.value('usb_state')
         keys = sim.value('usb_key_presses')
+        m_rpts = sim.value('usb_mouse_reports') if 'usb_mouse_reports' in sim.symbols else 0
         irq_sw = sim.value('port_irq_switches')
         svc_sw = sim.value('port_svc_switches')
         info_var.set(
             f'uC/OS-II OSTime={os_ticks}  |  IRQ_SW={irq_sw} SVC_SW={svc_sw}  |  '
-            f'GUI_Frames={frames}  |  USB_State={usb_st} Keys={keys}'
+            f'GUI_Frames={frames}  |  USB_State={usb_st} Keys={keys} Mouse={m_rpts}'
         )
 
     def on_key(event):
@@ -430,7 +472,25 @@ def main():
                 sim.step_quantum(80)
                 refresh_display()
 
+    def on_mouse_move(event):
+        sim.push_mouse_state(event.x, event.y)
+
+    def on_mouse_down(event):
+        sim.push_mouse_state(event.x, event.y, 1)
+        if sim.fast_jit:
+            sim.step_quantum(60)
+            refresh_display()
+
+    def on_mouse_up(event):
+        sim.push_mouse_state(event.x, event.y, 0)
+        if sim.fast_jit:
+            sim.step_quantum(60)
+            refresh_display()
+
     root.bind('<KeyPress>', on_key)
+    canvas.bind('<Motion>', on_mouse_move)
+    canvas.bind('<ButtonPress-1>', on_mouse_down)
+    canvas.bind('<ButtonRelease-1>', on_mouse_up)
     photo_holder = [None]
     last_frames = [-1]
 

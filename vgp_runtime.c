@@ -1317,12 +1317,17 @@ void vgp_runtime_update(void)
         vgp_modbus_status_summary(mb_str, sizeof(mb_str));
         const char *ntp_str = sys_clock_is_synced() ? " [NTP]" : "";
 
-        char usb_str[64];
+        char usb_str[80];
         if (usb_state == 4u) {
-            snprintf(usb_str, sizeof(usb_str), "USB:OK(%04lx:%04lx%s k:%lu \"%s\")",
-                (unsigned long)(usb_vid_pid >> 16), (unsigned long)(usb_vid_pid & 0xffffu),
-                usb_mouse_connected ? " M:OK" : "",
-                (unsigned long)usb_key_presses, gui_usb_text);
+            if (usb_mouse_connected) {
+                snprintf(usb_str, sizeof(usb_str), "USB:OK(%04lx:%04lx M:%lu k:%lu)",
+                    (unsigned long)(usb_vid_pid >> 16), (unsigned long)(usb_vid_pid & 0xffffu),
+                    (unsigned long)usb_mouse_reports, (unsigned long)usb_key_presses);
+            } else {
+                snprintf(usb_str, sizeof(usb_str), "USB:OK(%04lx:%04lx k:%lu \"%s\")",
+                    (unsigned long)(usb_vid_pid >> 16), (unsigned long)(usb_vid_pid & 0xffffu),
+                    (unsigned long)usb_key_presses, gui_usb_text);
+            }
         } else if (usb_state == 2u) {
             snprintf(usb_str, sizeof(usb_str), "USB:wait(HPRT:%04lx)",
                 (unsigned long)(usb_diag_hprt() & 0xffffu));

@@ -83,6 +83,7 @@ static usb_result_t enumerate_via_hub(uint8_t hub_ep0,bool hub_low_speed)
     }
     OSTimeDly(12); /* Wait 120ms for hub port power stabilization */
 
+    bool hub_hs = usb_host_high_speed();
     for(uint8_t p=1;p<=num_ports;++p){
         /* Re-select hub at address 1 */
         memset(&device,0,sizeof(device));
@@ -105,8 +106,10 @@ static usb_result_t enumerate_via_hub(uint8_t hub_ep0,bool hub_low_speed)
         if((pstat[0]&3u)!=3u)continue; /* Port not enabled */
 
         bool child_low=(pstat[1]&2u)!=0; /* Bit 9 of wPortStatus = PORT_LOW_SPEED */
+        bool child_hs=(pstat[1]&4u)!=0;  /* Bit 10 of wPortStatus = PORT_HIGH_SPEED */
         memset(&device,0,sizeof(device));
         device.address=0;device.ep0=8;device.low_speed=child_low;
+        device.hub_addr=1;device.hub_port=p;device.hub_hs=(hub_hs && !child_hs);
 
         uint8_t desc[18];
         r=request(0x80,6,0x100,0,desc,8,&n);
@@ -226,6 +229,10 @@ void usb_keyboard_task(void *arg)
                 r=usb_interrupt_in(&mouse_dev,mouse_pid,report,&got);
                 if(r==USB_OK){
                     mouse_pid^=2;errors=0;
+                    if(usb_mouse_reports<3u){
+                        net_log("[USB] mouse got=%u [%02x %02x %02x %02x]\n",
+                                got,report[0],got>1u?report[1]:0u,got>2u?report[2]:0u,got>3u?report[3]:0u);
+                    }
                     if(got>=3u)mouse_post((int8_t)report[1],(int8_t)report[2],report[0]);
                 }else if(r==USB_NAK || r==USB_TIMEOUT){errors=0;}
                 else if(r==USB_REMOVED)break;

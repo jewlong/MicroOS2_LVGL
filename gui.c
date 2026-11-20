@@ -223,7 +223,7 @@ static void mouse_read(lv_indev_t *indev, lv_indev_data_t *data)
     int32_t dx = 0, dy = 0;
     bool left = false;
     bool moved = mouse_poll(&dx, &dy, &left);
-    if (moved) {
+    if (moved || (usb_mouse_connected && !mouse_cursor)) {
         const framebuffer_t *fb = framebuffer_info();
         mouse_x += dx;
         mouse_y += dy;
