@@ -730,6 +730,15 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 el->lv_obj = lv_switch_create(parent_obj);
                 lv_obj_set_pos(el->lv_obj, ex, ey);
                 lv_obj_set_size(el->lv_obj, ew, eh);
+                lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
+                lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_COVER, LV_PART_MAIN);
+                lv_obj_set_style_radius(el->lv_obj, LV_RADIUS_CIRCLE, LV_PART_MAIN);
+                lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->fill_color ? el->fill_color : 0x0022C55Eu), LV_PART_INDICATOR | LV_STATE_CHECKED);
+                lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_COVER, LV_PART_INDICATOR | LV_STATE_CHECKED);
+                lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(0x00F8FAFCu), LV_PART_KNOB);
+                lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_COVER, LV_PART_KNOB);
+                lv_obj_set_style_radius(el->lv_obj, LV_RADIUS_CIRCLE, LV_PART_KNOB);
+                lv_obj_set_style_pad_all(el->lv_obj, -3, LV_PART_KNOB);
                 apply_focus_style(el->lv_obj);
                 lv_obj_add_event_cb(el->lv_obj, switch_value_cb, LV_EVENT_VALUE_CHANGED, el);
 #endif
@@ -912,6 +921,11 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 lv_arc_set_angles(arc, 135, 45);
                 lv_obj_set_style_arc_color(arc, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
                 lv_obj_set_style_arc_color(arc, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+                lv_obj_set_style_arc_width(arc, arc_sz > 80 ? 10 : 7, LV_PART_MAIN);
+                lv_obj_set_style_arc_width(arc, arc_sz > 80 ? 10 : 7, LV_PART_INDICATOR);
+                lv_obj_set_style_bg_color(arc, lv_color_hex(0x00F8FAFCu), LV_PART_KNOB);
+                lv_obj_set_style_bg_opa(arc, LV_OPA_COVER, LV_PART_KNOB);
+                lv_obj_set_style_pad_all(arc, 4, LV_PART_KNOB);
                 apply_focus_style(arc);
                 lv_obj_add_event_cb(arc, arc_release_cb, LV_EVENT_RELEASED, el);
                 if (el->show_value) {
@@ -970,7 +984,14 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 }
                 lv_slider_set_range(sld, (int32_t)el->scale_min, (int32_t)el->scale_max);
                 lv_obj_set_style_bg_color(sld, lv_color_hex(el->track_color ? el->track_color : 0x00334155u), LV_PART_MAIN);
+                lv_obj_set_style_bg_opa(sld, LV_OPA_COVER, LV_PART_MAIN);
+                lv_obj_set_style_radius(sld, LV_RADIUS_CIRCLE, LV_PART_MAIN);
                 lv_obj_set_style_bg_color(sld, lv_color_hex(el->fill_color ? el->fill_color : 0x0038BDF8u), LV_PART_INDICATOR);
+                lv_obj_set_style_bg_opa(sld, LV_OPA_COVER, LV_PART_INDICATOR);
+                lv_obj_set_style_bg_color(sld, lv_color_hex(0x00F8FAFCu), LV_PART_KNOB);
+                lv_obj_set_style_bg_opa(sld, LV_OPA_COVER, LV_PART_KNOB);
+                lv_obj_set_style_radius(sld, LV_RADIUS_CIRCLE, LV_PART_KNOB);
+                lv_obj_set_style_pad_all(sld, 4, LV_PART_KNOB);
                 apply_focus_style(sld);
                 lv_obj_add_event_cb(sld, slider_release_cb, LV_EVENT_RELEASED, el);
 
@@ -1012,6 +1033,12 @@ static void create_screen_widgets(int32_t s_idx, lv_obj_t *parent_obj, int32_t s
                 lv_obj_set_style_text_font(el->lv_obj, &vgp_font_zh_16, 0);
                 lv_obj_set_style_text_font(el->lv_obj, &vgp_font_zh_16, LV_PART_ITEMS);
                 if (el->kind == VGP_KIND_ALARM) {
+                    apply_box_style(el->lv_obj, el->background, el->border_color, 1, 6);
+                    lv_obj_set_style_bg_color(el->lv_obj, lv_color_hex(el->background), LV_PART_ITEMS);
+                    lv_obj_set_style_bg_opa(el->lv_obj, LV_OPA_COVER, LV_PART_ITEMS);
+                    lv_obj_set_style_text_color(el->lv_obj, lv_color_hex(el->color ? el->color : 0x00E2E8F0u), LV_PART_ITEMS);
+                    lv_obj_set_style_border_color(el->lv_obj, lv_color_hex(0x00334155u), LV_PART_ITEMS);
+                    lv_obj_set_style_border_width(el->lv_obj, 1, LV_PART_ITEMS);
                     lv_table_set_column_count(el->lv_obj, 4u);
                     lv_table_set_row_count(el->lv_obj, 2u);
                     lv_table_set_cell_value(el->lv_obj, 0, 0, "時間");
