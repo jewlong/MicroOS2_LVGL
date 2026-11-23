@@ -1,15 +1,28 @@
+param([switch]$Force)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path -Parent $PSScriptRoot
 $outFile = Join-Path $project 'vgp_font_cjk.c'
 $jsonFile = Join-Path $project 'sdcard\project.json'
 
-if (Test-Path -LiteralPath $outFile) {
+if ((-not $Force) -and (Test-Path -LiteralPath $outFile)) {
     $outTime = (Get-Item -LiteralPath $outFile).LastWriteTimeUtc
     $scriptTime = (Get-Item -LiteralPath $PSCommandPath).LastWriteTimeUtc
     $jsonNewer = (Test-Path -LiteralPath $jsonFile) -and ((Get-Item -LiteralPath $jsonFile).LastWriteTimeUtc -gt $outTime)
     if (($outTime -ge $scriptTime) -and (-not $jsonNewer)) {
         Write-Output 'vgp_font_cjk.c is up to date.'
         exit 0
+    }
+}
+
+$fontFilePath = $null
+foreach ($candidate in @(
+    (Join-Path $project 'vendor\fonts\NotoSansTC-Regular.ttf'),
+    (Join-Path $project 'vendor\fonts\NotoSansTC-VF.ttf'),
+    (Join-Path $project 'vendor\fonts\SourceHanSansTC-Regular.ttf')
+)) {
+    if (Test-Path -LiteralPath $candidate) {
+        $fontFilePath = $candidate
+        break
     }
 }
 
@@ -39,8 +52,57 @@ public class LvglFontGenerator
         public int OfsY;
     }
 
-    public static void GenerateFontSection(
+    private static Font CreateOflCjkFont(string fontFilePath, int pxSize, out PrivateFontCollection pfc, out string resolvedName)
+    {
+        pfc = null;
+        if (!string.IsNullOrEmpty(fontFilePath) && File.Exists(fontFilePath))
+        {
+            pfc = new PrivateFontCollection();
+            pfc.AddFontFile(fontFilePath);
+            FontFamily chosen = null;
+            foreach (FontFamily ff in pfc.Families)
+            {
+                if (string.Equals(ff.Name, "Noto Sans TC", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(ff.Name, "Noto Sans CJK TC", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(ff.Name, "Source Han Sans TC", StringComparison.OrdinalIgnoreCase))
+                {
+                    chosen = ff;
+                    break;
+                }
+            }
+            if (chosen == null && pfc.Families.Length > 0)
+            {
+                chosen = pfc.Families[0];
+            }
+            if (chosen != null)
+            {
+                resolvedName = chosen.Name;
+                return new Font(chosen, pxSize, FontStyle.Regular, GraphicsUnit.Pixel);
+            }
+            pfc.Dispose();
+            pfc = null;
+        }
+
+        string[] candidates = new string[] { "Noto Sans TC", "Noto Sans CJK TC", "Source Han Sans TC" };
+        foreach (string candidate in candidates)
+        {
+            Font testFont = new Font(candidate, pxSize, FontStyle.Regular, GraphicsUnit.Pixel);
+            if (string.Equals(testFont.Name, candidate, StringComparison.OrdinalIgnoreCase))
+            {
+                resolvedName = testFont.Name;
+                return testFont;
+            }
+            testFont.Dispose();
+        }
+
+        throw new InvalidOperationException(
+            "Required SIL OFL font (Noto Sans TC / Source Han Sans TC) not found. " +
+            "Install Noto Sans TC on Windows or place NotoSansTC-Regular.ttf / NotoSansTC-VF.ttf in vendor\\fonts\\.");
+    }
+
+    public static string GenerateFontSection(
         StringBuilder sb,
+        string fontFilePath,
         string fontVarName,
         string fallbackVarName,
         int pxSize,
@@ -49,27 +111,27 @@ public class LvglFontGenerator
         int bpp,
         SortedSet<int> codepoints)
     {
-        string fontName = "Microsoft JhengHei";
-        using (Font testFont = new Font(fontName, pxSize, FontStyle.Regular, GraphicsUnit.Pixel))
-        {
-            if (testFont.Name != fontName)
-            {
-                fontName = "PMingLiU";
-            }
-        }
+        PrivateFontCollection pfc = null;
+        string resolvedFontName = null;
+        Font font = CreateOflCjkFont(fontFilePath, pxSize, out pfc, out resolvedFontName);
 
-        int canvasW = pxSize * 2 + 8;
-        int canvasH = lineHeight + 8;
-        int yBaseline = lineHeight - baseLine;
+        int canvasW = pxSize * 2 + 12;
+        int canvasH = Math.Max(lineHeight + 32, (int)Math.Ceiling(pxSize * 2.0) + 16);
+        float drawY = 1.0f;
+        int emHeight = font.FontFamily.GetEmHeight(FontStyle.Regular);
+        int cellAscent = font.FontFamily.GetCellAscent(FontStyle.Regular);
+        int yBaseline = (int)Math.Round(drawY + pxSize * (double)cellAscent / (double)emHeight);
 
         List<byte> bitmapBytes = new List<byte>(512 * 1024);
         List<GlyphInfo> glyphs = new List<GlyphInfo>(codepoints.Count + 1);
         glyphs.Add(new GlyphInfo { Codepoint = 0, BitmapIndex = 0, AdvW = 0, BoxW = 0, BoxH = 0, OfsX = 0, OfsY = 0 });
 
-        using (Font font = new Font(fontName, pxSize, FontStyle.Regular, GraphicsUnit.Pixel))
-        using (Bitmap bmp = new Bitmap(canvasW, canvasH, PixelFormat.Format32bppArgb))
-        using (Graphics g = Graphics.FromImage(bmp))
+        try
         {
+            using (font)
+            using (Bitmap bmp = new Bitmap(canvasW, canvasH, PixelFormat.Format32bppArgb))
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
             g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
             g.SmoothingMode = SmoothingMode.HighQuality;
             StringFormat sf = new StringFormat(StringFormat.GenericTypographic);
@@ -82,7 +144,6 @@ public class LvglFontGenerator
                 string s = char.ConvertFromUtf32(cp);
                 g.Clear(Color.FromArgb(0, 0, 0, 0));
 
-                float drawY = 1.0f;
                 g.DrawString(s, font, Brushes.White, 1.0f, drawY, sf);
 
                 BitmapData bd = bmp.LockBits(new Rectangle(0, 0, canvasW, canvasH), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
@@ -216,6 +277,11 @@ public class LvglFontGenerator
                     OfsY = ofsY
                 });
             }
+            }
+        }
+        finally
+        {
+            if (pfc != null) pfc.Dispose();
         }
 
         sb.AppendLine(string.Format("static LV_ATTRIBUTE_LARGE_CONST const uint8_t {0}_bitmap[] = {{", fontVarName));
@@ -292,6 +358,7 @@ public class LvglFontGenerator
         sb.AppendLine(string.Format("    .fallback = {0}", fallbackVarName));
         sb.AppendLine("};");
         sb.AppendLine();
+        return resolvedFontName;
     }
 }
 '@
@@ -364,17 +431,19 @@ for ($c = 32; $c -le 126; $c++) { [void]$setNum.Add($c) }
 $numSymbols = @(0x00B0, 0x00B1, 0x00B5, 0x00D7, 0x00F7, 0x03A9, 0x03BC, 0x2013, 0x2014, 0x2103, 0x2109, 0xFF0F)
 foreach ($cp in $numSymbols) { [void]$setNum.Add($cp) }
 
-Write-Output "Generating vgp_font_cjk.c: 16px ($($set16.Count)), 22px ($($set22.Count)), 36px/48px ($($setNum.Count))..."
+Write-Output "Generating vgp_font_cjk.c (Noto Sans TC / OFL-1.1): 16px ($($set16.Count)), 22px ($($set22.Count)), 36px/48px ($($setNum.Count))..."
 $sb = New-Object System.Text.StringBuilder(4 * 1024 * 1024)
-[void]$sb.AppendLine("/* Auto-generated Traditional Chinese LVGL 9 Font (Microsoft JhengHei) */")
+[void]$sb.AppendLine("/* Auto-generated Traditional Chinese LVGL 9 Font (Noto Sans TC, SIL OFL-1.1) */")
+[void]$sb.AppendLine("/* Copyright (c) 2014-2021 Adobe, Google (Noto Sans TC / Source Han Sans).   */")
+[void]$sb.AppendLine("/* Licensed under the SIL Open Font License, Version 1.1 (vendor/fonts/OFL.txt). */")
 [void]$sb.AppendLine('#include "vgp_font_cjk.h"')
 [void]$sb.AppendLine('#include "src/font/lv_font_fmt_txt.h"')
 [void]$sb.AppendLine()
 
-[LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_zh_16", "&lv_font_source_han_sans_sc_16_cjk", 16, 20, 4, 2, $set16)
-[LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_zh_22", "&vgp_font_zh_16", 22, 27, 5, 4, $set22)
-[LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_num_36", "&vgp_font_zh_22", 36, 42, 8, 4, $setNum)
-[LvglFontGenerator]::GenerateFontSection($sb, "vgp_font_num_48", "&vgp_font_num_36", 48, 56, 10, 4, $setNum)
+$usedFont = [LvglFontGenerator]::GenerateFontSection($sb, $fontFilePath, "vgp_font_zh_16", "&lv_font_source_han_sans_sc_16_cjk", 16, 20, 4, 2, $set16)
+[void][LvglFontGenerator]::GenerateFontSection($sb, $fontFilePath, "vgp_font_zh_22", "&vgp_font_zh_16", 22, 27, 6, 4, $set22)
+[void][LvglFontGenerator]::GenerateFontSection($sb, $fontFilePath, "vgp_font_num_36", "&vgp_font_zh_22", 36, 42, 9, 4, $setNum)
+[void][LvglFontGenerator]::GenerateFontSection($sb, $fontFilePath, "vgp_font_num_48", "&vgp_font_num_36", 48, 56, 12, 4, $setNum)
 
 [IO.File]::WriteAllText($outFile, $sb.ToString(), [Text.Encoding]::ASCII)
-Write-Output "Generated $outFile ($(([IO.FileInfo]$outFile).Length) bytes)."
+Write-Output "Generated $outFile using '$usedFont' ($(([IO.FileInfo]$outFile).Length) bytes)."

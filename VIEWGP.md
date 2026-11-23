@@ -9,7 +9,7 @@
 1. **設計器預檢與一鍵部署**：在 `InfoSys_ViewGP_Web` 中透過「專案 → 部署至 Pi Zero」進行匯出前驗證（容量、欄位長度、圖片格式、不支援屬性），並可直接下載已命名為 `project.json`（且自動扁平化畫面繼承）的部署檔，或透過 Wi-Fi 推送至 Pi Zero 進行熱重載。
 2. **開機載入機制**：`config.txt` 透過 GPU 韌體預載 `project.json` 與 `wifi.txt` 至 RAM，核心不需 FAT 檔案系統驅動即可解析。
 3. **版本相容與錯誤回報**：執行端嚴格檢查 `schemaVersion == 1`。遇到未知欄位、未知元件型別或超限項目時，不再靜默忽略，而是記錄於解析診斷報告，並可於開機畫面、`F12` 本機診斷頁與 `/api/status` 查看。
-4. **自動縮放與中文字型**：自動依 HDMI 解析度與專案畫面解析度等比例縮放並置中；內建微軟正黑體 4bpp 點陣字型（16px / 22px 繁中全字集 + 36px / 48px 大數值與常用單位字集，自動退回鏈 `48 → 36 → 22 → 16`）。
+4. **自動縮放與中文字型**：自動依 HDMI 解析度與專案畫面解析度等比例縮放並置中；內建 **Noto Sans TC（思源黑體系，SIL OFL 1.1 授權）**點陣字型（16px 2bpp 繁中全字集 + 22px 4bpp 常用字集 + 36px / 48px 4bpp 大數值與常用單位字集，自動退回鏈 `48 → 36 → 22 → 16 → LVGL 內建思源黑體`）。
 
 ---
 
@@ -90,7 +90,7 @@
 | 按鈕互動色 (`buttonPressed*`, `buttonDisabled*`) | ✅ | ✅ 完全支援 | 對應 `LV_STATE_PRESSED` / `LV_STATE_DISABLED` |
 | 邊框樣式 (`borderStyle: solid / none`) | ✅ | ✅ 完全支援 | `dashed` / `dotted` 近似以實線繪製（匯出前會提示警告） |
 | 圖片格式 (`PNG` / `JPEG` Base64) | ✅ | ✅ 完全支援 | WebP / GIF 不支援解碼（匯出前會提示警告） |
-| `fontFamily`、`fontWeight: bold`、`italic` | ✅ | ❌ 不支援 | 統一使用內建微軟正黑體點陣字型（匯出前會提示警告） |
+| `fontFamily`、`fontWeight: bold`、`italic` | ✅ | ❌ 不支援 | 統一使用內建 Noto Sans TC（SIL OFL 1.1）點陣字型（匯出前會提示警告） |
 | `buttonHover*`、`imagePosition`、`tableDiagonal` | ✅ | ❌ 不支援 | Pi Zero 忽略（匯出前會提示警告） |
 
 ---

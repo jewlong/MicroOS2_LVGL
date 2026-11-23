@@ -108,4 +108,4 @@ USB Host使用控制器內部DMA和固定128-byte bounce buffer（64-byte對齊�
 - 將 `project.json` 置於 MicroSD 卡根目錄，`config.txt` 透過 `initramfs project.json,wifi.txt 0x02000000` 載入。
 - 支援文字、矩形、圓形、按鈕、開關、指示燈、數值顯示/輸入、進度條、儀表盤、折線趨勢圖、表格、多狀態燈與彈出式對話盒。
 - 支援變數操作（切換、數值設定、增減、重設）與畫面切換（切換畫面、返回上一頁、開啟/關閉 Popup 對話盒）。
-- 自動偵測實體解析度並等比例縮放居中，內建 Source Han Sans CJK 中文字型渲染。詳細說明請參閱 [VIEWGP.md](VIEWGP.md)。
+- 自動偵測實體解析度並等比例縮放居中，內建 Noto Sans TC / Source Han Sans（SIL OFL 1.1）中文字型渲染。詳細說明請參閱 [VIEWGP.md](VIEWGP.md)。

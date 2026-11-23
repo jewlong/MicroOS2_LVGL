@@ -32,7 +32,7 @@
 |---|:---:|---|
 | 建置與連結檢查 (`build-and-stage.ps1`, `verify-build.ps1`, `verify-sdcard.ps1`) | ✅ 已通過 | 0 warnings / 0 errors，RAM 靜態佔用 `11.36 MiB / 16 MiB`，`kernel.img` 大小 `~2.01 MiB` |
 | 設計器 ↔ 執行端 JSON 契約測試 (`npm test` + `tools/test-contract.ps1`) | ✅ 已通過 | 41/41 單元測試通過；`contract_full.json`（全 22 元件）與 `sdcard/project.json` 雙向驗證通過 |
-| CJK 字型渲染 (16/22/36/48px 微軟正黑體) | ✅ 已通過 | 繁體中文標籤、按鈕、大數值與常用單位無亂碼或破圖 |
+| CJK 字型渲染 (16/22/36/48px Noto Sans TC, SIL OFL 1.1) | ✅ 已通過 | 繁體中文標籤、按鈕、大數值與常用單位無亂碼或破圖 |
 | 解析錯誤提示與 `F12` 本機診斷頁 | 🧪 待實機驗收 | 刻意放入錯誤 JSON 與 `schemaVersion: 2`，確認畫面顯示錯誤摘要而非當機；按 `F12` 正常開關診斷面板 |
 | Modbus TCP 斷線／逾時／重連／寫入失敗 | 🧪 待實機驗收 | 拔除網路或停止 PLC 模擬器：3 秒內元件顯示 `---`/紅框、既有警報凍結不誤觸發；恢復連線後自動復原 |
 | Modbus RTU 實體 RS-485 讀寫 | 🧪 待實機驗收 | 連接實體 RS-485 設備，驗證 9600/19200/115200 bps 輪詢與寫入回讀 |
