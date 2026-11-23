@@ -36,6 +36,7 @@ static char command_plus = '+', command_minus = '-', command_reset = 'r';
 static lv_obj_t *wifi_label, *keyboard_label;
 static lv_group_t *keyboard_group;
 volatile uint32_t gui_usb_events, gui_usb_resets, gui_usb_focus, gui_usb_down;
+volatile uint32_t gui_touch_events, gui_touch_resets, gui_touch_down;
 char gui_usb_text[64];
 static lv_obj_t *count_label, *status_label, *tick_label, *work_label, *load_bar;
 static lv_obj_t *plus_button, *minus_button, *reset_button;
@@ -253,11 +254,26 @@ static void mouse_read(lv_indev_t *indev, lv_indev_data_t *data)
 
 static void touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
-    (void)indev;
+    static bool prev_pressed = false;
+    static uint16_t prev_nx = 0u, prev_ny = 0u;
     owner_check();
     uint16_t nx = 0u, ny = 0u;
-    bool pressed = false;
-    bool more = touch_poll(&nx, &ny, &pressed);
+    bool pressed = false, reset = false;
+    bool more = touch_poll(&nx, &ny, &pressed, &reset);
+
+    if (reset) {
+        ++gui_touch_resets;
+        ++gui_touch_events;
+        prev_pressed = false;
+        lv_indev_reset(indev, NULL);
+        lv_indev_wait_release(indev);
+    } else if (pressed != prev_pressed || (pressed && (nx != prev_nx || ny != prev_ny))) {
+        ++gui_touch_events;
+        prev_pressed = pressed;
+        prev_nx = nx;
+        prev_ny = ny;
+    }
+    gui_touch_down = pressed ? 1u : 0u;
 
     if (bootcfg_status() == BOOTCFG_OK) {
         const wifi_settings_t *cfg = bootcfg_wifi();

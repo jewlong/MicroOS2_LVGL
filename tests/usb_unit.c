@@ -138,18 +138,18 @@ void usb_unit_test(void)
 
     /* 5. Touch queue quick-tap preservation, drag coalesce, and disconnect reset */
     touch_reset();
-    uint16_t qx=0,qy=0; bool qp=false;
+    uint16_t qx=0,qy=0; bool qp=false,qr=false;
     touch_post(1000,2000,true);
     touch_post(1500,2500,true); /* Coalesced with previous pressed */
     touch_post(1500,2500,false); /* Release preserved as separate edge */
-    check(touch_poll(&qx,&qy,&qp) && qp && qx==1500 && qy==2500);
-    check(!touch_poll(&qx,&qy,&qp) && !qp);
+    check(touch_poll(&qx,&qy,&qp,&qr) && qp && !qr && qx==1500 && qy==2500);
+    check(!touch_poll(&qx,&qy,&qp,&qr) && !qp && !qr);
     touch_post(3000,4000,true);
-    (void)touch_poll(&qx,&qy,&qp);
-    check(qp);
-    touch_reset(); /* Forces clean release */
-    (void)touch_poll(&qx,&qy,&qp);
-    check(!qp);
+    (void)touch_poll(&qx,&qy,&qp,&qr);
+    check(qp && !qr);
+    touch_reset(); /* Forces safe cancel-reset without click */
+    (void)touch_poll(&qx,&qy,&qp,&qr);
+    check(!qp && qr);
     usb_touch_reports=0;
 
     usb_unit_pass=1;net_log("[TEST] USB parser/queue checks=%lu PASS\n",(unsigned long)usb_unit_checks);
