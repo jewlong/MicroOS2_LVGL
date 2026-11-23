@@ -1,18 +1,54 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "usb_host.h"
 #include "mouse_queue.h"
+#include "touch_queue.h"
+#include "hid_touch.h"
 #include "net_platform.h"
 #include <string.h>
 volatile uint32_t usb_state,usb_error,usb_reports,usb_connects,usb_disconnects,usb_rollovers,usb_modifiers;
 volatile uint32_t usb_step,usb_vid_pid;
 volatile uint32_t usb_init_err,usb_init_val;
-static usb_keyboard_device_t device,kbd_dev,mouse_dev;
-static bool has_kbd,has_mouse;
+static usb_keyboard_device_t device,kbd_dev,mouse_dev,touch_dev;
+static bool has_kbd,has_mouse,has_touch;
 static hid_keyboard_t keyboard;
-static uint8_t configuration[1024],report[64];
+static hid_touch_layout_t touch_layout;
+static uint8_t configuration[1024],report_desc[1536],report[64];
 extern volatile uint32_t app_preempt_pass;
 static usb_result_t request(uint8_t type,uint8_t code,uint16_t value,uint16_t index,void *buf,uint16_t length,uint16_t *got)
 {return usb_control(&device,type,code,value,index,buf,length,got);}
+
+static bool probe_touch_candidate(const usb_hid_touch_candidate_t *cand,const uint8_t *descriptor)
+{
+    uint16_t want=cand->report_desc_len;
+    if(want<12u)want=256u;
+    if(want>sizeof(report_desc))want=(uint16_t)sizeof(report_desc);
+    uint16_t got=0u;
+    /* GET_DESCRIPTOR (HID Report Descriptor = 0x22) directed to interface (0x81) */
+    usb_result_t r=request(0x81,6,0x2200,cand->dev.interface_number,report_desc,want,&got);
+    if(r!=USB_OK || got<12u)return false;
+
+    hid_touch_layout_t layout;
+    if(!hid_touch_parse_report_desc(report_desc,got,&layout))return false;
+
+    /* Optional SET_IDLE(0) on touch interface; tolerate STALL. Do NOT send SET_PROTOCOL(BOOT). */
+    uint16_t dummy=0u;
+    (void)request(0x21,10,0,cand->dev.interface_number,NULL,0,&dummy);
+
+    touch_dev=cand->dev;
+    touch_layout=layout;
+    has_touch=true;
+    usb_touch_connected=1u;
+    usb_touch_x_max=(uint32_t)(layout.slots[0].x_max>0?layout.slots[0].x_max:0);
+    usb_touch_y_max=(uint32_t)(layout.slots[0].y_max>0?layout.slots[0].y_max:0);
+    net_log("[USB] HID touch VID=%04x PID=%04x %s IF=%u EP=%u MPS=%u id=%u slots=%u X=%ld..%ld Y=%ld..%ld\n",
+            descriptor[8]|(descriptor[9]<<8),descriptor[10]|(descriptor[11]<<8),
+            touch_dev.low_speed?"low-speed":"full-speed",
+            touch_dev.interface_number,touch_dev.endpoint,touch_dev.packet_size,
+            layout.has_report_id?layout.report_id:0u,layout.num_slots,
+            (long)layout.slots[0].x_min,(long)layout.slots[0].x_max,
+            (long)layout.slots[0].y_min,(long)layout.slots[0].y_max);
+    return true;
+}
 
 static usb_result_t configure_hid_device(const uint8_t *descriptor,uint8_t m)
 {
@@ -28,14 +64,24 @@ static usb_result_t configure_hid_device(const uint8_t *descriptor,uint8_t m)
     usb_step=8;
     usb_keyboard_device_t cand_kbd=device,cand_mouse=device;
     bool fk=false,fm=false;
+    usb_result_t r_km;
     if(has_mouse && !has_kbd){
-        r=usb_parse_config(configuration,total,device.low_speed,&cand_kbd);
-        fk=(r==USB_OK);
+        r_km=usb_parse_config(configuration,total,device.low_speed,&cand_kbd);
+        fk=(r_km==USB_OK);
     }else{
-        r=usb_parse_hid_config(configuration,total,device.low_speed,&cand_kbd,&fk,&cand_mouse,&fm);
+        r_km=usb_parse_hid_config(configuration,total,device.low_speed,&cand_kbd,&fk,&cand_mouse,&fm);
     }
-    if(r)return r;
-    uint8_t cfg=fk?cand_kbd.configuration:cand_mouse.configuration;
+    usb_hid_touch_candidate_t touch_cands[USB_MAX_TOUCH_CANDIDATES];
+    size_t touch_cand_cnt=0u;
+    usb_result_t r_tc=USB_UNSUPPORTED;
+    if(!has_touch){
+        r_tc=usb_parse_hid_touch_candidates(configuration,total,device.low_speed,&device,
+                                            touch_cands,USB_MAX_TOUCH_CANDIDATES,&touch_cand_cnt);
+    }
+    if(r_km==USB_BAD_DESCRIPTOR || r_tc==USB_BAD_DESCRIPTOR)return USB_BAD_DESCRIPTOR;
+    if(!fk && !fm && touch_cand_cnt==0u)return USB_UNSUPPORTED;
+
+    uint8_t cfg=fk?cand_kbd.configuration:(fm?cand_mouse.configuration:touch_cands[0].dev.configuration);
     usb_step=9;
     r=request(0,9,cfg,0,NULL,0,&n);if(r)return r;
     usb_step=10;
@@ -49,7 +95,17 @@ static usb_result_t configure_hid_device(const uint8_t *descriptor,uint8_t m)
             descriptor[8]|descriptor[9]<<8,descriptor[10]|descriptor[11]<<8,
             kbd_dev.low_speed?"low-speed":"full-speed",kbd_dev.endpoint,kbd_dev.packet_size);
     }
-    if(fm && !has_mouse){
+    bool found_touch_here=false;
+    if(!has_touch && touch_cand_cnt>0u){
+        for(size_t i=0u;i<touch_cand_cnt;++i){
+            if(probe_touch_candidate(&touch_cands[i],descriptor)){
+                found_touch_here=true;
+                break;
+            }
+        }
+    }
+    /* If this same USB device exposed a touch digitizer, skip claiming its secondary mouse-emulation interface. */
+    if(fm && !has_mouse && !found_touch_here){
         r=request(0x21,11,0,cand_mouse.interface_number,NULL,0,&n); /* SET_PROTOCOL(BOOT) */
         if(r!=USB_OK && r!=USB_STALL)return r;
         (void)request(0x21,10,0,cand_mouse.interface_number,NULL,0,&n);
@@ -59,7 +115,7 @@ static usb_result_t configure_hid_device(const uint8_t *descriptor,uint8_t m)
             mouse_dev.low_speed?"low-speed":"full-speed",mouse_dev.endpoint,mouse_dev.packet_size);
     }
     (void)m;
-    return (has_kbd || has_mouse)?USB_OK:USB_UNSUPPORTED;
+    return (has_kbd || has_mouse || has_touch)?USB_OK:USB_UNSUPPORTED;
 }
 
 static usb_result_t enumerate_via_hub(uint8_t hub_ep0,bool hub_low_speed)
@@ -127,14 +183,14 @@ static usb_result_t enumerate_via_hub(uint8_t hub_ep0,bool hub_low_speed)
         usb_vid_pid=((uint32_t)(desc[8]|(desc[9]<<8))<<16)|(uint32_t)(desc[10]|(desc[11]<<8));
         if(desc[4]==9)continue; /* Skip nested hub */
         (void)configure_hid_device(desc,m);
-        if(has_kbd && has_mouse)return USB_OK;
+        if(has_kbd && has_mouse && has_touch)return USB_OK;
     }
-    return (has_kbd || has_mouse)?USB_OK:USB_UNSUPPORTED;
+    return (has_kbd || has_mouse || has_touch)?USB_OK:USB_UNSUPPORTED;
 }
 
 static usb_result_t enumerate(void)
 {
-    has_kbd=false;has_mouse=false;usb_mouse_connected=0u;
+    has_kbd=false;has_mouse=false;has_touch=false;usb_mouse_connected=0u;touch_reset();
     memset(&device,0,sizeof(device));device.ep0=8;
     usb_step=1;
     usb_result_t r=usb_host_reset_port(&device.low_speed);if(r)return r;
@@ -183,7 +239,7 @@ void usb_keyboard_task(void *arg)
         net_log("[USB] controller unavailable; GUI/Wi-Fi/UART continue.\n");
         for(;;)OSTimeDly(100);
     }
-    usb_state=2;net_log("[USB] waiting for directly attached boot keyboard.\n");
+    usb_state=2;net_log("[USB] waiting for HID keyboard / mouse / touchscreen.\n");
     for(;;){
         while(!usb_host_connected()){usb_state=2;OSTimeDly(10);}
         if(usb_state!=254)usb_state=3;
@@ -205,7 +261,7 @@ void usb_keyboard_task(void *arg)
             continue;
         }
         ++usb_connects;usb_state=4;usb_error=0;hid_keyboard_init(&keyboard);keyboard_all_up();
-        uint8_t kbd_pid=0,mouse_pid=0,last_led=255;unsigned errors=0;
+        uint8_t kbd_pid=0,mouse_pid=0,touch_pid=0,last_led=255;unsigned errors=0;
         while(usb_host_connected()){
             if(has_kbd){
                 uint16_t got=0;
@@ -238,10 +294,28 @@ void usb_keyboard_task(void *arg)
                 else if(r==USB_REMOVED)break;
                 else {usb_error=r;if(++errors>=3)break;}
             }
+            if(has_touch){
+                uint16_t got=0;
+                r=usb_interrupt_in(&touch_dev,touch_pid,report,&got);
+                if(r==USB_OK){
+                    touch_pid^=2;errors=0;
+                    hid_touch_sample_t sample;
+                    if(hid_touch_decode_report(&touch_layout,report,got,&sample)){
+                        if(usb_touch_reports<3u){
+                            net_log("[USB] touch got=%u down=%u raw=(%ld,%ld) norm=(%u,%u)\n",
+                                    got,sample.pressed?1u:0u,(long)sample.raw_x,(long)sample.raw_y,
+                                    (unsigned)sample.x_norm,(unsigned)sample.y_norm);
+                        }
+                        touch_post(sample.x_norm,sample.y_norm,sample.pressed);
+                    }
+                }else if(r==USB_NAK || r==USB_TIMEOUT){errors=0;}
+                else if(r==USB_REMOVED)break;
+                else {usb_error=r;if(++errors>=3)break;}
+            }
             OSTimeDly(1);
         }
-        hid_keyboard_release(&keyboard,keyboard_post);keyboard_all_up();mouse_reset();usb_modifiers=0;
-        ++usb_disconnects;usb_state=2;net_log("[USB] keyboard disconnected or transfer failed; keys released.\n");
+        hid_keyboard_release(&keyboard,keyboard_post);keyboard_all_up();mouse_reset();touch_reset();usb_modifiers=0;
+        ++usb_disconnects;usb_state=2;net_log("[USB] HID device disconnected or transfer failed; inputs released.\n");
         if(!usb_host_operational()){usb_state=255;for(;;)OSTimeDly(100);}
         /* Persistent fault requires physical reconnect, avoids endless bus resets. */
         while(usb_host_connected())OSTimeDly(10);

@@ -7,6 +7,7 @@
 #include "framebuffer.h"
 #include "gui.h"
 #include "keyboard.h"
+#include "touch_queue.h"
 #include "bootcfg.h"
 #include "sys_clock.h"
 #include "vgp_modbus.h"
@@ -69,6 +70,8 @@ static void report_status(void)
     uart_puts(" usb="); uart_puthex32(usb_state);
     uart_puts(" keys="); uart_puthex32(usb_key_presses);
     uart_puts(" key_drop="); uart_puthex32(usb_queue_drops);
+    uart_puts(" touch="); uart_puthex32(usb_touch_connected);
+    uart_puts(" touch_cnt="); uart_puthex32(usb_touch_reports);
     uart_puts(" display="); uart_puthex32(app_display_frames);
     uart_puts("\n");
     bsp_log_unlock();

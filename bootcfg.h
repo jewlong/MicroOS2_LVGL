@@ -36,6 +36,9 @@ typedef struct {
     char ops_token[64];
     bool ops_token_set;
     bool ops_http_disabled;
+    bool touch_swap_xy;
+    bool touch_invert_x;
+    bool touch_invert_y;
 } wifi_settings_t;
 
 /* Pure parser over a text buffer (host-testable). On failure *out is zeroed. */

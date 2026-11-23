@@ -14,6 +14,7 @@
 #include <string.h>
 #include "keyboard.h"
 #include "mouse_queue.h"
+#include "touch_queue.h"
 #include "vgp_font_cjk.h"
 #include "platform.h"
 #include "uart.h"
@@ -1934,6 +1935,7 @@ static void update_diag_overlay(void)
         "平台: %s | 運行: %lu s | 時間: %s (%s)\n"
         "LVGL 剩餘記憶體: %lu bytes | 專案: %s (v%lu)\n"
         "畫面: %u | 元件: %u | 變數: %u | 設備: %u\n"
+        "USB 輸入: st=%lu | 鍵盤:%lu | 滑鼠:%s | 觸控:%s (%lu)\n"
         "解析警告: %u 筆 | 最近 OTA: %s | 動作: %s\n",
         soc_is_bcm2837 ? "Pi Zero 2 W" : "Pi Zero W",
         (unsigned long)up, dt_buf, sys_clock_is_synced() ? "NTP已同步" : "未校時",
@@ -1942,6 +1944,10 @@ static void update_diag_overlay(void)
         (unsigned long)(g_parse_report.has_schema_version ? g_parse_report.schema_version : 1u),
         (unsigned)g_proj.num_screens, (unsigned)g_proj.total_elements,
         (unsigned)g_proj.num_variables, (unsigned)g_proj.num_devices,
+        (unsigned long)usb_state, (unsigned long)usb_key_presses,
+        usb_mouse_connected ? "已連線" : "未連線",
+        usb_touch_connected ? "已連線" : "未連線",
+        (unsigned long)usb_touch_reports,
         (unsigned)g_parse_report.total_warnings,
         g_last_ota_err[0] ? g_last_ota_err : "OK",
         g_last_action_info[0] ? g_last_action_info : "-");
@@ -2281,7 +2287,7 @@ size_t vgp_runtime_format_status_json(char *out, size_t max_out)
     snprintf(hdr, sizeof(hdr),
              "{\"platform\":\"%s\",\"uptimeSec\":%lu,\"ntpSynced\":%s,\"localTime\":\"%s\","
              "\"lvglHeapFree\":%lu,\"activeAlarms\":%u,"
-             "\"usb\":{\"state\":%lu,\"keys\":%lu,\"mouse\":%s},"
+             "\"usb\":{\"state\":%lu,\"keys\":%lu,\"mouse\":%s,\"touch\":%s,\"touchReports\":%lu},"
              "\"project\":{\"id\":",
              soc_is_bcm2837 ? "Zero2W" : "ZeroW",
              (unsigned long)uptime,
@@ -2291,7 +2297,9 @@ size_t vgp_runtime_format_status_json(char *out, size_t max_out)
              (unsigned)active_alarms,
              (unsigned long)usb_state,
              (unsigned long)usb_key_presses,
-             usb_mouse_connected ? "true" : "false");
+             usb_mouse_connected ? "true" : "false",
+             usb_touch_connected ? "true" : "false",
+             (unsigned long)usb_touch_reports);
     json_append_raw(out, max_out, &pos, hdr);
     json_append_str(out, max_out, &pos, g_proj.id);
     json_append_raw(out, max_out, &pos, ",\"name\":");

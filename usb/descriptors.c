@@ -61,3 +61,76 @@ usb_result_t usb_parse_config(const uint8_t *b,size_t n,bool low,usb_keyboard_de
     if(r!=USB_OK)return r;
     return hk?USB_OK:USB_UNSUPPORTED;
 }
+
+static uint16_t parse_hid_report_desc_len(const uint8_t *d,unsigned len)
+{
+    if(len<9u || d[1]!=0x21u)return 0u;
+    unsigned num=d[5];
+    for(unsigned k=0;k<num;++k){
+        unsigned pos=6u+k*3u;
+        if(pos+3u>len)break;
+        if(d[pos]==0x22u)return u16(d+pos+1u);
+    }
+    return 0u;
+}
+
+usb_result_t usb_parse_hid_touch_candidates(const uint8_t *b,size_t n,bool low,
+                                            const usb_keyboard_device_t *base,
+                                            usb_hid_touch_candidate_t *out,size_t max_out,size_t *count_out)
+{
+    if(count_out)*count_out=0u;
+    if(!b || !out || !max_out || !count_out)return USB_BAD_DESCRIPTOR;
+    if(n<9u || b[0]!=9u || b[1]!=2u || u16(b+2)!=n || !b[5])return USB_BAD_DESCRIPTOR;
+
+    bool in_cand=false;
+    uint8_t iface=0u,declared=0u,seen=0u;
+    uint16_t rdesc_len=0u;
+    bool have_ep=false;
+    usb_hid_touch_candidate_t cur;
+    cur=(usb_hid_touch_candidate_t){0};
+
+    for(size_t off=9u;off<n;){
+        if(n-off<2u || b[off]<2u || b[off]>n-off)return USB_BAD_DESCRIPTOR;
+        const uint8_t *d=b+off;unsigned len=d[0];
+        if(d[1]==4u){
+            if(len<9u)return USB_BAD_DESCRIPTOR;
+            if(in_cand && have_ep && *count_out<max_out){
+                cur.report_desc_len=rdesc_len;
+                out[(*count_out)++]=cur;
+            }
+            in_cand=false;have_ep=false;rdesc_len=0u;
+            /* Generic HID interface (class=3, alt=0, protocol=0 or non-boot pointer). */
+            if(d[3]==0u && d[5]==3u && (d[7]==0u || (d[6]==0u && d[7]==2u))){
+                in_cand=true;
+                iface=d[2];declared=d[4];seen=0u;
+                cur=(usb_hid_touch_candidate_t){0};
+                if(base)cur.dev=*base;
+                cur.dev.interface_number=iface;
+                cur.dev.configuration=b[5];
+            }
+        }else if(d[1]==0x21u && in_cand){
+            uint16_t rl=parse_hid_report_desc_len(d,len);
+            if(rl>0u)rdesc_len=rl;
+        }else if(d[1]==5u && in_cand){
+            if(len<7u)return USB_BAD_DESCRIPTOR;
+            ++seen;
+            uint16_t m=u16(d+4);
+            if(!have_ep && (d[2]&0x80u) && (d[3]&3u)==3u){
+                if(!(d[2]&0x70u) && (d[2]&15u) && d[6] && m>=4u && m<=64u && (!low || m<=8u)){
+                    cur.dev.endpoint=d[2]&15u;
+                    cur.dev.packet_size=m;
+                    cur.dev.interval=d[6];
+                    have_ep=true;
+                }
+            }
+            (void)declared;
+            (void)seen;
+        }
+        off+=len;
+    }
+    if(in_cand && have_ep && *count_out<max_out){
+        cur.report_desc_len=rdesc_len;
+        out[(*count_out)++]=cur;
+    }
+    return (*count_out>0u)?USB_OK:USB_UNSUPPORTED;
+}

@@ -4,6 +4,7 @@
 #include "gui.h"
 #include "keyboard.h"
 #include "mouse_queue.h"
+#include "touch_queue.h"
 #include "net_platform.h"
 #include "framebuffer.h"
 #include "bootcfg.h"
@@ -249,6 +250,34 @@ static void mouse_read(lv_indev_t *indev, lv_indev_data_t *data)
     data->point.y = mouse_y;
     data->state = left ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
 }
+
+static void touch_read(lv_indev_t *indev, lv_indev_data_t *data)
+{
+    (void)indev;
+    owner_check();
+    uint16_t nx = 0u, ny = 0u;
+    bool pressed = false;
+    bool more = touch_poll(&nx, &ny, &pressed);
+
+    if (bootcfg_status() == BOOTCFG_OK) {
+        const wifi_settings_t *cfg = bootcfg_wifi();
+        if (cfg->touch_swap_xy) {
+            uint16_t tmp = nx;
+            nx = ny;
+            ny = tmp;
+        }
+        if (cfg->touch_invert_x) nx = (uint16_t)(65535u - nx);
+        if (cfg->touch_invert_y) ny = (uint16_t)(65535u - ny);
+    }
+
+    const framebuffer_t *fb = framebuffer_info();
+    uint32_t max_x = (fb->width > 1u) ? (fb->width - 1u) : 0u;
+    uint32_t max_y = (fb->height > 1u) ? (fb->height - 1u) : 0u;
+    data->point.x = (int32_t)(((uint32_t)nx * max_x + 32767u) / 65535u);
+    data->point.y = (int32_t)(((uint32_t)ny * max_y + 32767u) / 65535u);
+    data->state = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+    data->continue_reading = more;
+}
 static void create_screen(uint32_t screen_w, uint32_t screen_h)
 {
     lv_obj_t *root = lv_screen_active();
@@ -363,6 +392,10 @@ void gui_task(void *arg)
     lv_indev_t *mouse_in = lv_indev_create();
     lv_indev_set_type(mouse_in, LV_INDEV_TYPE_POINTER);
     lv_indev_set_read_cb(mouse_in, mouse_read);
+
+    lv_indev_t *touch_in = lv_indev_create();
+    lv_indev_set_type(touch_in, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(touch_in, touch_read);
 
     size_t proj_len = 0;
     const char *proj_json = bootcfg_project_json(&proj_len);

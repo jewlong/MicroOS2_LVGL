@@ -18,8 +18,8 @@
 | 顯示輸出 | HDMI 螢幕 (640×480 / 800×600 / 1024×768 / 1280×720 / 1920×1080) | ✅ 已實機驗證 | 透過 GPU Mailbox Framebuffer 32bpp 輸出，畫面自動等比縮放置中 |
 | 輸入裝置 | USB HID Boot Keyboard（直連 OTG） | ✅ 已實機驗證 | `Tab`/`Shift+Tab`/`Enter`/`Esc`/方向鍵/`F12` 診斷頁 |
 | 輸入裝置 | USB HID Boot Mouse（直連 / 複合裝置 / 1 層 Hub） | 🧪 待實機驗收 | 驅動與 LVGL Pointer 已整合並通過編譯與符號檢查，待實體滑鼠驗證移動/點擊/滾輪 |
-| 輸入裝置 | USB 1 層 Hub（同時接鍵盤＋滑鼠） | 🧪 待實機驗收 | 支援 1 層 Hub 列舉與雙端點輪詢；不支援多層串接 Hub |
-| 觸控螢幕 | USB HID Touch / I2C Touch | ❌ 不支援 | 目前僅實作 HID Boot Protocol Keyboard/Mouse |
+| 輸入裝置 | USB 1 層 Hub（同時接鍵盤＋滑鼠＋觸控螢幕） | 🧪 待實機驗收 | 支援 1 層 Hub 列舉與多裝置輪詢；不支援多層串接 Hub |
+| 觸控螢幕 | 標準 USB HID 觸控螢幕（HDMI 螢幕內建 USB Touch） | 🧪 待實機驗收 | 已實作標準 USB HID Report Descriptor 解析器（單點／多點相容取首觸點、絕對座標自動對應全螢幕、斷線自動釋放），支援直連 OTG 與 1 層 Hub，待實體 HDMI 觸控螢幕上板驗收；I2C Touch 尚未支援 |
 | 無線網路 | 板載 Wi-Fi CYW43438 (2.4 GHz, WPA2-PSK) | 🧪 待實機驗收 | SDIO/WHC 與 lwIP 2.2.1 整合已完成，待實機環境長時間連線與重連測試 |
 | 序列通訊 | PL011 UART0 (GPIO14/15) 除錯輸出 (115200 8N1) | ✅ 已實機驗證 | 開機日誌與錯誤診斷預設輸出通道 |
 | 序列通訊 | PL011 UART0 + 外接 RS-485 收發器 (Modbus RTU) | 🧪 待實機驗收 | `modbus_rtu.c` 已實作幀計時與 CRC16，啟用時與除錯輸出共用 UART0（建議搭配外接自動流向控制模組） |

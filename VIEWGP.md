@@ -98,7 +98,7 @@
 ## 6. 通訊、警報、輸入與現場維運能力
 
 - **Modbus TCP / RTU**：支援 16 台設備、Coil / Discrete Input / Holding Register / Input Register、`bool`/`uint16`/`int16`/`uint32`/`int32`/`float32`、高低字序、線性縮放與偏移、寫入後強制回讀（寫入失敗不自動重試，避免現場重複動作）。
-- **USB 輸入**：同時支援 USB HID Boot Keyboard（`Tab`/`Shift+Tab`/`Enter`/`Esc`/方向鍵）與 USB HID Boot Mouse（自動顯示游標），支援直連與 1 層 USB Hub。
+- **USB 輸入**：同時支援 USB HID Boot Keyboard（`Tab`/`Shift+Tab`/`Enter`/`Esc`/方向鍵）、USB HID Boot Mouse（自動顯示游標）與 **標準 USB HID 觸控螢幕（單點觸控，自動解析 HID Report Descriptor 並縮放至全畫面，不顯示游標；支援 `wifi.txt` 設定 `touch_swap_xy` / `touch_invert_x` / `touch_invert_y`）**，支援直連與 1 層 USB Hub。
 - **本機診斷頁 (`F12`)**：任何畫面按下鍵盤 `F12` 即可切換顯示專案名稱、載入狀態、解析警告數、Wi-Fi IP、SNTP 時間、Modbus 設備連線統計與 LVGL 記憶體使用率。
 - **HTTP Port 8080 現場維運 API**：提供 `GET /`、`GET /api/status`、`GET /api/alarms`、`POST /api/project`（原子熱重載：失敗時自動保留既有畫面），並支援 `wifi.txt` 設定 `ops_token=` 認證與 `ops_http=0` 關閉開關。
 

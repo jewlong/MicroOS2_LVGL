@@ -1,5 +1,7 @@
 /* Test-only: execute pure parser/queue paths on the actual ARM CPU port. */
 #include "usb_host.h"
+#include "hid_touch.h"
+#include "touch_queue.h"
 #include "bsp.h"
 #include "net_platform.h"
 #include <string.h>
@@ -51,5 +53,104 @@ void usb_unit_test(void)
         check(keyboard_pop(&got) && got.key==i && !got.reset);
     }
     usb_key_presses=0;usb_queue_drops=0;
+
+    /* --- USB HID Touch Report Descriptor & Decoder tests --- */
+    /* 1. Standard Single-Touch Digitizer (Report ID=1, Tip+InRange+6pad, X 0..4095, Y 0..4095) */
+    static const uint8_t rdesc_st[]={
+        0x05,0x0D, 0x09,0x04, 0xA1,0x01,             /* Usage Page(Digitizers), Usage(Touch Screen), Coll(App) */
+        0x85,0x01,                                   /* Report ID (1) */
+        0x09,0x22, 0xA1,0x02,                        /* Usage(Finger), Coll(Logical) */
+        0x09,0x42, 0x15,0x00, 0x25,0x01,             /* Usage(Tip Switch), LogMin(0), LogMax(1) */
+        0x75,0x01, 0x95,0x01, 0x81,0x02,             /* 1-bit Data,Var,Abs */
+        0x09,0x32, 0x81,0x02,                        /* Usage(In Range) 1-bit */
+        0x95,0x06, 0x81,0x03,                        /* 6-bit Const padding */
+        0x05,0x01, 0x09,0x30, 0x09,0x31,             /* Generic Desktop, Usage(X), Usage(Y) */
+        0x15,0x00, 0x26,0xFF,0x0F,                   /* LogMin(0), LogMax(4095) */
+        0x75,0x10, 0x95,0x02, 0x81,0x02,             /* 16-bit x 2, Data,Var,Abs */
+        0xC0, 0xC0
+    };
+    hid_touch_layout_t tl;
+    check(hid_touch_parse_report_desc(rdesc_st,sizeof(rdesc_st),&tl));
+    check(tl.valid && tl.has_report_id && tl.report_id==1 && tl.is_digitizer && tl.num_slots==1);
+    check(tl.min_report_bytes==6 && tl.slots[0].x_max==4095 && tl.slots[0].y_max==4095);
+    hid_touch_sample_t ts;
+    uint8_t pkt_st[6]={0x01, 0x03, 0x00,0x08, 0xFF,0x0F}; /* Tip=1, X=2048, Y=4095 */
+    check(hid_touch_decode_report(&tl,pkt_st,sizeof(pkt_st),&ts));
+    check(ts.pressed && ts.raw_x==2048 && ts.raw_y==4095 && ts.x_norm>=32770 && ts.x_norm<=32780 && ts.y_norm==65535);
+    pkt_st[0]=0x02; /* Wrong report ID -> ignored */
+    check(!hid_touch_decode_report(&tl,pkt_st,sizeof(pkt_st),&ts));
+    pkt_st[0]=0x01; pkt_st[1]=0x02; /* Tip=0 (finger lift) */
+    check(hid_touch_decode_report(&tl,pkt_st,sizeof(pkt_st),&ts));
+    check(!ts.pressed);
+
+    /* 2. Multi-Touch 2-slot parallel Digitizer (Report ID=4, Logical Max 0xFFFF quirk) */
+    static const uint8_t rdesc_mt[]={
+        0x05,0x0D, 0x09,0x04, 0xA1,0x01,
+        0x85,0x04,
+        /* Slot 0 */
+        0x09,0x22, 0xA1,0x02,
+        0x09,0x42, 0x15,0x00, 0x25,0x01, 0x75,0x01, 0x95,0x01, 0x81,0x02,
+        0x95,0x07, 0x81,0x03,
+        0x09,0x51, 0x75,0x08, 0x95,0x01, 0x81,0x02, /* Contact ID */
+        0x05,0x01, 0x09,0x30, 0x15,0x00, 0x26,0xFF,0xFF, 0x75,0x10, 0x95,0x01, 0x81,0x02,
+        0x09,0x31, 0x81,0x02,
+        0xC0,
+        /* Slot 1 */
+        0x05,0x0D, 0x09,0x22, 0xA1,0x02,
+        0x09,0x42, 0x15,0x00, 0x25,0x01, 0x75,0x01, 0x95,0x01, 0x81,0x02,
+        0x95,0x07, 0x81,0x03,
+        0x09,0x51, 0x75,0x08, 0x95,0x01, 0x81,0x02,
+        0x05,0x01, 0x09,0x30, 0x15,0x00, 0x26,0xFF,0xFF, 0x75,0x10, 0x95,0x01, 0x81,0x02,
+        0x09,0x31, 0x81,0x02,
+        0xC0,
+        0x05,0x0D, 0x09,0x54, 0x75,0x08, 0x95,0x01, 0x81,0x02, /* Contact Count */
+        0xC0
+    };
+    check(hid_touch_parse_report_desc(rdesc_mt,sizeof(rdesc_mt),&tl));
+    check(tl.valid && tl.report_id==4 && tl.num_slots==2 && tl.slots[0].x_max==65535 && tl.slots[1].y_max==65535);
+    /* Slot 0 released, Slot 1 active at (10000, 20000) -> picks Slot 1 */
+    uint8_t pkt_mt[14]={0x04,  0x00,0x00, 0x00,0x00, 0x00,0x00,  0x01,0x01, 0x10,0x27, 0x20,0x4E,  0x01};
+    check(hid_touch_decode_report(&tl,pkt_mt,sizeof(pkt_mt),&ts));
+    check(ts.pressed && ts.x_norm==10000 && ts.y_norm==20000);
+    pkt_mt[7]=0x00; /* Both slots up */
+    check(hid_touch_decode_report(&tl,pkt_mt,sizeof(pkt_mt),&ts));
+    check(!ts.pressed);
+
+    /* 3. Relative Boot Mouse MUST be rejected by touch parser */
+    static const uint8_t rdesc_rel_mouse[]={
+        0x05,0x01, 0x09,0x02, 0xA1,0x01, 0x09,0x01, 0xA1,0x00,
+        0x05,0x09, 0x19,0x01, 0x29,0x03, 0x15,0x00, 0x25,0x01, 0x95,0x03, 0x75,0x01, 0x81,0x02,
+        0x95,0x01, 0x75,0x05, 0x81,0x01,
+        0x05,0x01, 0x09,0x30, 0x09,0x31, 0x15,0x81, 0x25,0x7F, 0x75,0x08, 0x95,0x02, 0x81,0x06,
+        0xC0, 0xC0
+    };
+    check(!hid_touch_parse_report_desc(rdesc_rel_mouse,sizeof(rdesc_rel_mouse),&tl));
+
+    /* 4. USB Config Descriptor touch candidate parsing */
+    uint8_t touch_cfg[]={9,2,34,0,1,1,0,0x80,50,
+        9,4,0,0,1,3,0,0,0,
+        9,0x21,0x11,1,0,1,0x22,0x90,0x01,
+        7,5,0x82,3,64,0,4};
+    usb_hid_touch_candidate_t cands[2];
+    size_t cand_cnt=0;
+    check(usb_parse_hid_touch_candidates(touch_cfg,sizeof(touch_cfg),false,&d,cands,2,&cand_cnt)==USB_OK);
+    check(cand_cnt==1 && cands[0].dev.endpoint==2 && cands[0].dev.packet_size==64 && cands[0].report_desc_len==0x0190);
+
+    /* 5. Touch queue quick-tap preservation, drag coalesce, and disconnect reset */
+    touch_reset();
+    uint16_t qx=0,qy=0; bool qp=false;
+    touch_post(1000,2000,true);
+    touch_post(1500,2500,true); /* Coalesced with previous pressed */
+    touch_post(1500,2500,false); /* Release preserved as separate edge */
+    check(touch_poll(&qx,&qy,&qp) && qp && qx==1500 && qy==2500);
+    check(!touch_poll(&qx,&qy,&qp) && !qp);
+    touch_post(3000,4000,true);
+    (void)touch_poll(&qx,&qy,&qp);
+    check(qp);
+    touch_reset(); /* Forces clean release */
+    (void)touch_poll(&qx,&qy,&qp);
+    check(!qp);
+    usb_touch_reports=0;
+
     usb_unit_pass=1;net_log("[TEST] USB parser/queue checks=%lu PASS\n",(unsigned long)usb_unit_checks);
 }

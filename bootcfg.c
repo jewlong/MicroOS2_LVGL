@@ -132,6 +132,18 @@ bootcfg_status_t bootcfg_parse_wifi(const char *text, size_t length, wifi_settin
             if (value_len == 1u && text[value] == '0') {
                 r.ops_http_disabled = true;
             }
+        } else if (key_is(text + start, key_len, "touch_swap_xy")) {
+            if (value_len == 1u && text[value] == '1') {
+                r.touch_swap_xy = true;
+            }
+        } else if (key_is(text + start, key_len, "touch_invert_x")) {
+            if (value_len == 1u && text[value] == '1') {
+                r.touch_invert_x = true;
+            }
+        } else if (key_is(text + start, key_len, "touch_invert_y")) {
+            if (value_len == 1u && text[value] == '1') {
+                r.touch_invert_y = true;
+            }
         }
     }
     bootcfg_status_t result = BOOTCFG_OK;

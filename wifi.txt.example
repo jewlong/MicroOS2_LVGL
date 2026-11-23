@@ -12,4 +12,8 @@ country=TW
 # Optional HTTP Field Ops (port 8080) authentication token and enable switch (0=disable).
 # ops_token=change-me-secret
 # ops_http=1
+# Optional USB HID touchscreen axis adjustments (1=enable).
+# touch_swap_xy=0
+# touch_invert_x=0
+# touch_invert_y=0
 

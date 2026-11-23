@@ -23,7 +23,7 @@ OBJECTS := build/startup.o build/os_cpu_a.o build/os_cpu_c.o \
     build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o build/bootcfg.o build/sys_clock.o build/vgp_parser.o build/vgp_alarm.o build/vgp_image.o build/vgp_trend.o build/modbus_codec.o build/modbus_tcp.o build/modbus_rtu.o build/vgp_modbus.o build/vgp_runtime.o build/vgp_font_cjk.o \
     build/os_core.o build/os_task.o build/os_time.o build/os_sem.o \
     build/os_mutex.o build/os_q.o build/dwc2.o build/descriptors.o \
-    build/hid_keyboard.o build/key_queue.o build/mouse_queue.o build/usb_keyboard.o
+    build/hid_keyboard.o build/hid_touch.o build/key_queue.o build/mouse_queue.o build/touch_queue.o build/usb_keyboard.o
 
 # Software renderer, built-in allocator/string/printf, selected widgets.
 LVROOT := vendor/lvgl/src
