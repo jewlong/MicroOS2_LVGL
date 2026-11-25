@@ -133,6 +133,11 @@ static usb_result_t packet_split(usb_keyboard_device_t *d,uint8_t ep,uint8_t typ
     uint32_t ch_base=mps|((uint32_t)ep<<11)|(in?1u<<15:0)|
         (d->low_speed?1u<<17:0)|((uint32_t)type<<18)|(1u<<20)|((uint32_t)d->address<<22);
 
+    /* Avoid starting periodic SSPLIT in microframes 5..7 so CSPLIT never crosses 1ms EOF */
+    if(type==3){
+        for(unsigned w=0;w<20 && (read_reg(HFNUM)&7u)>=5u;++w)delay_us(25);
+    }
+
     /* Stage 1: Start-Split (SSPLIT): IN sends 0 bytes, OUT/SETUP sends payload */
     uint32_t s_bytes=in?0u:bytes;
     uint32_t c_bytes=in?bytes:0u;
@@ -144,7 +149,8 @@ static usb_result_t packet_split(usb_keyboard_device_t *d,uint8_t ep,uint8_t typ
     write_reg(HCCHAR,ch|ENABLE);
     uint32_t status=0;
     uint32_t s_mask=2u|1u|(1u<<5)|(1u<<4)|(1u<<3)|(1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10);
-    for(unsigned fast=0;fast<40;++fast){
+    for(unsigned fast=0;fast<50;++fast){
+        if(!usb_host_connected())break;
         status=read_reg(HCINT);
         if(status&s_mask)break;
         delay_us(50);
@@ -159,10 +165,11 @@ static usb_result_t packet_split(usb_keyboard_device_t *d,uint8_t ep,uint8_t typ
         return (status&((1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10)))?USB_IO:USB_TIMEOUT;
     }
 
-    /* Stage 2: Complete-Split (CSPLIT) with NYET retries */
-    for(unsigned attempt=0;attempt<20;++attempt){
+    /* Stage 2: Complete-Split (CSPLIT) with NYET retries (up to ~10ms for slow LS/FS control/HID) */
+    delay_us(type==3?250:150);
+    for(unsigned attempt=0;attempt<80;++attempt){
         if(!usb_host_connected())return USB_REMOVED;
-        delay_us(125);
+        if(attempt>0)delay_us(125);
         arm_dmb();write_reg(HCINT,0x7ff);write_reg(0x504,splt_base|(1u<<16));
         write_reg(HCTSIZ,c_bytes|(1u<<19)|((uint32_t)pid<<29));
         write_reg(HCDMA,(uint32_t)(uintptr_t)dma_buffer|DMA_BUS_ALIAS);
@@ -171,7 +178,7 @@ static usb_result_t packet_split(usb_keyboard_device_t *d,uint8_t ep,uint8_t typ
         write_reg(HCCHAR,ch|ENABLE);
         status=0;
         uint32_t c_mask=2u|1u|(1u<<6)|(1u<<4)|(1u<<3)|(1u<<2)|(1u<<7)|(1u<<8)|(1u<<9)|(1u<<10);
-        for(unsigned fast=0;fast<40;++fast){
+        for(unsigned fast=0;fast<50;++fast){
             status=read_reg(HCINT);
             if(status&c_mask)break;
             delay_us(50);
@@ -183,8 +190,10 @@ static usb_result_t packet_split(usb_keyboard_device_t *d,uint8_t ep,uint8_t typ
             arm_dmb();
             if(in){
                 uint32_t remaining=read_reg(HCTSIZ)&0x7ffffu;
-                if(remaining>bytes || bytes-remaining>length){usb_init_val=0xA4000000u|remaining;return USB_IO;}
-                *actual=(uint16_t)(bytes-remaining);
+                if(remaining>bytes){usb_init_val=0xA4000000u|remaining;return USB_IO;}
+                uint32_t got_b=bytes-remaining;
+                if(got_b>length)got_b=length;
+                *actual=(uint16_t)got_b;
                 if(*actual)memcpy(data,dma_buffer,*actual);
             }else{
                 *actual=length;
@@ -244,8 +253,10 @@ static usb_result_t packet(usb_keyboard_device_t *d,uint8_t ep,uint8_t type,bool
         arm_dmb();
         if(in){
             uint32_t remaining=read_reg(HCTSIZ)&0x7ffffu;
-            if(remaining>bytes || bytes-remaining>length){usb_init_val=0xA4000000u|remaining;return USB_IO;}
-            *actual=(uint16_t)(bytes-remaining);
+            if(remaining>bytes){usb_init_val=0xA4000000u|remaining;return USB_IO;}
+            uint32_t got_b=bytes-remaining;
+            if(got_b>length)got_b=length;
+            *actual=(uint16_t)got_b;
             if(*actual)memcpy(data,dma_buffer,*actual);
         }else{
             *actual=length;

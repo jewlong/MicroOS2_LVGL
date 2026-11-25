@@ -1930,12 +1930,16 @@ static void update_diag_overlay(void)
     sys_clock_format("YYYY/MM/DD HH:mm:ss", &dt, dt_buf, sizeof(dt_buf));
     uint32_t up = (uint32_t)OSTimeGet() / (uint32_t)OS_TICKS_PER_SEC;
 
+    char usb_detail[160];
+    usb_diag_line(usb_detail, sizeof(usb_detail));
+
     int pos = snprintf(dtxt, sizeof(dtxt),
         "=== Pi Zero 本機診斷頁 (按 F12 或 Esc 關閉) ===\n"
         "平台: %s | 運行: %lu s | 時間: %s (%s)\n"
         "LVGL 剩餘記憶體: %lu bytes | 專案: %s (v%lu)\n"
         "畫面: %u | 元件: %u | 變數: %u | 設備: %u\n"
-        "USB 輸入: st=%lu | 鍵盤:%lu | 滑鼠:%s | 觸控:%s (%lu)\n"
+        "USB 輸入: st=%lu | 鍵盤:%lu | 滑鼠:%s (%lu) | 觸控:%s (%lu)\n"
+        "%s\n"
         "解析警告: %u 筆 | 最近 OTA: %s | 動作: %s\n",
         soc_is_bcm2837 ? "Pi Zero 2 W" : "Pi Zero W",
         (unsigned long)up, dt_buf, sys_clock_is_synced() ? "NTP已同步" : "未校時",
@@ -1946,8 +1950,10 @@ static void update_diag_overlay(void)
         (unsigned)g_proj.num_variables, (unsigned)g_proj.num_devices,
         (unsigned long)usb_state, (unsigned long)usb_key_presses,
         usb_mouse_connected ? "已連線" : "未連線",
+        (unsigned long)usb_mouse_reports,
         usb_touch_connected ? "已連線" : "未連線",
         (unsigned long)usb_touch_reports,
+        usb_detail,
         (unsigned)g_parse_report.total_warnings,
         g_last_ota_err[0] ? g_last_ota_err : "OK",
         g_last_action_info[0] ? g_last_action_info : "-");

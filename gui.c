@@ -236,10 +236,10 @@ static void mouse_read(lv_indev_t *indev, lv_indev_data_t *data)
         if (!mouse_cursor) {
             mouse_cursor = lv_obj_create(lv_layer_sys());
             lv_obj_remove_style_all(mouse_cursor);
-            lv_obj_set_size(mouse_cursor, 12, 12);
-            lv_obj_set_style_bg_color(mouse_cursor, lv_color_hex(0x000000), 0);
+            lv_obj_set_size(mouse_cursor, 14, 14);
+            lv_obj_set_style_bg_color(mouse_cursor, lv_color_hex(0xF59E0Bu), 0);
             lv_obj_set_style_bg_opa(mouse_cursor, LV_OPA_COVER, 0);
-            lv_obj_set_style_border_color(mouse_cursor, lv_color_hex(0xFFFFFF), 0);
+            lv_obj_set_style_border_color(mouse_cursor, lv_color_hex(0xFFFFFFu), 0);
             lv_obj_set_style_border_width(mouse_cursor, 2, 0);
             lv_obj_set_style_radius(mouse_cursor, LV_RADIUS_CIRCLE, 0);
             lv_obj_remove_flag(mouse_cursor, LV_OBJ_FLAG_CLICKABLE);

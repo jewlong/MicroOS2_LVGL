@@ -23,4 +23,5 @@ extern volatile uint32_t usb_connects,usb_disconnects,usb_rollovers,usb_modifier
 extern volatile uint32_t usb_step,usb_vid_pid;
 extern volatile uint32_t usb_init_err,usb_init_val;
 uint32_t usb_diag_hprt(void);
+void usb_diag_line(char *out, size_t max_out);
 #endif

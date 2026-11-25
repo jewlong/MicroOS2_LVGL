@@ -463,3 +463,226 @@ bool hid_touch_decode_report(const hid_touch_layout_t *layout, const uint8_t *re
     out->raw_y = fallback_ry;
     return true;
 }
+
+bool hid_mouse_parse_report_desc(const uint8_t *desc, size_t len, hid_mouse_layout_t *out)
+{
+    if (!desc || !out || len < 4u) return false;
+    memset(out, 0, sizeof(*out));
+
+    hid_global_t global;
+    hid_global_t gstack[HID_MAX_GLOBAL_STACK];
+    uint8_t gsp = 0u;
+    hid_local_t local;
+    hid_rid_offset_t rid_offsets[HID_MAX_REPORT_IDS];
+    uint8_t rid_count = 0u;
+
+    uint8_t app_kind_stack[HID_MAX_COLL_DEPTH];
+    uint8_t coll_depth = 0u;
+    uint8_t cur_app_kind = 0u; /* 1 = GD Mouse / Pointer */
+
+    bool cand_active = false;
+    bool cand_has_rid = false;
+    uint8_t cand_rid = 0u;
+    bool have_btn = false, have_x = false, have_y = false;
+    uint16_t btn_bit = 0u, x_bit = 0u, y_bit = 0u;
+    uint8_t btn_bits = 0u, x_size = 0u, y_size = 0u;
+
+    memset(&global, 0, sizeof(global));
+    memset(&local, 0, sizeof(local));
+
+    size_t pos = 0u;
+    while (pos < len) {
+        uint8_t prefix = desc[pos++];
+        if (prefix == 0xFEu) {
+            if (pos + 2u > len) break;
+            uint8_t dsz = desc[pos];
+            pos += 2u;
+            if (pos + dsz > len) break;
+            pos += dsz;
+            continue;
+        }
+
+        uint8_t bSizeCode = prefix & 3u;
+        uint8_t bSize = (bSizeCode == 3u) ? 4u : bSizeCode;
+        uint8_t bType = (prefix >> 2) & 3u;
+        uint8_t bTag = (prefix >> 4) & 0x0Fu;
+        if (pos + bSize > len) break;
+
+        uint32_t uval = 0u;
+        for (uint8_t i = 0; i < bSize; ++i) {
+            uval |= ((uint32_t)desc[pos + i]) << (i * 8u);
+        }
+        pos += bSize;
+
+        if (bType == 1u) {
+            switch (bTag) {
+                case 0x0u: global.usage_page = (uint16_t)(uval & 0xFFFFu); break;
+                case 0x1u: global.logical_min = sign_extend(uval, bSize); break;
+                case 0x2u:
+                    global.logical_max = sign_extend(uval, bSize);
+                    global.logical_max_u = uval;
+                    break;
+                case 0x7u: global.report_size = uval; break;
+                case 0x8u:
+                    global.report_id = (uint8_t)(uval & 0xFFu);
+                    global.has_report_id = (global.report_id != 0u);
+                    break;
+                case 0x9u: global.report_count = uval; break;
+                case 0xAu:
+                    if (gsp < HID_MAX_GLOBAL_STACK) gstack[gsp++] = global;
+                    break;
+                case 0xBu:
+                    if (gsp > 0u) global = gstack[--gsp];
+                    break;
+                default: break;
+            }
+        } else if (bType == 2u) {
+            switch (bTag) {
+                case 0x0u:
+                    if (local.usage_count < HID_MAX_LOCAL_USAGES) {
+                        uint32_t fu = (bSize == 4u) ? uval : (((uint32_t)global.usage_page << 16) | (uval & 0xFFFFu));
+                        local.usages[local.usage_count++] = fu;
+                    }
+                    break;
+                case 0x1u:
+                    local.usage_min = (bSize == 4u) ? uval : (((uint32_t)global.usage_page << 16) | (uval & 0xFFFFu));
+                    local.has_range = true;
+                    break;
+                case 0x2u:
+                    local.usage_max = (bSize == 4u) ? uval : (((uint32_t)global.usage_page << 16) | (uval & 0xFFFFu));
+                    local.has_range = true;
+                    break;
+                default: break;
+            }
+        } else if (bType == 0u) {
+            if (bTag == 0xAu) {
+                uint8_t ctype = (uint8_t)(uval & 0xFFu);
+                if (coll_depth < HID_MAX_COLL_DEPTH) {
+                    app_kind_stack[coll_depth] = cur_app_kind;
+                }
+                if (ctype == 0x01u) {
+                    uint32_t app_u = resolve_usage(&local, global.usage_page, 0u);
+                    uint16_t ap = (uint16_t)(app_u >> 16);
+                    uint16_t au = (uint16_t)(app_u & 0xFFFFu);
+                    cur_app_kind = (ap == UPAGE_GENERIC_DESKTOP && (au == USAGE_GD_MOUSE || au == USAGE_GD_POINTER)) ? 1u : 0u;
+                }
+                coll_depth++;
+            } else if (bTag == 0xCu) {
+                if (coll_depth > 0u) {
+                    coll_depth--;
+                    if (coll_depth < HID_MAX_COLL_DEPTH) {
+                        cur_app_kind = app_kind_stack[coll_depth];
+                    }
+                }
+            } else if (bTag == 0x8u) {
+                uint8_t flags = (uint8_t)(uval & 0xFFu);
+                bool is_const = (flags & 0x01u) != 0u;
+                bool is_var   = (flags & 0x02u) != 0u;
+                bool is_rel   = (flags & 0x04u) != 0u;
+                uint16_t *bit_off_ptr = get_rid_bit_offset(rid_offsets, &rid_count,
+                                                           global.has_report_id ? global.report_id : 0u);
+                if (bit_off_ptr && global.report_size <= 32u && global.report_count <= 64u) {
+                    uint32_t cur_bit = *bit_off_ptr;
+                    if (!is_const && is_var && cur_app_kind == 1u) {
+                        for (uint32_t i = 0u; i < global.report_count; ++i) {
+                            uint32_t fu = resolve_usage(&local, global.usage_page, i);
+                            uint16_t page = (uint16_t)(fu >> 16);
+                            uint16_t uid = (uint16_t)(fu & 0xFFFFu);
+                            uint32_t fbit = cur_bit + i * global.report_size;
+                            if (fbit >= 4096u) continue;
+
+                            bool match_field =
+                                (!is_rel && page == UPAGE_BUTTON && uid >= 1u && uid <= 5u && global.report_size == 1u) ||
+                                (is_rel && page == UPAGE_GENERIC_DESKTOP && (uid == USAGE_GD_X || uid == USAGE_GD_Y) &&
+                                 global.report_size >= 4u && global.report_size <= 32u);
+                            if (!match_field) continue;
+
+                            if (!cand_active) {
+                                cand_active = true;
+                                cand_has_rid = global.has_report_id;
+                                cand_rid = global.report_id;
+                            } else if (cand_has_rid != global.has_report_id || cand_rid != global.report_id) {
+                                if (have_x && have_y) continue;
+                                cand_has_rid = global.has_report_id;
+                                cand_rid = global.report_id;
+                                have_btn = false; have_x = false; have_y = false;
+                            }
+
+                            if (!is_rel && page == UPAGE_BUTTON) {
+                                if (!have_btn && uid == 1u) {
+                                    have_btn = true;
+                                    btn_bit = (uint16_t)fbit;
+                                    btn_bits = 1u;
+                                } else if (have_btn && fbit == (uint32_t)(btn_bit + btn_bits) && btn_bits < 5u) {
+                                    btn_bits++;
+                                }
+                            } else if (is_rel && uid == USAGE_GD_X && !have_x) {
+                                have_x = true;
+                                x_bit = (uint16_t)fbit;
+                                x_size = (uint8_t)global.report_size;
+                            } else if (is_rel && uid == USAGE_GD_Y && !have_y) {
+                                have_y = true;
+                                y_bit = (uint16_t)fbit;
+                                y_size = (uint8_t)global.report_size;
+                            }
+                        }
+                    }
+                    uint32_t total_bits = global.report_size * global.report_count;
+                    if (cur_bit + total_bits < 65535u) {
+                        *bit_off_ptr = (uint16_t)(cur_bit + total_bits);
+                    }
+                }
+            }
+            memset(&local, 0, sizeof(local));
+        }
+    }
+
+    if (!cand_active || !have_x || !have_y) return false;
+    out->valid = true;
+    out->has_report_id = cand_has_rid;
+    out->report_id = cand_rid;
+    out->has_btn = have_btn;
+    out->btn_bit = btn_bit;
+    out->btn_bits = btn_bits;
+    out->x_bit = x_bit;
+    out->x_size = x_size;
+    out->y_bit = y_bit;
+    out->y_size = y_size;
+    uint16_t max_end = (uint16_t)(x_bit + x_size);
+    if ((uint16_t)(y_bit + y_size) > max_end) max_end = (uint16_t)(y_bit + y_size);
+    if (have_btn && (uint16_t)(btn_bit + btn_bits) > max_end) max_end = (uint16_t)(btn_bit + btn_bits);
+    out->min_report_bytes = (uint16_t)(((max_end + 7u) / 8u) + (cand_has_rid ? 1u : 0u));
+    return true;
+}
+
+bool hid_mouse_decode_report(const hid_mouse_layout_t *layout, const uint8_t *report, size_t len,
+                             hid_mouse_sample_t *out)
+{
+    if (!layout || !layout->valid || !report || !out) return false;
+    if (len < layout->min_report_bytes) return false;
+
+    const uint8_t *payload = report;
+    size_t plen = len;
+    if (layout->has_report_id) {
+        if (report[0] != layout->report_id) return false;
+        payload = report + 1u;
+        plen = len - 1u;
+    }
+
+    int32_t rx = 0, ry = 0, btns = 0;
+    if (!extract_bits(payload, plen, layout->x_bit, layout->x_size, true, &rx)) return false;
+    if (!extract_bits(payload, plen, layout->y_bit, layout->y_size, true, &ry)) return false;
+    if (layout->has_btn) {
+        (void)extract_bits(payload, plen, layout->btn_bit, layout->btn_bits, false, &btns);
+    }
+
+    if (rx < -32767) rx = -32767;
+    if (rx > 32767) rx = 32767;
+    if (ry < -32767) ry = -32767;
+    if (ry > 32767) ry = 32767;
+
+    out->buttons = (uint8_t)(btns & 0xFFu);
+    out->dx = (int16_t)rx;
+    out->dy = (int16_t)ry;
+    return true;
+}

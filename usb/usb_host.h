@@ -11,7 +11,7 @@ bool usb_host_high_speed(void);
 usb_result_t usb_host_reset_port(bool *low_speed);
 usb_result_t usb_control(usb_keyboard_device_t *dev,uint8_t type,uint8_t request,uint16_t value,uint16_t index,void *data,uint16_t length,uint16_t *actual);
 usb_result_t usb_interrupt_in(usb_keyboard_device_t *dev,uint8_t pid,void *data,uint16_t *actual);
-#define USB_MAX_TOUCH_CANDIDATES 4u
+#define USB_MAX_TOUCH_CANDIDATES 6u
 typedef struct {
     usb_keyboard_device_t dev;
     uint16_t report_desc_len;

@@ -99,8 +99,8 @@ usb_result_t usb_parse_hid_touch_candidates(const uint8_t *b,size_t n,bool low,
                 out[(*count_out)++]=cur;
             }
             in_cand=false;have_ep=false;rdesc_len=0u;
-            /* Generic HID interface (class=3, alt=0, protocol=0 or non-boot pointer). */
-            if(d[3]==0u && d[5]==3u && (d[7]==0u || (d[6]==0u && d[7]==2u))){
+            /* Any non-keyboard HID interface (proto=0 generic/combo or proto=2 mouse/pointer). */
+            if(d[3]==0u && d[5]==3u && d[7]!=1u){
                 in_cand=true;
                 iface=d[2];declared=d[4];seen=0u;
                 cur=(usb_hid_touch_candidate_t){0};
@@ -116,9 +116,10 @@ usb_result_t usb_parse_hid_touch_candidates(const uint8_t *b,size_t n,bool low,
             ++seen;
             uint16_t m=u16(d+4);
             if(!have_ep && (d[2]&0x80u) && (d[3]&3u)==3u){
-                if(!(d[2]&0x70u) && (d[2]&15u) && d[6] && m>=4u && m<=64u && (!low || m<=8u)){
+                uint16_t eff_m=(!low && m>64u)?64u:m;
+                if(!(d[2]&0x70u) && (d[2]&15u) && d[6] && eff_m>=3u && eff_m<=64u && (!low || eff_m<=8u)){
                     cur.dev.endpoint=d[2]&15u;
-                    cur.dev.packet_size=m;
+                    cur.dev.packet_size=eff_m;
                     cur.dev.interval=d[6];
                     have_ep=true;
                 }

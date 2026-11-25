@@ -44,8 +44,32 @@ typedef struct {
     int32_t raw_y;
 } hid_touch_sample_t;
 
+typedef struct {
+    bool valid;
+    bool has_report_id;
+    uint8_t report_id;
+    bool has_btn;
+    uint16_t btn_bit;
+    uint8_t btn_bits;
+    uint16_t x_bit;
+    uint8_t x_size;
+    uint16_t y_bit;
+    uint8_t y_size;
+    uint16_t min_report_bytes;
+} hid_mouse_layout_t;
+
+typedef struct {
+    uint8_t buttons;
+    int16_t dx;
+    int16_t dy;
+} hid_mouse_sample_t;
+
 bool hid_touch_parse_report_desc(const uint8_t *desc, size_t len, hid_touch_layout_t *out);
 bool hid_touch_decode_report(const hid_touch_layout_t *layout, const uint8_t *report, size_t len,
                              hid_touch_sample_t *out);
+
+bool hid_mouse_parse_report_desc(const uint8_t *desc, size_t len, hid_mouse_layout_t *out);
+bool hid_mouse_decode_report(const hid_mouse_layout_t *layout, const uint8_t *report, size_t len,
+                             hid_mouse_sample_t *out);
 
 #endif

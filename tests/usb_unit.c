@@ -1,6 +1,7 @@
 /* Test-only: execute pure parser/queue paths on the actual ARM CPU port. */
 #include "usb_host.h"
 #include "hid_touch.h"
+#include "mouse_queue.h"
 #include "touch_queue.h"
 #include "bsp.h"
 #include "net_platform.h"
@@ -151,6 +152,63 @@ void usb_unit_test(void)
     (void)touch_poll(&qx,&qy,&qp,&qr);
     check(!qp && qr);
     usb_touch_reports=0;
+
+    /* 6. Wireless 2.4GHz Combo Receiver HID Report Descriptor (Report ID 1=Media, ID 2=12-bit packed Mouse) */
+    static const uint8_t rdesc_combo[]={
+        /* Report ID 1: Consumer Control (Media keys) */
+        0x05,0x0C, 0x09,0x01, 0xA1,0x01,
+        0x85,0x01,
+        0x19,0x00, 0x2A,0x3C,0x02, 0x15,0x00, 0x26,0x3C,0x02,
+        0x95,0x01, 0x75,0x10, 0x81,0x00,
+        0xC0,
+        /* Report ID 2: Generic Desktop Mouse (5 buttons + 3pad + 12-bit X + 12-bit Y + 8-bit Wheel) */
+        0x05,0x01, 0x09,0x02, 0xA1,0x01,
+        0x85,0x02,
+        0x09,0x01, 0xA1,0x00,
+        0x05,0x09, 0x19,0x01, 0x29,0x05, 0x15,0x00, 0x25,0x01,
+        0x95,0x05, 0x75,0x01, 0x81,0x02,
+        0x95,0x01, 0x75,0x03, 0x81,0x01,
+        0x05,0x01, 0x09,0x30, 0x09,0x31,
+        0x16,0x01,0xF8, 0x26,0xFF,0x07, /* -2047..2047 */
+        0x75,0x0C, 0x95,0x02, 0x81,0x06, /* 12-bit x 2, Data,Var,Rel */
+        0x09,0x38, 0x15,0x81, 0x25,0x7F, 0x75,0x08, 0x95,0x01, 0x81,0x06,
+        0xC0, 0xC0
+    };
+    check(!hid_touch_parse_report_desc(rdesc_combo,sizeof(rdesc_combo),&tl));
+    hid_mouse_layout_t ml;
+    check(hid_mouse_parse_report_desc(rdesc_combo,sizeof(rdesc_combo),&ml));
+    check(ml.valid && ml.has_report_id && ml.report_id==2 && ml.x_size==12 && ml.y_size==12 && ml.btn_bits==5);
+    hid_mouse_sample_t ms;
+    uint8_t pkt_media[3]={0x01, 0xE9,0x00}; /* Volume Up on Report ID 1 -> ignored by mouse decoder */
+    check(!hid_mouse_decode_report(&ml,pkt_media,sizeof(pkt_media),&ms));
+    /* Report ID=2, LeftBtn=1, X=+300 (0x12C), Y=-150 (0xF6A):
+     * packed 24 bits: low12=0x12C, high12=0xF6A -> bytes: 0x2C, 0xA1, 0xF6 */
+    uint8_t pkt_combo[6]={0x02, 0x01, 0x2C, 0xA1, 0xF6, 0x00};
+    check(hid_mouse_decode_report(&ml,pkt_combo,sizeof(pkt_combo),&ms));
+    check((ms.buttons&1u)==1u && ms.dx==300 && ms.dy==-150);
+
+    /* 7. Wired 16-bit Optical/Gaming Mouse (no Report ID) + fast-click edge preservation */
+    static const uint8_t rdesc_16b[]={
+        0x05,0x01, 0x09,0x02, 0xA1,0x01, 0x09,0x01, 0xA1,0x00,
+        0x05,0x09, 0x19,0x01, 0x29,0x05, 0x15,0x00, 0x25,0x01, 0x95,0x05, 0x75,0x01, 0x81,0x02,
+        0x95,0x01, 0x75,0x03, 0x81,0x01,
+        0x05,0x01, 0x09,0x30, 0x09,0x31, 0x16,0x00,0x80, 0x26,0xFF,0x7F,
+        0x75,0x10, 0x95,0x02, 0x81,0x06,
+        0xC0, 0xC0
+    };
+    check(hid_mouse_parse_report_desc(rdesc_16b,sizeof(rdesc_16b),&ml));
+    check(ml.valid && !ml.has_report_id && ml.x_size==16 && ml.y_size==16 && ml.min_report_bytes==5);
+    uint8_t pkt_16b[5]={0x01, 0xEC,0xFF, 0x28,0x00}; /* LeftBtn=1, X=-20, Y=+40 */
+    check(hid_mouse_decode_report(&ml,pkt_16b,sizeof(pkt_16b),&ms));
+    check(ms.buttons==1 && ms.dx==-20 && ms.dy==40);
+
+    mouse_reset();
+    int32_t mdx=0,mdy=0; bool mleft=false;
+    mouse_post(10,-5,1); /* Press */
+    mouse_post(2,3,0);   /* Release within same LVGL tick! */
+    check(mouse_poll(&mdx,&mdy,&mleft) && mleft && mdx==12 && mdy==-2);
+    check(mouse_poll(&mdx,&mdy,&mleft) && !mleft && mdx==0 && mdy==0);
+    usb_mouse_reports=0;
 
     usb_unit_pass=1;net_log("[TEST] USB parser/queue checks=%lu PASS\n",(unsigned long)usb_unit_checks);
 }
