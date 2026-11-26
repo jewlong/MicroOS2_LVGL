@@ -2,7 +2,11 @@
 /* Copyright (c) 2014-2021 Adobe, Google (Noto Sans TC / Source Han Sans).   */
 /* Licensed under the SIL Open Font License, Version 1.1 (vendor/fonts/OFL.txt). */
 #include "vgp_font_cjk.h"
+#if defined(__has_include) && __has_include("src/font/lv_font_fmt_txt.h")
 #include "src/font/lv_font_fmt_txt.h"
+#else
+#include "font/lv_font_fmt_txt.h"
+#endif
 
 static LV_ATTRIBUTE_LARGE_CONST const uint8_t vgp_font_zh_16_bitmap[] = {
     0x74,0xd3,0x4d,0x34,0xd3,0x4c,0x10,0x07,0x5d,0x00,0x10,0x5c,0x77,0x1d,0x87,0x61,

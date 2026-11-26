@@ -1,0 +1,62 @@
+
+以你目前這套系統的架構（**Raspberry Pi Zero W + µC/OS-II 即時系統 + LVGL 9.4 + ViewGP HMI + Wi-Fi + Modbus TCP/RTU**，見 [VIEWGP.md](file:///d:/Dropbox/Infosystem/MicroOS2LVGL_Proj/outputs/pi-zero-w-ucos2-wifi/VIEWGP.md)）來看，它有一個一般 Linux 樹莓派沒有的巨大優勢：**秒開機、低資源消耗，且透過 `initramfs` 唯讀開機不怕突然拔電弄壞記憶卡**。這非常適合作為 7×24 小時運作的**家電控制面板**或**居家防盜中控主機**。
+
+以下從**「可以怎麼運用（架構設計）」**與**「還需要補強哪些功能」**兩個面向為你規劃：
+
+---
+
+### 一、 可以怎麼運用？（兩種實戰定位）
+
+#### 1. 智慧家電／全屋環控「壁掛中控台」
+將 Pi Zero W 接上 7 吋或 10 吋 HDMI USB 觸控螢幕嵌在玄關或客廳牆面，自己當作 **HMI 主控面板（Master）**，透過家裡的 Wi-Fi（Modbus TCP）或預埋的雙絞線（RS-485 Modbus RTU，最多可接 16 台設備）整合周邊：
+* **用電與能源監控**：連接配電箱內的 Modbus 智慧電表或太陽能逆變器，用現有的 `gauge`（儀表）、`bar`（長條圖）與 `trend`（折線趨勢圖）即時顯示全屋總功率、電壓電流與過去幾小時的耗電曲線。
+* **空調／新風／熱泵控制**：利用 `arc`（旋鈕弧）或 `spinbox` 設定目標溫度、用 `dropdown` 切換「冷氣／除濕／送風／睡眠模式」、用 `switch` 控制全熱交換機或鐵捲門（鐵捲門可搭配現有的 `momentary` 安全寸動按鈕）。
+* **子節點擴充**：家裡各房間可用便宜的 ESP32（跑 Modbus TCP Slave）接繼電器與溫濕度計，統一由這台 Pi Zero W 集中輪詢與控制。
+
+#### 2. 居家防盜與環境安全監控主機
+結合現有的警報引擎（[vgp_model.h](file:///d:/Dropbox/Infosystem/MicroOS2LVGL_Proj/outputs/pi-zero-w-ucos2-wifi/vgp_model.h#L187-L216) 支援 32 個 Word 警報區 + 128 條門檻規則 + 128 筆事件池）：
+* **居家平面圖直覺監控**：用 `image` 載入家裡的平面配置圖作為底圖，在各門窗、陽台、廚房位置疊加 `indicator`（指示燈）或 `multistate`（多狀態標籤），哪扇窗戶沒關或哪個房間有人移動一目了然。
+* **防災整合（不只防盜）**：除了大門磁簧、紅外線人體感測（PIR），更建議接入**煙霧偵測、一氧化碳（CO）、瓦斯外洩、廚下漏水感測器**。一旦超標，畫面立刻彈出 `popup` 紅色警示並記錄發生時間，屋主排除狀況後可在 `alarm` 元件上按確認（ACK）。
+* **門口抓拍顯示（輕量影像結合）**：Pi Zero W 裸機不適合直接錄製 RTSP 高畫質串流，但因為系統**已內建 `tjpgd` JPEG 解碼器**，可搭配市售 IP Cam：當門口有人觸發感測器時，抓取一張門口的 JPEG 快照顯示在觸控螢幕上，做到「事件抓拍看門機」的效果。
+
+---
+
+### 二、 若要正式落地，還需要增加哪些功能？
+
+依照重要性與實務需求，建議依序補強以下 6 項功能：
+
+#### 1. 本機硬體 I/O 與聲光警報（降低周邊成本）
+* **板載 GPIO / I2C 本地驅動**：目前資料來源主要是 Modbus TCP/RTU（[vgp_model.h](file:///d:/Dropbox/Infosystem/MicroOS2LVGL_Proj/outputs/pi-zero-w-ucos2-wifi/vgp_model.h#L86-L89)）。若能把 Pi Zero 自身的 40-pin GPIO 映射成內部變數（DI 接門磁／緊急押扣、DO 接繼電器、I2C 接溫濕度感測器），單做一台獨立電器（如除濕機、恆溫箱、簡易防盜器）就不必外掛 Modbus I/O 模組。
+* **本機蜂鳴器／警報音效**：防盜或火災警報不能只靠螢幕閃紅燈，必須支援 GPIO 有源蜂鳴器或 PWM 音頻，區分「按鍵音」、「門未關提示音（嘟嘟聲）」與「入侵／火災高分貝警報音」。
+
+#### 2. 防盜與家電專屬的「業務邏輯層」
+* **佈防／撤防狀態機與進出延遲（Entry/Exit Delay）**：
+  * 模式切換：**外出佈防**（全防區啟動）、**在家／睡眠佈防**（僅啟動門窗外圍，關閉客廳臥室 PIR 避免半夜起床誤報）、**撤防模式**（僅保留火災／瓦斯／漏水等 24 小時防災區）。
+  * 延遲倒數：按下「外出佈防」後給 30 秒開門離開；回家開門後給 30 秒緩衝輸入密碼，逾時未撤防才觸發大警鈴。
+* **PIN 碼密碼鎖權限保護**：在畫面上支援彈出式數字密碼盤（Keypad），撤防、開鐵捲門或修改重要家電參數前必須輸入密碼，防止外人或孩童誤觸。
+* **時間排程與本地連動規則（Schedule & Interlock）**：
+  * 結合現有的 SNTP 對時（[bootcfg.h](file:///d:/Dropbox/Infosystem/MicroOS2LVGL_Proj/outputs/pi-zero-w-ucos2-wifi/bootcfg.h#L32-L35)），加入定時排程（例如：每天 `23:00` 自動開啟夜間佈防、早上 `06:30` 預熱熱水器）。
+  * 本地自動連動（不依賴雲端斷網也能動）：例如「瓦斯濃度 > 門檻 → 自動寫入 Modbus 關閉瓦斯遮斷閥 + 開啟排風扇」。
+
+#### 3. 斷電狀態記憶與 7×24 穩定性（關鍵可靠度）
+* **非揮發性狀態保存（NV Storage）**：目前透過 `initramfs` 載入，停電重開後變數會回到初始值。防盜系統若跳電重啟後變成「未佈防」會有安全漏洞；家電重啟後忘記設定溫度也很困擾。建議加上 **外接 I2C FRAM/EEPROM**（或小分區寫回 SD 卡），即時保存「目前佈防狀態、家電設定值、最近 N 筆警報紀錄」。
+* **硬體看門狗（BCM2835 Hardware Watchdog）**：家用防盜與電器長開數個月不關機，需啟用晶片內建 Watchdog，確保任何極端干擾下系統卡死能於數秒內自動重啟恢復。
+* **UPS 不斷電狀態偵測**：防盜主機通常會配小鋰電池／UPS，可留一個 DI 或電壓腳位偵測「市電斷電（可能遭剪線）」，立即發出市電異常警報。
+
+#### 4. 主動推播通知與手機連動（網路層擴充）
+* **主動警報推播（MQTT / Webhook）**：目前的 [http_ops.c](file:///d:/Dropbox/Infosystem/MicroOS2LVGL_Proj/outputs/pi-zero-w-ucos2-wifi/net/http_ops.c) 是被動等客戶端來讀取（`GET /api/status`、`GET /api/alarms`）。防盜觸發時屋主通常不在螢幕前，建議在 lwIP 上加一個輕量的 **MQTT Client** 或 **HTTP Webhook POST**：
+  * 對內：可直接接入 **Home Assistant** 或 Node-RED，瞬間打通 Apple HomeKit / Google Home 與手機 App。
+  * 對外：透過區域網路閘道或輕量 TLS（如 mbedTLS）發送 Telegram / LINE / Pushover 手機推播。
+* **雙向控制 REST API**：在 [http_ops.c](file:///d:/Dropbox/Infosystem/MicroOS2LVGL_Proj/outputs/pi-zero-w-ucos2-wifi/net/http_ops.c) 新增受 Token 保護的變數控制端點（例如 `POST /api/variables` 與 `POST /api/alarms/ack`），讓手機在連上家裡 Wi-Fi（或 VPN）時也能直接開關冷氣或遠端撤防。
+
+#### 5. 家用體驗：螢幕休眠與警報自動喚醒
+* 放在家裡的螢幕如果 24 小時全亮會刺眼且耗電發熱。建議加入**待機休眠機制**：閒置 3 分鐘無觸控時關閉螢幕背光（或切換成全黑底暗字時鐘畫面）；一旦**手指觸控螢幕**或**有任何警報觸發**，立即自動點亮螢幕並跳轉至警報畫面。
+
+---
+
+### 三、 建議的第一步切入方式
+
+如果你想先用現有程式碼快速做出第一個原型（Prototype），不需要馬上大改底層：
+1. **硬體搭配**：Pi Zero W + HDMI 觸控螢幕 + 一塊市售 **Wi-Fi (ESP32) 或 RS-485 的 8 路 DI/DO 繼電器模組**（接幾顆磁簧開關、PIR 感測器、蜂鳴器與電燈繼電器）。
+2. **畫面設計**：直接用 `InfoSys_ViewGP_Web` 畫出「客廳／玄關家電開關頁」與「居家防盜平面圖 + 警報清單頁」，透過現有的 OTA 熱重載推送上板測試。
+3. **軟體優先擴充**：先補上 **「螢幕休眠喚醒」**、**「MQTT / HTTP 控制與主動通知」** 與 **「密碼鎖／佈防延遲邏輯」**，就能成為一套非常實用的家用中控與安防系統。

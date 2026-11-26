@@ -19,7 +19,7 @@ void sys_clock_init(int8_t tz_offset_hours);
 void sys_clock_set_tz_offset(int8_t tz_offset_hours);
 int8_t sys_clock_get_tz_offset(void);
 
-/* Called from lwIP SNTP (tcpip_thread) when a valid UTC timestamp arrives. */
+/* Called from SNTP callback when a valid UTC timestamp arrives. */
 void sys_clock_set_utc(uint32_t utc_sec);
 bool sys_clock_is_synced(void);
 

@@ -1,0 +1,21 @@
+idf_component_register(
+    SRCS
+        "app_main.c"
+        "vgp_plat_esp32p4.c"
+        "esp_vgp_modbus.c"
+        "esp_http_ops.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        vgp_core
+        lvgl
+        esp_timer
+        esp_http_server
+        esp_netif
+        esp_event
+        esp_lcd
+        nvs_flash
+        spiffs
+        driver
+        lwip
+)

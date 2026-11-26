@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "vgp_trend.h"
+#include "vgp_platform.h"
 #include <string.h>
 
 typedef struct {
@@ -15,7 +16,7 @@ typedef struct {
 } vgp_trend_buf_t;
 
 static vgp_project_t *g_proj = NULL;
-static vgp_trend_buf_t g_trends[VGP_MAX_TRENDS];
+static VGP_BSS_ATTR vgp_trend_buf_t g_trends[VGP_MAX_TRENDS];
 static uint16_t g_num_trends = 0u;
 
 static int32_t find_var_idx(const vgp_project_t *proj, const char *id)

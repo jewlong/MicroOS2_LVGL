@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "vgp_alarm.h"
+#include "vgp_platform.h"
 #include "sys_clock.h"
 #include <string.h>
 
 static vgp_project_t *g_proj = NULL;
-static vgp_alarm_event_t g_events[VGP_MAX_ALARM_EVENTS];
+static VGP_BSS_ATTR vgp_alarm_event_t g_events[VGP_MAX_ALARM_EVENTS];
 static uint32_t g_generation = 0u;
 
 static const vgp_variable_t *find_var(const char *id)

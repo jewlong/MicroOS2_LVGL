@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "sys_clock.h"
-#include <ucos_ii.h>
+#include "vgp_platform.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -10,11 +10,11 @@
 static volatile int8_t g_tz_offset_hours = 8;
 static volatile bool g_synced = false;
 static volatile uint32_t g_sync_utc = SYS_CLOCK_FALLBACK_UTC;
-static volatile uint32_t g_sync_tick = 0u;
+static volatile uint32_t g_sync_uptime_sec = 0u;
 
 void sys_clock_init(int8_t tz_offset_hours)
 {
-    OS_CPU_SR cpu_sr = OS_CPU_SR_Save();
+    uint32_t sr = vgp_plat_enter_critical();
     if (tz_offset_hours >= -12 && tz_offset_hours <= 14) {
         g_tz_offset_hours = tz_offset_hours;
     } else {
@@ -22,8 +22,8 @@ void sys_clock_init(int8_t tz_offset_hours)
     }
     g_synced = false;
     g_sync_utc = SYS_CLOCK_FALLBACK_UTC;
-    g_sync_tick = 0u;
-    OS_CPU_SR_Restore(cpu_sr);
+    g_sync_uptime_sec = 0u;
+    vgp_plat_exit_critical(sr);
 }
 
 void sys_clock_set_tz_offset(int8_t tz_offset_hours)
@@ -31,9 +31,9 @@ void sys_clock_set_tz_offset(int8_t tz_offset_hours)
     if (tz_offset_hours < -12 || tz_offset_hours > 14) {
         return;
     }
-    OS_CPU_SR cpu_sr = OS_CPU_SR_Save();
+    uint32_t sr = vgp_plat_enter_critical();
     g_tz_offset_hours = tz_offset_hours;
-    OS_CPU_SR_Restore(cpu_sr);
+    vgp_plat_exit_critical(sr);
 }
 
 int8_t sys_clock_get_tz_offset(void)
@@ -47,12 +47,12 @@ void sys_clock_set_utc(uint32_t utc_sec)
         /* Reject pre-2020 bogus timestamps. */
         return;
     }
-    uint32_t now_tick = (uint32_t)OSTimeGet();
-    OS_CPU_SR cpu_sr = OS_CPU_SR_Save();
+    uint32_t now_sec = vgp_plat_uptime_sec();
+    uint32_t sr = vgp_plat_enter_critical();
     g_sync_utc = utc_sec;
-    g_sync_tick = now_tick;
+    g_sync_uptime_sec = now_sec;
     g_synced = true;
-    OS_CPU_SR_Restore(cpu_sr);
+    vgp_plat_exit_critical(sr);
 }
 
 bool sys_clock_is_synced(void)
@@ -62,13 +62,13 @@ bool sys_clock_is_synced(void)
 
 uint32_t sys_clock_now_utc(void)
 {
-    uint32_t now_tick = (uint32_t)OSTimeGet();
-    OS_CPU_SR cpu_sr = OS_CPU_SR_Save();
+    uint32_t now_sec = vgp_plat_uptime_sec();
+    uint32_t sr = vgp_plat_enter_critical();
     uint32_t base_utc = g_sync_utc;
-    uint32_t base_tick = g_sync_tick;
-    OS_CPU_SR_Restore(cpu_sr);
+    uint32_t base_sec = g_sync_uptime_sec;
+    vgp_plat_exit_critical(sr);
 
-    uint32_t elapsed_sec = (uint32_t)(now_tick - base_tick) / (uint32_t)OS_TICKS_PER_SEC;
+    uint32_t elapsed_sec = (uint32_t)(now_sec - base_sec);
     return base_utc + elapsed_sec;
 }
 

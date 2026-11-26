@@ -1137,4 +1137,3 @@ bool vgp_parse_project(const char *json, size_t len, vgp_project_t *proj)
 {
     return vgp_parse_project_ex(json, len, proj, NULL);
 }
-

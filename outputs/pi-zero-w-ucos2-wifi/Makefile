@@ -15,12 +15,12 @@ CFLAGS := $(CPU) -std=c11 -O2 -g3 -ffreestanding -fno-builtin \
     -fno-stack-protector -fno-pic -fno-pie -fno-unwind-tables \
     -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections \
     -Wall -Wextra -Werror -Wstrict-prototypes -Wmissing-prototypes \
-    -Wa,--noexecstack -MMD -MP -I. -Iusb -Iport -Ivendor/ucos2/Source -Ivendor/lvgl -DLV_CONF_INCLUDE_SIMPLE -DLV_DISABLE_API_MAPPING
+    -Wa,--noexecstack -MMD -MP -I. -I../../vgp_core -Iusb -Iport -Ivendor/ucos2/Source -Ivendor/lvgl -DLV_CONF_INCLUDE_SIMPLE -DLV_DISABLE_API_MAPPING
 ASFLAGS := $(CPU) -g3 -x assembler-with-cpp -Wa,--noexecstack -MMD -MP
 LDFLAGS := $(CPU) -nostdlib -nostartfiles -static \
     -Wl,-T,linker.ld,--gc-sections,--build-id=none,--fatal-warnings,-z,noexecstack,-Map,build/kernel.map
 OBJECTS := build/startup.o build/os_cpu_a.o build/os_cpu_c.o \
-    build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o build/bootcfg.o build/sys_clock.o build/vgp_parser.o build/vgp_alarm.o build/vgp_image.o build/vgp_trend.o build/modbus_codec.o build/modbus_tcp.o build/modbus_rtu.o build/vgp_modbus.o build/vgp_runtime.o build/vgp_font_cjk.o \
+    build/main.o build/uart.o build/bsp.o build/mailbox.o build/framebuffer.o build/gui.o build/runtime.o build/bootcfg.o build/sys_clock.o build/vgp_plat_pizero.o build/vgp_parser.o build/vgp_alarm.o build/vgp_image.o build/vgp_trend.o build/modbus_codec.o build/modbus_tcp.o build/modbus_rtu.o build/vgp_modbus.o build/vgp_runtime.o build/vgp_font_cjk.o \
     build/os_core.o build/os_task.o build/os_time.o build/os_sem.o \
     build/os_mutex.o build/os_q.o build/dwc2.o build/descriptors.o \
     build/hid_keyboard.o build/hid_touch.o build/key_queue.o build/mouse_queue.o build/touch_queue.o build/usb_keyboard.o
@@ -61,7 +61,7 @@ OBJECTS += $(addprefix build/lwip_,$(notdir $(LWIP_SOURCES:.c=.o))) \
     $(addprefix build/radio_,$(notdir $(WHD_SOURCES:.c=.o))) \
     build/net_runtime.o build/sys_arch.o build/whd_rtos.o build/sdio.o \
     build/whd_resources.o build/whd_buffers.o build/network.o build/http_ops.o build/resources.o
-vpath %.c usb net $(sort $(dir $(LWIP_SOURCES) $(WHD_SOURCES)))
+vpath %.c ../../vgp_core usb net $(sort $(dir $(LWIP_SOURCES) $(WHD_SOURCES)))
 build/lwip_%.o: %.c Makefile | build
 	"$(CC)" $(filter-out -Wmissing-prototypes,$(CFLAGS)) -c $< -o $@
 build/radio_%.o: %.c Makefile | build

@@ -1,26 +1,16 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "vgp_runtime.h"
+#include "vgp_platform.h"
 #include "vgp_parser.h"
 #include "vgp_alarm.h"
 #include "vgp_modbus.h"
 #include "vgp_image.h"
 #include "vgp_trend.h"
 #include "sys_clock.h"
-#include "net_platform.h"
-#include "bootcfg.h"
-#include <ucos_ii.h>
+#include "vgp_font_cjk.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "keyboard.h"
-#include "mouse_queue.h"
-#include "touch_queue.h"
-#include "vgp_font_cjk.h"
-#include "platform.h"
-#include "uart.h"
-
-extern char gui_usb_text[64];
-extern volatile uint32_t gui_heap_free;
 
 static double parse_double(const char *s)
 {
@@ -45,8 +35,9 @@ static double parse_double(const char *s)
     }
     return sign * val;
 }
-static vgp_project_t g_proj;
-static vgp_project_t g_proj_staging;
+
+static VGP_BSS_ATTR vgp_project_t g_proj;
+static VGP_BSS_ATTR vgp_project_t g_proj_staging;
 static vgp_parse_report_t g_parse_report;
 static char g_last_ota_err[96];
 static lv_obj_t *g_diag_layer = NULL;
@@ -449,16 +440,12 @@ static void execute_action(vgp_element_t *el)
                 int32_t pop_idx = find_screen(el->target_screen_id);
                 snprintf(g_last_action_info, sizeof(g_last_action_info),
                          "popup '%s' -> idx=%ld", el->target_screen_id, (long)pop_idx);
-                uart_puts("[VGP] ");
-                uart_puts(g_last_action_info);
-                uart_puts("\n");
+                vgp_plat_log(g_last_action_info);
                 if (pop_idx >= 0) open_popup_screen(pop_idx);
             } else {
                 snprintf(g_last_action_info, sizeof(g_last_action_info),
                          "popup '%s': empty targetScreenId", el->name[0] ? el->name : el->id);
-                uart_puts("[VGP] ");
-                uart_puts(g_last_action_info);
-                uart_puts("\n");
+                vgp_plat_log(g_last_action_info);
             }
             break;
         case VGP_ACT_CLOSE_DIALOG:
@@ -1463,7 +1450,7 @@ bool vgp_runtime_init(const char *json, size_t json_len, uint32_t screen_w, uint
     lv_obj_set_pos(g_status_label, 10, 3);
     lv_obj_set_style_text_font(g_status_label, &lv_font_montserrat_14, 0);
     lv_obj_set_style_text_color(g_status_label, lv_color_hex(0x38bdf8), 0);
-    lv_label_set_text(g_status_label, "Wi-Fi: starting...");
+    lv_label_set_text(g_status_label, "Network: starting...");
 
     /* Create alarm ticker bar if enabled in project.json */
     if (g_proj.alarm_ticker.enabled) {
@@ -1578,7 +1565,7 @@ void vgp_runtime_update(void)
     if (!g_active) return;
     g_sec_counter++;
 
-    uint32_t now_ms = (uint32_t)OSTimeGet() * (1000u / (uint32_t)OS_TICKS_PER_SEC);
+    uint32_t now_ms = vgp_plat_now_ms();
     vgp_trend_tick(now_ms);
     vgp_alarm_evaluate(now_ms);
     update_alarm_ticker(now_ms);
@@ -1586,56 +1573,15 @@ void vgp_runtime_update(void)
     bool alarm_dirty = (alarm_gen != g_last_alarm_gen);
 
     if (g_status_label) {
-        char wifi_str[128];
-        network_snapshot(wifi_str, sizeof(wifi_str));
-        const bootcfg_status_t cfg = bootcfg_status();
-        const char *cfg_short = (cfg == BOOTCFG_OK) ? "wifi.txt OK" : bootcfg_status_text(cfg);
         char mb_str[64];
         vgp_modbus_status_summary(mb_str, sizeof(mb_str));
-        const char *ntp_str = sys_clock_is_synced() ? " [NTP]" : "";
-
-        char usb_str[80];
-        if (usb_state == 4u) {
-            if (usb_mouse_connected) {
-                snprintf(usb_str, sizeof(usb_str), "USB:OK(%04lx:%04lx M:%lu k:%lu)",
-                    (unsigned long)(usb_vid_pid >> 16), (unsigned long)(usb_vid_pid & 0xffffu),
-                    (unsigned long)usb_mouse_reports, (unsigned long)usb_key_presses);
-            } else {
-                snprintf(usb_str, sizeof(usb_str), "USB:OK(%04lx:%04lx k:%lu \"%s\")",
-                    (unsigned long)(usb_vid_pid >> 16), (unsigned long)(usb_vid_pid & 0xffffu),
-                    (unsigned long)usb_key_presses, gui_usb_text);
-            }
-        } else if (usb_state == 2u) {
-            snprintf(usb_str, sizeof(usb_str), "USB:wait(HPRT:%04lx)",
-                (unsigned long)(usb_diag_hprt() & 0xffffu));
-        } else if (usb_state == 3u) {
-            snprintf(usb_str, sizeof(usb_str), "USB:enum(st:%lu)", (unsigned long)usb_step);
-        } else if (usb_state == 254u) {
-            snprintf(usb_str, sizeof(usb_str), "USB:err(%lu,st:%lu,v:%lx,id:%04lx:%04lx)",
-                (unsigned long)usb_error, (unsigned long)usb_step, (unsigned long)usb_init_val,
-                (unsigned long)(usb_vid_pid >> 16), (unsigned long)(usb_vid_pid & 0xffffu));
-        } else {
-            snprintf(usb_str, sizeof(usb_str), "USB:off(e:%lu,v:%08lx)",
-                (unsigned long)usb_init_err, (unsigned long)usb_init_val);
-        }
-
         char full_status[256];
-        snprintf(full_status, sizeof(full_status), "[%s]%s%s%s [%s] [CFG: %s] %s | RX:%lu TX:%lu",
-            soc_is_bcm2837 ? "Zero2W" : "ZeroW",
-            ntp_str,
-            mb_str[0] ? " [" : "", mb_str[0] ? mb_str : "",
-            usb_str, cfg_short, wifi_str, (unsigned long)net_rx_frames, (unsigned long)net_tx_frames);
-        if (mb_str[0]) {
-            snprintf(full_status, sizeof(full_status), "[%s]%s [%s] [%s] [CFG: %s] %s | RX:%lu TX:%lu",
-                soc_is_bcm2837 ? "Zero2W" : "ZeroW",
-                ntp_str, mb_str,
-                usb_str, cfg_short, wifi_str, (unsigned long)net_rx_frames, (unsigned long)net_tx_frames);
-        }
+        uint32_t color = 0x38bdf8u;
+        vgp_plat_format_status_bar(mb_str, sys_clock_is_synced(),
+                                   full_status, sizeof(full_status), &color);
         set_label_if_changed(g_status_label, full_status);
 
         static uint32_t last_status_color = 0;
-        uint32_t color = (net_stage == 6u) ? 0x4ade80u :
-                         (net_stage == 0xffu || net_error != 0u) ? 0xf87171u : 0x38bdf8u;
         if (color != last_status_color) {
             last_status_color = color;
             lv_obj_set_style_text_color(g_status_label, lv_color_hex(color), 0);
@@ -1923,37 +1869,37 @@ void vgp_runtime_update(void)
 static void update_diag_overlay(void)
 {
     if (!g_diag_layer || !g_diag_label) return;
-    static char dtxt[1536];
+    static VGP_BSS_ATTR char dtxt[1536];
     sys_datetime_t dt;
     sys_clock_now_local_dt(&dt);
     char dt_buf[32];
     sys_clock_format("YYYY/MM/DD HH:mm:ss", &dt, dt_buf, sizeof(dt_buf));
-    uint32_t up = (uint32_t)OSTimeGet() / (uint32_t)OS_TICKS_PER_SEC;
 
-    char usb_detail[160];
-    usb_diag_line(usb_detail, sizeof(usb_detail));
+    vgp_plat_status_t pst;
+    vgp_plat_get_status(&pst, true);
 
     int pos = snprintf(dtxt, sizeof(dtxt),
-        "=== Pi Zero 本機診斷頁 (按 F12 或 Esc 關閉) ===\n"
+        "=== %s 本機診斷頁 (按 F12 或 Esc 關閉) ===\n"
         "平台: %s | 運行: %lu s | 時間: %s (%s)\n"
         "LVGL 剩餘記憶體: %lu bytes | 專案: %s (v%lu)\n"
         "畫面: %u | 元件: %u | 變數: %u | 設備: %u\n"
-        "USB 輸入: st=%lu | 鍵盤:%lu | 滑鼠:%s (%lu) | 觸控:%s (%lu)\n"
+        "輸入狀態: st=%lu | 鍵盤:%lu | 滑鼠:%s (%lu) | 觸控:%s (%lu)\n"
         "%s\n"
         "解析警告: %u 筆 | 最近 OTA: %s | 動作: %s\n",
-        soc_is_bcm2837 ? "Pi Zero 2 W" : "Pi Zero W",
-        (unsigned long)up, dt_buf, sys_clock_is_synced() ? "NTP已同步" : "未校時",
-        (unsigned long)gui_heap_free,
+        pst.platform_full ? pst.platform_full : "ViewGP",
+        pst.platform_full ? pst.platform_full : "Unknown",
+        (unsigned long)pst.uptime_sec, dt_buf, sys_clock_is_synced() ? "NTP已同步" : "未校時",
+        (unsigned long)pst.lvgl_heap_free,
         g_proj.name[0] ? g_proj.name : g_proj.id,
         (unsigned long)(g_parse_report.has_schema_version ? g_parse_report.schema_version : 1u),
         (unsigned)g_proj.num_screens, (unsigned)g_proj.total_elements,
         (unsigned)g_proj.num_variables, (unsigned)g_proj.num_devices,
-        (unsigned long)usb_state, (unsigned long)usb_key_presses,
-        usb_mouse_connected ? "已連線" : "未連線",
-        (unsigned long)usb_mouse_reports,
-        usb_touch_connected ? "已連線" : "未連線",
-        (unsigned long)usb_touch_reports,
-        usb_detail,
+        (unsigned long)pst.input_state, (unsigned long)pst.key_presses,
+        pst.mouse_connected ? "已連線" : "未連線",
+        (unsigned long)pst.mouse_reports,
+        pst.touch_connected ? "已連線" : "未連線",
+        (unsigned long)pst.touch_reports,
+        pst.input_detail,
         (unsigned)g_parse_report.total_warnings,
         g_last_ota_err[0] ? g_last_ota_err : "OK",
         g_last_action_info[0] ? g_last_action_info : "-");
@@ -2009,12 +1955,12 @@ void vgp_runtime_handle_key(uint32_t key)
 {
     if (!g_active) return;
 
-    if (key == KEY_F12) {
+    if (key == VGP_KEY_F12) {
         toggle_diag_overlay();
         return;
     }
 
-    if (key == KEY_ESC) {
+    if (key == VGP_KEY_ESC) {
         if (g_diag_layer) {
             toggle_diag_overlay();
             return;
@@ -2075,7 +2021,7 @@ void vgp_runtime_handle_key(uint32_t key)
                         }
                         vgp_runtime_update();
                     }
-                } else if (key == KEY_BACKSPACE) {
+                } else if (key == VGP_KEY_BACKSPACE) {
                     if (g_edit_el != el) {
                         g_edit_el = el;
                         format_num_val(g_edit_buf, sizeof(g_edit_buf), v->val_num, el);
@@ -2112,7 +2058,7 @@ void vgp_runtime_handle_key(uint32_t key)
                     g_edit_buf[len] = (char)key;
                     g_edit_buf[len + 1u] = '\0';
                     vgp_runtime_update();
-                } else if (key == KEY_BACKSPACE && len > 0u) {
+                } else if (key == VGP_KEY_BACKSPACE && len > 0u) {
                     g_edit_buf[len - 1u] = '\0';
                     vgp_runtime_update();
                 }
@@ -2287,7 +2233,9 @@ size_t vgp_runtime_format_status_json(char *out, size_t max_out)
 
     uint16_t active_ids[VGP_MAX_ALARM_EVENTS];
     uint16_t active_alarms = vgp_alarm_get_active_list(active_ids, VGP_MAX_ALARM_EVENTS);
-    uint32_t uptime = (uint32_t)OSTimeGet() / (uint32_t)OS_TICKS_PER_SEC;
+
+    vgp_plat_status_t pst;
+    vgp_plat_get_status(&pst, false);
 
     char hdr[320];
     snprintf(hdr, sizeof(hdr),
@@ -2295,17 +2243,17 @@ size_t vgp_runtime_format_status_json(char *out, size_t max_out)
              "\"lvglHeapFree\":%lu,\"activeAlarms\":%u,"
              "\"usb\":{\"state\":%lu,\"keys\":%lu,\"mouse\":%s,\"touch\":%s,\"touchReports\":%lu},"
              "\"project\":{\"id\":",
-             soc_is_bcm2837 ? "Zero2W" : "ZeroW",
-             (unsigned long)uptime,
+             pst.platform_short ? pst.platform_short : "Unknown",
+             (unsigned long)pst.uptime_sec,
              sys_clock_is_synced() ? "true" : "false",
              dt_buf,
-             (unsigned long)gui_heap_free,
+             (unsigned long)pst.lvgl_heap_free,
              (unsigned)active_alarms,
-             (unsigned long)usb_state,
-             (unsigned long)usb_key_presses,
-             usb_mouse_connected ? "true" : "false",
-             usb_touch_connected ? "true" : "false",
-             (unsigned long)usb_touch_reports);
+             (unsigned long)pst.input_state,
+             (unsigned long)pst.key_presses,
+             pst.mouse_connected ? "true" : "false",
+             pst.touch_connected ? "true" : "false",
+             (unsigned long)pst.touch_reports);
     json_append_raw(out, max_out, &pos, hdr);
     json_append_str(out, max_out, &pos, g_proj.id);
     json_append_raw(out, max_out, &pos, ",\"name\":");
@@ -2397,4 +2345,3 @@ size_t vgp_runtime_format_alarms_json(char *out, size_t max_out)
     json_append_raw(out, max_out, &pos, "]}");
     return pos;
 }
-

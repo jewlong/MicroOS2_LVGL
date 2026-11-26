@@ -1,0 +1,6 @@
+dependencies:
+  idf: ">=5.3.0"
+  lvgl/lvgl: "~9.4.0"
+  # Uncomment when enabling onboard ESP32-C6 SDIO Wi-Fi 6 companion chip:
+  # espressif/esp_hosted: "*"
+  # espressif/esp_wifi_remote: "*"

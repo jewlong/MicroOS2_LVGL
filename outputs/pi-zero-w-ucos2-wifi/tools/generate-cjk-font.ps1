@@ -1,7 +1,8 @@
 param([switch]$Force)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path -Parent $PSScriptRoot
-$outFile = Join-Path $project 'vgp_font_cjk.c'
+$coreDir = Join-Path (Split-Path -Parent (Split-Path -Parent $project)) 'vgp_core'
+$outFile = Join-Path $coreDir 'vgp_font_cjk.c'
 $jsonFile = Join-Path $project 'sdcard\project.json'
 
 if ((-not $Force) -and (Test-Path -LiteralPath $outFile)) {
@@ -437,7 +438,11 @@ $sb = New-Object System.Text.StringBuilder(4 * 1024 * 1024)
 [void]$sb.AppendLine("/* Copyright (c) 2014-2021 Adobe, Google (Noto Sans TC / Source Han Sans).   */")
 [void]$sb.AppendLine("/* Licensed under the SIL Open Font License, Version 1.1 (vendor/fonts/OFL.txt). */")
 [void]$sb.AppendLine('#include "vgp_font_cjk.h"')
+[void]$sb.AppendLine('#if defined(__has_include) && __has_include("src/font/lv_font_fmt_txt.h")')
 [void]$sb.AppendLine('#include "src/font/lv_font_fmt_txt.h"')
+[void]$sb.AppendLine('#else')
+[void]$sb.AppendLine('#include "font/lv_font_fmt_txt.h"')
+[void]$sb.AppendLine('#endif')
 [void]$sb.AppendLine()
 
 $usedFont = [LvglFontGenerator]::GenerateFontSection($sb, $fontFilePath, "vgp_font_zh_16", "&lv_font_source_han_sans_sc_16_cjk", 16, 20, 4, 2, $set16)

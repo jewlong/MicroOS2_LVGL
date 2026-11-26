@@ -1,7 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 #include "vgp_image.h"
+#include "vgp_platform.h"
+#if defined(__has_include) && __has_include("src/libs/tjpgd/tjpgd.h")
 #include "src/libs/tjpgd/tjpgd.h"
 #include "src/libs/lodepng/lodepng.h"
+#else
+#include "libs/tjpgd/tjpgd.h"
+#include "libs/lodepng/lodepng.h"
+#endif
 #include <string.h>
 
 #define VGP_IMG_MAX_PIXELS (640u * 480u)
@@ -16,9 +22,9 @@ typedef struct {
     uint8_t *pixels;
 } vgp_img_cache_entry_t;
 
-static vgp_img_cache_entry_t g_cache[VGP_IMG_MAX_CACHE];
+static VGP_BSS_ATTR vgp_img_cache_entry_t g_cache[VGP_IMG_MAX_CACHE];
 static uint16_t g_cache_count = 0u;
-static uint8_t g_tjpgd_work[4096];
+static VGP_BSS_ATTR uint8_t g_tjpgd_work[4096];
 
 static int b64_val(char c)
 {

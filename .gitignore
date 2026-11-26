@@ -1,8 +1,29 @@
-build/
-.venv/
-__pycache__/
-net/wifi_local.h
-wifi.txt
-sdcard/wifi.txt
-project.json
-sdcard/project.json
+# Root whitelist: only track shared vgp_core and active target outputs
+/*
+!/.gitignore
+!/README.md
+!/vgp_core/
+!/outputs/
+
+# Under outputs/, only track the active Pi Zero and ESP32-P4 projects
+/outputs/*
+!/outputs/pi-zero-w-ucos2-wifi/
+!/outputs/esp32-p4-freertos-hmi/
+
+# Ignore build artifacts, caches, and virtual environments
+**/build/
+**/managed_components/
+**/.venv/
+**/__pycache__/
+
+# ESP-IDF generated local config files (keep sdkconfig.defaults tracked)
+outputs/esp32-p4-freertos-hmi/sdkconfig
+outputs/esp32-p4-freertos-hmi/sdkconfig.old
+outputs/esp32-p4-freertos-hmi/dependencies.lock
+
+# Local Wi-Fi credentials & runtime test project files
+**/net/wifi_local.h
+**/wifi.txt
+**/sdcard/wifi.txt
+outputs/pi-zero-w-ucos2-wifi/project.json
+outputs/pi-zero-w-ucos2-wifi/sdcard/project.json

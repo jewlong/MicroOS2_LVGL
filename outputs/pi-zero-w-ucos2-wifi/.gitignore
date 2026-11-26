@@ -1,0 +1,8 @@
+build/
+.venv/
+__pycache__/
+net/wifi_local.h
+wifi.txt
+sdcard/wifi.txt
+project.json
+sdcard/project.json
